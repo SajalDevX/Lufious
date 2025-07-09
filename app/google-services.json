@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1088944303078",
+    "project_id": "plant-app-38466",
+    "storage_bucket": "plant-app-38466.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1088944303078:android:7b220c2e033cf65b6ac427",
+        "android_client_info": {
+          "package_name": "ai.lufious.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBLXg2OR8Vq7YK9mj7gExQGUbBKDZiQhIc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1088944303078:android:0a3ecb1a110851826ac427",
+        "android_client_info": {
+          "package_name": "ai.lufious.app.dev"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBLXg2OR8Vq7YK9mj7gExQGUbBKDZiQhIc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
