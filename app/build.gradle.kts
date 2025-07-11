@@ -137,6 +137,10 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+    //Material theme
+    implementation("androidx.compose.material:material:1.8.3")
+
+
     //Dagger Hilt
     implementation(libs.hilt.android)
     kapt         (libs.hilt.compiler)

@@ -1,4 +1,4 @@
-package ai.lufious.app.ui.theme
+package ai.lufious.app.core.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

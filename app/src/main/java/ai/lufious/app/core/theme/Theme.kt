@@ -1,6 +1,5 @@
-package ai.lufious.app.ui.theme
+package ai.lufious.app.core.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
