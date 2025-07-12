@@ -161,9 +161,11 @@ dependencies {
     //Serialization
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.retrofit2.kotlinx.serialization)
-
+    implementation("com.google.code.gson:gson:2.10.1")
     //Firebase
     implementation(platform("com.google.firebase:firebase-bom:33.16.0"))
     implementation("com.google.firebase:firebase-auth-ktx")
+
+
 
 }

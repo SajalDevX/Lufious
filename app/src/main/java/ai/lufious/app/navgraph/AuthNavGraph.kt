@@ -3,6 +3,9 @@ package ai.lufious.app.navgraph
 import ai.lufious.app.core.utils.AUTH_GRAPH
 import ai.lufious.app.core.utils.MAIN_GRAPH
 import ai.lufious.app.core.utils.Screen
+import ai.lufious.app.presentation.auth.login.ui.LoginPage
+import ai.lufious.app.presentation.auth.signup.ui.SignupPage
+import ai.lufious.app.presentation.onboarding.ui.OnBoardingPage
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
@@ -12,28 +15,37 @@ fun NavGraphBuilder.authNavGraph(
     navController: NavHostController
 ) {
     navigation(
-        startDestination = Screen.Login.route,
+        startDestination = Screen.Onboarding.route,
         route = AUTH_GRAPH
     ) {
-        composable(Screen.Login.route) {
-            LoginScreen(
-                onLoginSuccess = {
-                    navController.navigate(MAIN_GRAPH) {
-                        popUpTo(AUTH_GRAPH) { inclusive = true }
-                    }
-                },
-                onRegisterClick = {
-                    navController.navigate(Screen.Register.route)
-                }
+        composable(Screen.Onboarding.route) {
+            OnBoardingPage(
+//                onLogin = { navController.navigate(Screen.Login.route) },
+//                onSignup = { navController.navigate(Screen.Signup.route) }
             )
         }
-        composable(Screen.Register.route) {
-            RegisterScreen(
-                onRegisterSuccess = {
-                    navController.navigate(MAIN_GRAPH) {
-                        popUpTo(AUTH_GRAPH) { inclusive = true }
-                    }
-                }
+
+        composable(Screen.Login.route) {
+            LoginPage(
+//                onLoggedIn = {
+//                    navController.navigate(MAIN_GRAPH) {
+//                        popUpTo(AUTH_GRAPH) { inclusive = true }
+//                        launchSingleTop = true
+//                    }
+//                },
+//                onBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(Screen.Signup.route) {
+            SignupPage(
+//                onSignedUp = {
+//                    navController.navigate(MAIN_GRAPH) {
+//                        popUpTo(AUTH_GRAPH) { inclusive = true }
+//                        launchSingleTop = true
+//                    }
+//                },
+//                onBack = { navController.popBackStack() }
             )
         }
     }

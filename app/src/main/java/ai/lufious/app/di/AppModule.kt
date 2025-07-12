@@ -1,15 +1,21 @@
 package ai.lufious.app.di
 
 import ai.lufious.app.BuildConfig
+import ai.lufious.app.core.local_cache.LocalCacheManager
+import ai.lufious.app.core.local_cache.LocalCacheManagerImpl
+import ai.lufious.app.core.utils.DispatcherProvider
 import ai.lufious.app.presentation.auth.data.datasource.FirebaseAuthDataSource
 import ai.lufious.app.presentation.auth.data.repository.AuthRepository
 import ai.lufious.app.presentation.auth.data.repository.AuthRepositoryImpl
+import android.content.Context
 import com.google.firebase.auth.FirebaseAuth
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -45,20 +51,23 @@ object AppModule {
             .create(ApiRetrofit::class.java)
     }
 
-    @Provides @Singleton
+    @Provides
+    @Singleton
     fun provideFirebaseAuth(): FirebaseAuth = FirebaseAuth.getInstance()
 
-    @Provides @Singleton
+    @Provides
+    @Singleton
     fun provideAuthDataSource(auth: FirebaseAuth) =
         FirebaseAuthDataSource(auth)
 
-    @Provides @Singleton
+    @Provides
+    @Singleton
     fun provideAuthRepository(ds: FirebaseAuthDataSource): AuthRepository =
         AuthRepositoryImpl(ds)
 
     @Provides
-    fun provideSignupUseCase(repo: AuthRepository) = SignupUseCase(repo)
-
-    @Provides
-    fun provideLoginUseCase(repo: AuthRepository) = LoginUseCase(repo)
+    @Singleton
+    fun provideLocalCacheManager(
+        @ApplicationContext context: Context
+    ): LocalCacheManager = LocalCacheManagerImpl(context)
 }
