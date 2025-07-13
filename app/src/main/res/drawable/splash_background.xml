@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- white fill -->
+    <item android:drawable="@color/white" />
+
+    <!-- your logo, capped to a sensible DP size, centered -->
+    <item
+        android:drawable="@drawable/app_logo"
+        android:gravity="center"
+        android:width="@dimen/splash_logo_width"
+        android:height="@dimen/splash_logo_height" />
+</layer-list>

@@ -1,0 +1,5 @@
+<resources>
+    <!-- adjust this until it looks “just right” on your devices -->
+    <dimen name="splash_logo_height">320dp</dimen>
+    <dimen name="splash_logo_width">240dp</dimen>
+</resources>

@@ -18,12 +18,7 @@ fun NavGraphBuilder.authNavGraph(
         startDestination = Screen.Onboarding.route,
         route = AUTH_GRAPH
     ) {
-        composable(Screen.Onboarding.route) {
-            OnBoardingPage(
-//                onLogin = { navController.navigate(Screen.Login.route) },
-//                onSignup = { navController.navigate(Screen.Signup.route) }
-            )
-        }
+
 
         composable(Screen.Login.route) {
             LoginPage(
