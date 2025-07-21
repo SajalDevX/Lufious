@@ -12,7 +12,9 @@ import ai.lufious.app.presentation.auth.data.usecases.LoginWithFacebookUseCase
 import ai.lufious.app.presentation.auth.data.usecases.LoginWithGoogleUseCase
 import ai.lufious.app.presentation.auth.data.usecases.ValidateEmailUseCase
 import ai.lufious.app.presentation.auth.data.usecases.ValidatePasswordUseCase
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -27,6 +29,13 @@ class LoginViewModel @Inject constructor(
     initialState = LoginState(),
     dispatchers = dispatchers,
 ) {
+    fun onEvent(event: LoginEvent) {
+        viewModelScope.launch {
+            handleEvent(event)
+        }
+    }
+
+
     override suspend fun handleEvent(event: LoginEvent) {
         when (event) {
             is LoginEvent.EmailChanged -> {

@@ -1,9 +1,26 @@
 package ai.lufious.app.presentation.auth.login.ui
 
+import ai.lufious.app.core.utils.AUTH_GRAPH
+import ai.lufious.app.core.utils.MAIN_GRAPH
+import android.widget.Toast
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
+import androidx.navigation.NavController
 
 @Composable
-fun LoginPage(modifier: Modifier = Modifier) {
-
+fun LoginPage(
+    navController: NavController,
+    launchGoogleIntent: () -> Unit,
+    launchFacebookIntent: () -> Unit
+) {
+    LoginScreen(
+        navigateToHome = {
+            navController.navigate(MAIN_GRAPH) {
+                popUpTo(AUTH_GRAPH) { inclusive = true }
+                launchSingleTop = true
+            }
+        },
+        launchGoogleSignIn = launchGoogleIntent,
+        launchFacebookSignIn = launchFacebookIntent
+    )
 }
+

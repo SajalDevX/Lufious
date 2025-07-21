@@ -12,25 +12,22 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 
 fun NavGraphBuilder.authNavGraph(
-    navController: NavHostController
-) {
+    navController: NavHostController,
+    launchGoogleIntent: () -> Unit,
+    launchFacebookIntent: () -> Unit) {
     navigation(
         startDestination = Screen.Onboarding.route,
         route = AUTH_GRAPH
     ) {
 
-
         composable(Screen.Login.route) {
             LoginPage(
-//                onLoggedIn = {
-//                    navController.navigate(MAIN_GRAPH) {
-//                        popUpTo(AUTH_GRAPH) { inclusive = true }
-//                        launchSingleTop = true
-//                    }
-//                },
-//                onBack = { navController.popBackStack() }
+                navController = navController,
+                launchGoogleIntent = launchGoogleIntent,
+                launchFacebookIntent = launchFacebookIntent
             )
         }
+
 
         composable(Screen.Signup.route) {
             SignupPage(

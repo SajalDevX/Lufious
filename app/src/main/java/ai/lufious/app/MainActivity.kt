@@ -14,26 +14,47 @@ import androidx.navigation.compose.rememberNavController
 import ai.lufious.app.core.theme.LufiousTheme
 import ai.lufious.app.core.utils.UiEffect
 import ai.lufious.app.navgraph.AppNavHost
+import ai.lufious.app.presentation.auth.login.viewmodel.LoginEvent
+import ai.lufious.app.presentation.auth.login.viewmodel.LoginViewModel
+import ai.lufious.app.presentation.auth.utils.SocialAuthManager
 import ai.lufious.app.presentation.splash.viewmodel.SplashEvent
 import ai.lufious.app.presentation.splash.viewmodel.SplashViewModel
+import android.content.Intent
+import androidx.activity.result.ActivityResultLauncher
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import androidx.activity.viewModels
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import jakarta.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private val splashViewModel: SplashViewModel by viewModels()
+    private val loginViewModel: LoginViewModel by viewModels()
 
+    @Inject
+    lateinit var socialAuthManager: SocialAuthManager
+
+    private lateinit var googleLauncher: ActivityResultLauncher<Intent>
     override fun onCreate(savedInstanceState: Bundle?) {
-        // Install and hold the native splash until isReady == true
         val splash = installSplashScreen()
         splash.setKeepOnScreenCondition {
             splashViewModel.isReady.value.not()
         }
-
         super.onCreate(savedInstanceState)
+
+        googleLauncher = socialAuthManager.setup(
+            activity = this,
+            googleWebClientId = getString(R.string.default_web_client_id),
+            onGoogleToken = { idToken ->
+                loginViewModel.onEvent(LoginEvent.GoogleSignInResult(idToken ?: ""))
+            },
+            onFacebookToken = null
+        )
+
+
+
         enableEdgeToEdge()
 
         setContent {
@@ -60,13 +81,18 @@ class MainActivity : ComponentActivity() {
                             .fillMaxSize()
                             .padding(innerPadding)
                     ) {
-                        AppNavHost(navController = navController)
+                        AppNavHost(navController = navController,    launchGoogleIntent = { socialAuthManager.launchGoogle(googleLauncher) },
+                            launchFacebookIntent = {  })
                     }
                 }
             }
         }
-
-        // Trigger your cache check
         splashViewModel.send(SplashEvent.CheckAuth)
     }
+    @Deprecated("onActivityResult is deprecated. Required here for Facebook SDK only.")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+//        socialAuthManager.handleFacebookActivityResult(requestCode, resultCode, data)
+    }
+
 }

@@ -30,6 +30,7 @@ android {
                 "BASE_URL",
                 "\"https://api.yoursite.com/\""
             )
+            buildConfigField("boolean", "IS_PRODUCTION", "false")
         }
         create("prod") {
             dimension = "environment"
@@ -38,6 +39,7 @@ android {
                 "BASE_URL",
                 "\"https://api.yoursite.com/\""
             )
+            buildConfigField("boolean", "IS_PRODUCTION", "true")
         }
     }
     kotlin {
@@ -128,7 +130,6 @@ dependencies {
     implementation(libs.androidx.room.compiler) {
         exclude(group = "com.intellij", module = "annotations")
     }
-    implementation(libs.firebase.appdistribution.gradle)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -166,6 +167,9 @@ dependencies {
     //Firebase
     implementation(platform("com.google.firebase:firebase-bom:33.16.0"))
     implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.android.gms:play-services-auth:20.7.0")
+//    implementation("com.facebook.android:facebook-login:16.3.0")
+
 
     //Splash
     implementation("androidx.core:core-splashscreen:1.0.0")
