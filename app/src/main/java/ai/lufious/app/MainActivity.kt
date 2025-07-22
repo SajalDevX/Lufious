@@ -16,7 +16,6 @@ import ai.lufious.app.core.utils.UiEffect
 import ai.lufious.app.navgraph.AppNavHost
 import ai.lufious.app.presentation.auth.login.viewmodel.LoginEvent
 import ai.lufious.app.presentation.auth.login.viewmodel.LoginViewModel
-import ai.lufious.app.presentation.auth.utils.SocialAuthManager
 import ai.lufious.app.presentation.splash.viewmodel.SplashEvent
 import ai.lufious.app.presentation.splash.viewmodel.SplashViewModel
 import android.content.Intent
@@ -24,19 +23,20 @@ import androidx.activity.result.ActivityResultLauncher
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.systemBars
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsControllerCompat
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import jakarta.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private val splashViewModel: SplashViewModel by viewModels()
-    private val loginViewModel: LoginViewModel by viewModels()
 
-    @Inject
-    lateinit var socialAuthManager: SocialAuthManager
-
-    private lateinit var googleLauncher: ActivityResultLauncher<Intent>
     override fun onCreate(savedInstanceState: Bundle?) {
         val splash = installSplashScreen()
         splash.setKeepOnScreenCondition {
@@ -44,16 +44,13 @@ class MainActivity : ComponentActivity() {
         }
         super.onCreate(savedInstanceState)
 
-        googleLauncher = socialAuthManager.setup(
-            activity = this,
-            googleWebClientId = getString(R.string.default_web_client_id),
-            onGoogleToken = { idToken ->
-                loginViewModel.onEvent(LoginEvent.GoogleSignInResult(idToken ?: ""))
-            },
-            onFacebookToken = null
-        )
+        WindowCompat.setDecorFitsSystemWindows(window, false)
 
-
+        WindowInsetsControllerCompat(window, window.decorView).let { controller ->
+            controller.hide(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+            controller.systemBarsBehavior =
+                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        }
 
         enableEdgeToEdge()
 
@@ -79,20 +76,17 @@ class MainActivity : ComponentActivity() {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(innerPadding)
                     ) {
-                        AppNavHost(navController = navController,    launchGoogleIntent = { socialAuthManager.launchGoogle(googleLauncher) },
-                            launchFacebookIntent = {  })
+                        AppNavHost(
+                            navController = navController,
+                            launchGoogleIntent = { },
+                            launchFacebookIntent = { }
+                        )
                     }
                 }
             }
         }
+
         splashViewModel.send(SplashEvent.CheckAuth)
     }
-    @Deprecated("onActivityResult is deprecated. Required here for Facebook SDK only.")
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-//        socialAuthManager.handleFacebookActivityResult(requestCode, resultCode, data)
-    }
-
 }

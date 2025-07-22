@@ -1,5 +1,6 @@
 package ai.lufious.app.presentation.auth.login.viewmodel
 
+import ai.lufious.app.core.local_cache.LocalCacheManager
 import ai.lufious.app.core.utils.BaseViewModel
 import ai.lufious.app.core.utils.DispatcherProvider
 import ai.lufious.app.core.utils.LaunchFacebookSignIn
@@ -7,12 +8,14 @@ import ai.lufious.app.core.utils.LaunchGoogleSignIn
 import ai.lufious.app.core.utils.Result
 import ai.lufious.app.core.utils.UiEffect.*
 import ai.lufious.app.core.utils.ValidationResult
+import ai.lufious.app.presentation.auth.data.models.UserModel
 import ai.lufious.app.presentation.auth.data.usecases.LoginUseCase
 import ai.lufious.app.presentation.auth.data.usecases.LoginWithFacebookUseCase
 import ai.lufious.app.presentation.auth.data.usecases.LoginWithGoogleUseCase
 import ai.lufious.app.presentation.auth.data.usecases.ValidateEmailUseCase
 import ai.lufious.app.presentation.auth.data.usecases.ValidatePasswordUseCase
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseUser
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -24,6 +27,7 @@ class LoginViewModel @Inject constructor(
     private val fbUC: LoginWithFacebookUseCase,
     private val validateEmail: ValidateEmailUseCase,
     private val validatePassword: ValidatePasswordUseCase,
+    private val localCache: LocalCacheManager,        // ← inject here
     dispatchers: DispatcherProvider
 ) : BaseViewModel<LoginEvent, LoginState>(
     initialState = LoginState(),
@@ -42,7 +46,6 @@ class LoginViewModel @Inject constructor(
                 val emailValid = validateEmail(event.email)
                 val canSubmit = emailValid is ValidationResult.Valid &&
                         state.value.passwordValidation is ValidationResult.Valid
-
                 setState {
                     copy(
                         email = event.email,
@@ -70,7 +73,15 @@ class LoginViewModel @Inject constructor(
                 setState { copy(isLoading = true) }
                 ioLaunch {
                     when (val res = loginUseCase(state.value.email, state.value.password)) {
-                        is Result.Success -> emitEffect(Navigate("home"))
+                        is Result.Success -> {
+                            val user = res.data
+                            if (user != null) {
+                                cacheAndNavigate(user)
+                            } else {
+                                setState { copy(isLoading = false) }
+                                emitEffect(ShowError("Login succeeded but no user data"))
+                            }
+                        }
                         is Result.Error -> {
                             setState { copy(isLoading = false) }
                             emitEffect(
@@ -93,10 +104,17 @@ class LoginViewModel @Inject constructor(
                 setState { copy(isLoading = true) }
                 ioLaunch {
                     when (val res = googleUC(event.idToken)) {
-                        is Result.Success -> emitEffect(Navigate("home"))
-                        is Result.Error -> {
+                        is Result.Success -> {
+                            val user = res.data
+                            if (user != null) {
+                                cacheAndNavigate(user)
+                            } else {
+                                setState { copy(isLoading = false) }
+                                emitEffect(ShowError("Google login succeeded but no user data"))
+                            }
+                        }                        is Result.Error   -> {
                             setState { copy(isLoading = false) }
-                            emitEffect(ShowError(res.message ?: "Google login failed"))
+                            emitEffect(ShowError(res.message.orEmpty()))
                         }
                     }
                 }
@@ -115,5 +133,35 @@ class LoginViewModel @Inject constructor(
                 }
             }
         }
+    }
+    /**
+     * Save the UserModel, then fetch & save a fresh Firebase ID token,
+     * and only after that emit Navigate("home").
+     */
+    private fun cacheAndNavigate(userModel: UserModel) {
+        // 1) save the model
+        localCache.saveUser(userModel)
+
+        val firebaseUser = com.google.firebase.auth.FirebaseAuth
+            .getInstance()
+            .currentUser
+
+        firebaseUser
+            ?.getIdToken(true)
+            ?.addOnSuccessListener { result ->
+                result.token?.let(localCache::saveAuthToken)
+                viewModelScope.launch {
+                    emitEffect(Navigate("home"))
+                }
+            }
+            ?.addOnFailureListener {
+                viewModelScope.launch {
+                    emitEffect(Navigate("home"))
+                }            }
+            ?: run {
+                viewModelScope.launch {
+                    emitEffect(Navigate("home"))
+                }
+            }
     }
 }

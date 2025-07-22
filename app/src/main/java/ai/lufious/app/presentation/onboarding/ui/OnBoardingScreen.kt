@@ -17,9 +17,7 @@ import androidx.compose.ui.unit.dp
 import ai.lufious.app.R
 import ai.lufious.app.core.theme.Background
 import ai.lufious.app.core.theme.PrimaryColor
-import ai.lufious.app.core.utils.R
 import ai.lufious.app.core.utils.ShadowButton
-import ai.lufious.app.core.utils.heightFraction
 import ai.lufious.app.core.utils.rememberResponsiveDimensions
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
@@ -38,29 +36,35 @@ fun OnboardingScreen(
     ) {
 
         Surface(
-            shape = RoundedCornerShape(16.dp),
+            shape = RoundedCornerShape(dims.R(16f).dp),
             color = MaterialTheme.colors.onBackground,
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.BottomCenter)
-                .padding(horizontal = 8.dp, vertical = 16.dp)
+                .padding(
+                    horizontal = dims.wR(8f).dp,
+                    vertical = dims.hR(12f).dp
+                )
                 .zIndex(1f)
         ) {
             Column(
                 modifier = Modifier
-                    .height(0.375.heightFraction(dims).dp)
+                    .height(dims.heightFraction(0.35f).dp)
                     .fillMaxWidth()
-                    .padding(horizontal = 16.R(dims).dp, vertical = 32.R(dims).dp),
+                    .padding(
+                        horizontal = dims.R(12f).dp,
+                        vertical = dims.R(20f).dp
+                    ),
                 horizontalAlignment = Alignment.Start
             ) {
                 Text(
                     text = "Smarter Plant Care With",
                     style = MaterialTheme.typography.h4.copy(
-                        fontSize = 24.R(dims).sp,
+                        fontSize = dims.R(20f).sp,
                         fontWeight = FontWeight.Bold
                     ),
                     color = Color.Gray,
-                    modifier = Modifier.padding(bottom = 4.R(dims).dp)
+                    modifier = Modifier.padding(bottom = dims.hR(4f).dp)
                 )
 
                 Text(
@@ -69,14 +73,14 @@ fun OnboardingScreen(
                         fontWeight = FontWeight.Bold,
                         color = PrimaryColor
                     ),
-                    modifier = Modifier.padding(bottom = 4.R(dims).dp)
+                    modifier = Modifier.padding(bottom = dims.hR(4f).dp)
                 )
-
 
                 Text(
                     text = "Smart AI care for every leaf, root, and bloom",
                     style = MaterialTheme.typography.body2.copy(
-                        fontWeight = FontWeight.W500
+                        fontWeight = FontWeight.W500,
+                        fontSize = dims.R(14f).sp
                     ),
                     color = Color.White
                 )
@@ -93,14 +97,14 @@ fun OnboardingScreen(
                     shadowDepth = 4f,
                 )
 
-                Spacer(modifier = Modifier.height(8.R(dims).dp))
+                Spacer(modifier = Modifier.height(dims.hR(6f).dp))
 
                 ShadowButton(
                     text = "I ALREADY HAVE AN ACCOUNT",
                     onClick = onLogin,
                     responsive = dims,
                     modifier = Modifier.fillMaxWidth(),
-                    surfaceColor =  MaterialTheme.colors.onBackground,
+                    surfaceColor = MaterialTheme.colors.onBackground,
                     shadowColor = PrimaryColor,
                     borderColor = PrimaryColor,
                     textColor = PrimaryColor,
@@ -116,10 +120,9 @@ fun OnboardingScreen(
             contentDescription = "Mascot",
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .padding(top = 0.1.heightFraction(dims).dp)
-                .size(450.R(dims).dp)
+                .padding(top = dims.heightFraction(0.15f).dp)
+                .size(dims.heightFraction(0.6f).dp) // mascot size as 60% of screen width
                 .zIndex(0f)
         )
     }
 }
-

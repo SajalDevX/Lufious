@@ -1,12 +1,11 @@
 package ai.lufious.app.navgraph
 
-import ai.lufious.app.core.utils.AUTH_GRAPH
 import ai.lufious.app.core.utils.MAIN_GRAPH
 import ai.lufious.app.core.utils.Screen
+import ai.lufious.app.navgraph.utils.animatedComposable
 import ai.lufious.app.presentation.home.ui.HomePage
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 
 fun NavGraphBuilder.mainNavGraph(
@@ -16,14 +15,8 @@ fun NavGraphBuilder.mainNavGraph(
         startDestination = Screen.Home.route,
         route = MAIN_GRAPH
     ) {
-        composable(Screen.Home.route) {
+        animatedComposable(Screen.Home.route) {
             HomePage(
-//                onProfileClick = { navController.navigate(Screen.Profile.route) },
-//                onLogout = {
-//                    navController.navigate(AUTH_GRAPH) {
-//                        popUpTo(MAIN_GRAPH) { inclusive = true }
-//                    }
-//                }
             )
         }
     }

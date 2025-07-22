@@ -4,21 +4,42 @@ import ai.lufious.app.core.utils.LaunchFacebookSignIn
 import ai.lufious.app.core.utils.LaunchGoogleSignIn
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import ai.lufious.app.core.utils.UiEffect
-import ai.lufious.app.core.utils.ValidationResult
 import ai.lufious.app.presentation.auth.login.viewmodel.LoginEvent
 import ai.lufious.app.presentation.auth.login.viewmodel.LoginViewModel
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.flow.collectLatest
+import  ai.lufious.app.R
+import ai.lufious.app.core.theme.Background
+import ai.lufious.app.core.utils.R
+import ai.lufious.app.core.utils.heightFraction
+import ai.lufious.app.core.utils.rememberResponsiveDimensions
+import ai.lufious.app.core.utils.widthFraction
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.zIndex
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
 
 @Composable
 fun LoginScreen(
@@ -27,130 +48,201 @@ fun LoginScreen(
     launchFacebookSignIn: () -> Unit,
     viewModel: LoginViewModel = hiltViewModel()
 ) {
-    val state by viewModel.state.collectAsState()
     val context = LocalContext.current
+    val dims = rememberResponsiveDimensions()
+
+    val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+        .requestEmail()
+        .requestIdToken(stringResource(R.string.default_web_client_id))
+        .build()
+    val googleClient = GoogleSignIn.getClient(context, gso)
+
+    val googleLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val token = runCatching {
+            GoogleSignIn.getSignedInAccountFromIntent(result.data)
+                .getResult(ApiException::class.java)
+                ?.idToken
+        }.getOrNull()
+        viewModel.onEvent(LoginEvent.GoogleSignInResult(token ?: ""))
+    }
 
     LaunchedEffect(Unit) {
         viewModel.effects.collectLatest { effect ->
             when (effect) {
                 is UiEffect.Navigate -> {
-                    if (effect.route == "home") {
-                        navigateToHome()
-                    }
+                    Toast.makeText(context, "Login successful!", Toast.LENGTH_SHORT).show()
+                    if (effect.route == "home") navigateToHome()
                 }
 
                 is UiEffect.ShowError -> {
-                    Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, effect.message, Toast.LENGTH_LONG).show()
                 }
 
-                is LaunchGoogleSignIn -> launchGoogleSignIn()
+                is LaunchGoogleSignIn -> {
+                    googleClient.signOut().addOnCompleteListener {
+                        googleLauncher.launch(googleClient.signInIntent)
+                    }
+                }
 
                 is LaunchFacebookSignIn -> launchFacebookSignIn()
             }
         }
     }
 
-
-    Scaffold(
-        topBar = {
-            TopAppBar(title = { Text("Login") })
-        }
-    ) { innerPadding ->
-        Column(
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Background)
+    ) {
+        Text(
             modifier = Modifier
-                .padding(innerPadding)
-                .padding(16.dp)
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-
-            OutlinedTextField(
-                value = state.email,
-                onValueChange = { viewModel.onEvent(LoginEvent.EmailChanged(it)) },
-                label = { Text("Email") },
-                isError = state.emailValidation is ValidationResult.Invalid,
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions.Default.copy(
-                    keyboardType = KeyboardType.Email,
-                    imeAction = ImeAction.Next
+                .padding(
+                    top = dims.heightFraction(0.1f).dp,
+                    start = dims.wR(16f).dp,
+                    end = dims.wR(16f).dp
                 )
-            )
-            if (state.emailValidation is ValidationResult.Invalid) {
-                Text(
-                    text = (state.emailValidation as ValidationResult.Invalid).reason,
-                    style = MaterialTheme.typography.caption,
-                    color = MaterialTheme.colors.error,
-                    modifier = Modifier.align(Alignment.Start)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            OutlinedTextField(
-                value = state.password,
-                onValueChange = { viewModel.onEvent(LoginEvent.PasswordChanged(it)) },
-                label = { Text("Password") },
-                isError = state.passwordValidation is ValidationResult.Invalid,
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions.Default.copy(
-                    keyboardType = KeyboardType.Password,
-                    imeAction = ImeAction.Done
-                )
-            )
-            if (state.passwordValidation is ValidationResult.Invalid) {
-                Text(
-                    text = (state.passwordValidation as ValidationResult.Invalid).reason,
-                    style = MaterialTheme.typography.caption,
-                    color = MaterialTheme.colors.error,
-                    modifier = Modifier.align(Alignment.Start)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(
-                onClick = { viewModel.onEvent(LoginEvent.Submit) },
-                enabled = state.isSubmitEnabled && !state.isLoading,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp)
-            ) {
-                if (state.isLoading) {
-                    CircularProgressIndicator(
-                        color = MaterialTheme.colors.onPrimary,
-                        strokeWidth = 2.dp,
-                        modifier = Modifier.size(20.dp)
+                .align(Alignment.TopStart),
+            text = buildAnnotatedString {
+                withStyle(
+                    style = SpanStyle(
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White.copy(alpha = 0.6f),
+                        fontSize = MaterialTheme.typography.h3.fontSize
                     )
-                } else {
-                    Text("Login")
+                ) {
+                    append("Because Your \n")
                 }
-            }
+                withStyle(
+                    style = SpanStyle(
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.White
+                    )
+                ) {
+                    append("Plants Deserve It")
+                }
+            },
+            textAlign = TextAlign.Start,
+            style = MaterialTheme.typography.h3
+        )
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(text = "Or continue with")
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
+        Surface(
+            shape = RoundedCornerShape(dims.R(12f).dp),
+            color = MaterialTheme.colors.onBackground,
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.BottomCenter)
+                .padding(
+                    horizontal = dims.wR(8f).dp,
+                    vertical = dims.hR(8f).dp
+                )
+                .zIndex(1f)
+        ) {
+            Column(
+                modifier = Modifier
+                    .height(dims.heightFraction(0.3f).dp)
+                    .fillMaxWidth()
+                    .padding(
+                        horizontal = dims.R(12f).dp,
+                        vertical = dims.R(12f).dp
+                    ),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                OutlinedButton(
-                    onClick = { viewModel.onEvent(LoginEvent.GoogleSignInClicked) }
+                Text(
+                    text = "Log Back Into Your Lufious Account",
+                    style = MaterialTheme.typography.subtitle1.copy(color = Color.White)
+                )
+
+                Spacer(modifier = Modifier.height(dims.hR(12f).dp))
+
+                Button(
+                    shape = RoundedCornerShape(dims.R(8f).dp),
+                    onClick = { viewModel.onEvent(LoginEvent.GoogleSignInClicked) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(dims.hR(48f).dp),
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = Color.White.copy(alpha = 0.2f)
+                    )
                 ) {
-                    Text("Google")
+                    Icon(
+                        painter = painterResource(R.drawable.ic_google),
+                        contentDescription = null,
+                        tint = Color.Unspecified
+                    )
+                    Spacer(modifier = Modifier.width(dims.wR(8f).dp))
+                    Text(
+                        "Continue with Google",
+                        style = MaterialTheme.typography.body2.copy(color = Color.White, fontWeight = FontWeight.W500)
+                    )
                 }
 
-                OutlinedButton(
-                    onClick = { viewModel.onEvent(LoginEvent.FacebookSignInClicked) }
+                Spacer(modifier = Modifier.height(dims.hR(8f).dp))
+
+                Text(
+                    text = "or",
+                    style = MaterialTheme.typography.body2.copy(color = Color.Gray)
+                )
+
+                Spacer(modifier = Modifier.height(dims.hR(8f).dp))
+
+                Button(
+                    shape = RoundedCornerShape(dims.R(8f).dp),
+                    onClick = { launchGoogleSignIn() },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(dims.hR(48f).dp),
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = Color.White.copy(alpha = 0.2f)
+                    ),
                 ) {
-                    Text("Facebook")
+                    Icon(
+                        painter = painterResource(R.drawable.ic_email),
+                        contentDescription = null,
+                        tint = Color.White
+                    )
+                    Spacer(modifier = Modifier.width(dims.wR(8f).dp))
+                    Text("Continue with email",                        style = MaterialTheme.typography.body2.copy(color = Color.White, fontWeight = FontWeight.W500)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(dims.hR(8f).dp))
+
+                Row {
+                    Text(
+                        text = "Don’t have an account?",
+                        style = MaterialTheme.typography.body2.copy(color = Color.LightGray)
+                    )
+                    Spacer(modifier = Modifier.width(dims.wR(4f).dp))
+                    Text(
+                        text = "Sign up here",
+                        style = MaterialTheme.typography.body2.copy(
+                            color = Color(0xFF6A5AE0),
+                            fontWeight = FontWeight.Bold
+                        ),
+                        modifier = Modifier.clickable { }
+                    )
                 }
             }
         }
+
+        Image(
+            painter = painterResource(id = R.drawable.waving_mascot),
+            contentDescription = "Mascot",
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(
+                    top = dims.heightFraction(0.385f).dp,
+                    start = dims.heightFraction(0.19f).dp
+                )
+                .size(dims.heightFraction(0.4f).dp)
+                .zIndex(0f)
+        )
+
     }
 }
+
+
+

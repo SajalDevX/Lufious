@@ -13,6 +13,9 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun loginWithGoogle(idToken: String): Result<UserModel> = wrap<UserModel> {
         ds.loginWithGoogle(idToken).toDomain()
     }
+    override suspend fun signupWithGoogle(idToken: String): Result<UserModel> = wrap<UserModel> {
+        ds.signupWithGoogle(idToken).toDomain()
+    }
 
     override suspend fun loginWithFacebook(accessToken: String): Result<UserModel> = wrap<UserModel> {
         ds.loginWithFacebook(accessToken).toDomain()
@@ -25,12 +28,16 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun signupWithEmail(email: String, password: String): Result<UserModel> = wrap<UserModel> {
         ds.signupWithEmail(email, password).toDomain()
     }
-    override fun signOut(): Result<Unit> {
-        TODO("Not yet implemented")
-    }
+    override fun signOut(): Result<Unit> =
+        try {
+            ds.signOut()
+            Result.Success(Unit)
+        } catch (e: Throwable) {
+            Result.Error(e.message.orEmpty())
+        }
 
     override val currentUser: UserModel?
-        get() = TODO("Not yet implemented")
+        get() = ds.currentUser?.toDomain()
 
     private suspend fun <T> wrap(block: suspend () -> T): Result<T> =
         try {

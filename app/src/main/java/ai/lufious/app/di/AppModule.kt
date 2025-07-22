@@ -1,6 +1,7 @@
 package ai.lufious.app.di
 
 import ai.lufious.app.BuildConfig
+import ai.lufious.app.core.firebase.FirestoreManager
 import ai.lufious.app.core.local_cache.LocalCacheManager
 import ai.lufious.app.core.local_cache.LocalCacheManagerImpl
 import ai.lufious.app.core.utils.DispatcherProvider
@@ -9,6 +10,7 @@ import ai.lufious.app.presentation.auth.data.repository.AuthRepository
 import ai.lufious.app.presentation.auth.data.repository.AuthRepositoryImpl
 import android.content.Context
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.Module
 import dagger.Provides
@@ -57,8 +59,13 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideAuthDataSource(auth: FirebaseAuth) =
-        FirebaseAuthDataSource(auth)
+    fun provideFirebaseFirestore(): FirebaseFirestore =
+        FirebaseFirestore.getInstance()
+
+    @Provides
+    @Singleton
+    fun provideAuthDataSource(auth: FirebaseAuth, firestoreManager: FirestoreManager) =
+        FirebaseAuthDataSource(auth, firestoreManager)
 
     @Provides
     @Singleton

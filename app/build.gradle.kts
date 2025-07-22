@@ -139,7 +139,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 
     //Material theme
-    implementation("androidx.compose.material:material:1.8.3")
+    implementation(libs.androidx.material)
 
 
     //Dagger Hilt
@@ -154,6 +154,8 @@ dependencies {
 
     //Navigation
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.accompanist.navigation.animation)
+    implementation(libs.accompanist.systemuicontroller)
 
     //Networking
     implementation(libs.retrofit)
@@ -162,14 +164,14 @@ dependencies {
     //Serialization
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.retrofit2.kotlinx.serialization)
-    implementation("com.google.code.gson:gson:2.10.1")
+    implementation(libs.gson)
 
     //Firebase
-    implementation(platform("com.google.firebase:firebase-bom:33.16.0"))
-    implementation("com.google.firebase:firebase-auth-ktx")
-    implementation("com.google.android.gms:play-services-auth:20.7.0")
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth.ktx)
+    implementation(libs.play.services.auth)
+    implementation(libs.firebase.firestore)
 //    implementation("com.facebook.android:facebook-login:16.3.0")
-
 
     //Splash
     implementation("androidx.core:core-splashscreen:1.0.0")

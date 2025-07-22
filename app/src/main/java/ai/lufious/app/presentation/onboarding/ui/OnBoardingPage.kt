@@ -11,5 +11,4 @@ fun OnBoardingPage(
         onGetStarted = onGetStarted,
         onLogin = onLogin
     )
-
 }

@@ -7,6 +7,7 @@ interface AuthRepository {
     suspend fun loginWithEmail(email: String, password: String): Result<UserModel>
     suspend fun signupWithEmail(email: String, password: String): Result<UserModel>
     suspend fun loginWithGoogle(idToken: String): Result<UserModel>
+    suspend fun signupWithGoogle(idToken: String): Result<UserModel>
     suspend fun loginWithFacebook(accessToken: String): Result<UserModel>
     fun signOut(): Result<Unit>
     val currentUser: UserModel?
