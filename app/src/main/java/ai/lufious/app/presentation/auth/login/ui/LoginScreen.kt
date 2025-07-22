@@ -19,6 +19,7 @@ import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.flow.collectLatest
 import  ai.lufious.app.R
 import ai.lufious.app.core.theme.Background
+import ai.lufious.app.core.theme.PrimaryColor
 import ai.lufious.app.core.utils.R
 import ai.lufious.app.core.utils.heightFraction
 import ai.lufious.app.core.utils.rememberResponsiveDimensions
@@ -152,7 +153,7 @@ fun LoginScreen(
             ) {
                 Text(
                     text = "Log Back Into Your Lufious Account",
-                    style = MaterialTheme.typography.subtitle1.copy(color = Color.White)
+                    style = MaterialTheme.typography.subtitle1.copy(color = Color.White.copy(alpha = 0.6f))
                 )
 
                 Spacer(modifier = Modifier.height(dims.hR(12f).dp))
@@ -219,7 +220,7 @@ fun LoginScreen(
                     Text(
                         text = "Sign up here",
                         style = MaterialTheme.typography.body2.copy(
-                            color = Color(0xFF6A5AE0),
+                            color = PrimaryColor,
                             fontWeight = FontWeight.Bold
                         ),
                         modifier = Modifier.clickable { }
