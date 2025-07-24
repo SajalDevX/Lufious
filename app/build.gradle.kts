@@ -30,6 +30,7 @@ android {
                 "BASE_URL",
                 "\"https://api.yoursite.com/\""
             )
+            buildConfigField("boolean", "IS_PRODUCTION", "false")
         }
         create("prod") {
             dimension = "environment"
@@ -38,6 +39,7 @@ android {
                 "BASE_URL",
                 "\"https://api.yoursite.com/\""
             )
+            buildConfigField("boolean", "IS_PRODUCTION", "true")
         }
     }
     kotlin {
@@ -128,7 +130,6 @@ dependencies {
     implementation(libs.androidx.room.compiler) {
         exclude(group = "com.intellij", module = "annotations")
     }
-    implementation(libs.firebase.appdistribution.gradle)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -136,6 +137,10 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    //Material theme
+    implementation(libs.androidx.material)
+    implementation("androidx.compose.material:material-icons-extended:1.7.8")
 
     //Dagger Hilt
     implementation(libs.hilt.android)
@@ -149,6 +154,8 @@ dependencies {
 
     //Navigation
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.accompanist.navigation.animation)
+    implementation(libs.accompanist.systemuicontroller)
 
     //Networking
     implementation(libs.retrofit)
@@ -157,9 +164,16 @@ dependencies {
     //Serialization
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.retrofit2.kotlinx.serialization)
+    implementation(libs.gson)
 
     //Firebase
-    implementation(platform("com.google.firebase:firebase-bom:33.16.0"))
-    implementation("com.google.firebase:firebase-auth-ktx")
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth.ktx)
+    implementation(libs.play.services.auth)
+    implementation(libs.firebase.firestore)
+//    implementation("com.facebook.android:facebook-login:16.3.0")
+
+    //Splash
+    implementation("androidx.core:core-splashscreen:1.0.0")
 
 }
