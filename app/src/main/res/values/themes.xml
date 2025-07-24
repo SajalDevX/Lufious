@@ -1,5 +1,18 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- your regular app theme -->
+    <style name="Theme.Lufious" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/white</item>
+    </style>
 
-    <style name="Theme.Lufious" parent="android:Theme.Material.Light.NoActionBar" />
+    <!-- splash theme used at cold start -->
+    <style name="Theme.Lufious.Launcher" parent="Theme.SplashScreen">
+        <!-- NEW: back-off the icon entirely -->
+        <!-- API 31+ splash -->
+        <item name="windowSplashScreenBackground">@drawable/splash_background</item>
+        <item name="windowSplashScreenAnimationDuration">300</item>
+        <item name="postSplashScreenTheme">@style/Theme.Lufious</item>
+
+        <!-- PRE-31 fallback & compat library: -->
+        <item name="android:windowBackground">@drawable/splash_background</item>
+    </style>
 </resources>
