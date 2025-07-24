@@ -1,6 +1,5 @@
 package ai.lufious.app.presentation.auth.login.viewmodel
 
-import ai.lufious.app.core.utils.UiEffect
 
 sealed class LoginEvent {
     data class EmailChanged(val email: String) : LoginEvent()
