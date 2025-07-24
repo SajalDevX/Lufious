@@ -4,6 +4,8 @@ import ai.lufious.app.core.utils.AUTH_GRAPH
 import ai.lufious.app.core.utils.MAIN_GRAPH
 import ai.lufious.app.core.utils.Screen
 import ai.lufious.app.navgraph.utils.animatedComposable
+import ai.lufious.app.presentation.auth.login.ui.EmailLoginPage
+import ai.lufious.app.presentation.auth.login.ui.EmailLoginScreen
 import ai.lufious.app.presentation.auth.login.ui.LoginPage
 import ai.lufious.app.presentation.auth.signup.ui.SignupPage
 import ai.lufious.app.presentation.onboarding.ui.OnBoardingPage
@@ -30,6 +32,9 @@ fun NavGraphBuilder.authNavGraph(
             )
         }
 
+        animatedComposable(Screen.EmailLogin.route) {
+            EmailLoginPage(navController = navController)
+        }
 
         animatedComposable(Screen.Signup.route) {
             SignupPage(

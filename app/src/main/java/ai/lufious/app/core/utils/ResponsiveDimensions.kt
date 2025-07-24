@@ -8,6 +8,12 @@ import kotlin.math.min
 
 const val DESIGN_WIDTH = 375
 const val DESIGN_HEIGHT = 812
+const val BACK_BUTTON_HEIGHT_FRACTION = 0.025f
+
+
+
+
+
 
 data class ResponsiveDimensions(
     val screenWidth: Int,

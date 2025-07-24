@@ -20,17 +20,13 @@ import kotlinx.coroutines.flow.collectLatest
 import  ai.lufious.app.R
 import ai.lufious.app.core.theme.Background
 import ai.lufious.app.core.theme.PrimaryColor
-import ai.lufious.app.core.utils.R
-import ai.lufious.app.core.utils.heightFraction
 import ai.lufious.app.core.utils.rememberResponsiveDimensions
-import ai.lufious.app.core.utils.widthFraction
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -43,8 +39,9 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 
 @Composable
-fun LoginScreen(
+fun LoginSelectionScreen(
     navigateToHome: () -> Unit,
+    onEmailLogin: () -> Unit,
     launchGoogleSignIn: () -> Unit,
     launchFacebookSignIn: () -> Unit,
     viewModel: LoginViewModel = hiltViewModel()
@@ -191,7 +188,7 @@ fun LoginScreen(
 
                 Button(
                     shape = RoundedCornerShape(dims.R(8f).dp),
-                    onClick = { launchGoogleSignIn() },
+                    onClick = { onEmailLogin() },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(dims.hR(48f).dp),
@@ -205,7 +202,8 @@ fun LoginScreen(
                         tint = Color.White
                     )
                     Spacer(modifier = Modifier.width(dims.wR(8f).dp))
-                    Text("Continue with email",                        style = MaterialTheme.typography.body2.copy(color = Color.White, fontWeight = FontWeight.W500)
+                    Text("Continue with email",
+                        style = MaterialTheme.typography.body2.copy(color = Color.White, fontWeight = FontWeight.W500)
                     )
                 }
 

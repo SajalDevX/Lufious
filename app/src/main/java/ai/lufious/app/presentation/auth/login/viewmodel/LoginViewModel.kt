@@ -15,7 +15,6 @@ import ai.lufious.app.presentation.auth.data.usecases.LoginWithGoogleUseCase
 import ai.lufious.app.presentation.auth.data.usecases.ValidateEmailUseCase
 import ai.lufious.app.presentation.auth.data.usecases.ValidatePasswordUseCase
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FirebaseUser
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -27,7 +26,7 @@ class LoginViewModel @Inject constructor(
     private val fbUC: LoginWithFacebookUseCase,
     private val validateEmail: ValidateEmailUseCase,
     private val validatePassword: ValidatePasswordUseCase,
-    private val localCache: LocalCacheManager,        // ← inject here
+    private val localCache: LocalCacheManager,
     dispatchers: DispatcherProvider
 ) : BaseViewModel<LoginEvent, LoginState>(
     initialState = LoginState(),
@@ -139,7 +138,6 @@ class LoginViewModel @Inject constructor(
      * and only after that emit Navigate("home").
      */
     private fun cacheAndNavigate(userModel: UserModel) {
-        // 1) save the model
         localCache.saveUser(userModel)
 
         val firebaseUser = com.google.firebase.auth.FirebaseAuth

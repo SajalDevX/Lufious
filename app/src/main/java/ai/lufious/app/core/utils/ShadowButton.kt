@@ -37,6 +37,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.compose.animation.core.tween
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 
 @Composable
@@ -53,6 +54,7 @@ fun ShadowButton(
     surfaceColor: Color = PrimaryColor,
     shadowColor: Color = ButtonShadowColor,
     textColor: Color = Color.White,
+    enabled: Boolean = true,
     textStyle: TextStyle = MaterialTheme.typography.body1,
     borderColor: Color = Color.Transparent,
     shadowDepth: Float = 3.5f,
@@ -69,6 +71,9 @@ fun ShadowButton(
     val radius = responsive.R(cornerRadius).dp
     val shadowOffset = responsive.R(shadowDepth).dp
     val animationSpec = tween<Dp>(durationMillis = 50, easing = androidx.compose.animation.core.LinearOutSlowInEasing)
+    val surfaceColorFinal = if (enabled) surfaceColor else Color.Gray
+    val shadowColorFinal = if (enabled) shadowColor else Color.DarkGray
+    val textColorFinal = if (enabled) textColor else Color.DarkGray
 
     val animatedHeight by androidx.compose.animation.core.animateDpAsState(
         targetValue = if (isPressed) btnHeight else btnHeight - shadowOffset,
@@ -85,16 +90,18 @@ fun ShadowButton(
             .height(btnHeight)
             .fillMaxWidth()
             .padding(4.dp)
-            .pointerInput(onClick) {
+            .pointerInput(enabled, isLoading, onClick) {
                 detectTapGestures(
                     onPress = {
-                        isPressed = true
-                        tryAwaitRelease()
-                        isPressed = false
-                        if (debounceJob?.isActive != true) {
-                            onClick?.invoke()
-                            debounceJob = scope.launch {
-                                delay(debounceDuration)
+                        if (enabled && !isLoading) {
+                            isPressed = true
+                            tryAwaitRelease()
+                            isPressed = false
+                            if (debounceJob?.isActive != true) {
+                                onClick?.invoke()
+                                debounceJob = scope.launch {
+                                    delay(debounceDuration)
+                                }
                             }
                         }
                     }
@@ -109,7 +116,7 @@ fun ShadowButton(
                     .fillMaxWidth()
                     .height(btnHeight)
                     .background(
-                        color = shadowColor,
+                        color = shadowColorFinal,
                         shape = RoundedCornerShape(radius)
                     )
             )
@@ -121,7 +128,7 @@ fun ShadowButton(
                 .fillMaxWidth()
                 .height(animatedHeight)
                 .background(
-                    color = surfaceColor,
+                    color = surfaceColorFinal,
                     shape = RoundedCornerShape(radius)
                 )
                 .border(
@@ -149,8 +156,10 @@ fun ShadowButton(
 
                     Text(
                         text = if (isUpperCase) text.uppercase() else text,
-                        color = textColor,
-                        style = textStyle
+                        color = textColorFinal,
+                        style = textStyle.copy(
+                            fontWeight = FontWeight.Bold
+                        )
                     )
 
                     if (iconAfter != null) {

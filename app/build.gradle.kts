@@ -140,7 +140,7 @@ dependencies {
 
     //Material theme
     implementation(libs.androidx.material)
-
+    implementation("androidx.compose.material:material-icons-extended:1.7.8")
 
     //Dagger Hilt
     implementation(libs.hilt.android)
