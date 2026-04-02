@@ -42,6 +42,7 @@ import com.google.android.gms.common.api.ApiException
 fun LoginSelectionScreen(
     navigateToHome: () -> Unit,
     onEmailLogin: () -> Unit,
+    onSignUp: () -> Unit,
     launchGoogleSignIn: () -> Unit,
     launchFacebookSignIn: () -> Unit,
     viewModel: LoginViewModel = hiltViewModel()
@@ -221,7 +222,7 @@ fun LoginSelectionScreen(
                             color = PrimaryColor,
                             fontWeight = FontWeight.Bold
                         ),
-                        modifier = Modifier.clickable { }
+                        modifier = Modifier.clickable { onSignUp() }
                     )
                 }
             }

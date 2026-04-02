@@ -8,6 +8,7 @@ sealed class Screen(val route: String) {
     object EmailLogin : Screen("auth/login/email")
 
     object Signup : Screen("signup")
+    object EmailSignup : Screen("signup/email")
     object Home     : Screen("main/home")
     object Profile  : Screen("main/profile")
 }
