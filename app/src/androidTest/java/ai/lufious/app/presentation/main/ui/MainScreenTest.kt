@@ -21,7 +21,7 @@ class MainScreenTest {
     @Test
     fun mainScreen_homeTabIsSelectedByDefault() {
         composeTestRule.setContent { MainScreen() }
-        composeTestRule.onNodeWithText("Let's take care of your plants").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("home_screen").assertIsDisplayed()
     }
 
     @Test
