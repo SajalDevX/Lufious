@@ -120,11 +120,15 @@ fun PlantDetailScreen(
             }
         }
     ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .testTag("plant_detail_screen")
+        ) {
         when {
             state.isLoading && state.plant == null -> Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding),
+                modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator(color = PrimaryColor)
@@ -133,9 +137,7 @@ fun PlantDetailScreen(
             else -> LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(innerPadding)
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-                    .testTag("plant_detail_screen"),
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 state.plant?.let { plant ->
@@ -251,6 +253,7 @@ fun PlantDetailScreen(
                     }
                 }
             }
+        }
         }
     }
 

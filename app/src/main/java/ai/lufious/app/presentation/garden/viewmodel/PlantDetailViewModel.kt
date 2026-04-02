@@ -51,7 +51,11 @@ class PlantDetailViewModel @Inject constructor(
                         state.value.logNote
                     )) {
                         is Result.Success -> {
-                            val updatedLogs = listOf(result.data!!) + state.value.careLogs
+                            val log = result.data ?: run {
+                                setState { copy(isLoading = false) }
+                                return@ioLaunch
+                            }
+                            val updatedLogs = listOf(log) + state.value.careLogs
                             setState {
                                 copy(
                                     careLogs = updatedLogs,
