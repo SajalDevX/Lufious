@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
@@ -18,17 +19,19 @@ import java.time.LocalTime
 
 @Composable
 fun HomePage(modifier: Modifier = Modifier) {
-    val greeting = when (LocalTime.now().hour) {
-        in 5..11 -> "Good morning"
-        in 12..17 -> "Good afternoon"
-        else -> "Good evening"
+    val greeting = remember {
+        when (LocalTime.now().hour) {
+            in 5..11 -> "Good morning"
+            in 12..17 -> "Good afternoon"
+            else -> "Good evening"
+        }
     }
 
     Column(
         modifier = modifier
             .fillMaxSize()
-            .testTag("home_screen")
-            .padding(horizontal = 20.dp, vertical = 32.dp),
+            .padding(horizontal = 20.dp, vertical = 32.dp)
+            .testTag("home_screen"),
         verticalArrangement = Arrangement.Top
     ) {
         Text(
