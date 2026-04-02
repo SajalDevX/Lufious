@@ -52,7 +52,10 @@ class AddPlantViewModel @Inject constructor(
                         state.value.locationTag,
                         days
                     )) {
-                        is Result.Success -> emitEffect(UiEffect.Navigate("back"))
+                        is Result.Success -> {
+                            setState { copy(isLoading = false) }
+                            emitEffect(UiEffect.Navigate("back"))
+                        }
                         is Result.Error -> {
                             setState { copy(isLoading = false) }
                             emitEffect(UiEffect.ShowError(result.message ?: "Failed to add plant"))
