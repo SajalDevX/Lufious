@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -20,7 +21,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 
 @Composable
-fun MainScreen() {
+fun MainScreen(outerNavController: NavHostController = rememberNavController()) {
     val tabNavController = rememberNavController()
 
     Scaffold(
@@ -34,7 +35,9 @@ fun MainScreen() {
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            composable(Screen.HomeTab.route) { HomePage() }
+            composable(Screen.HomeTab.route) {
+                HomePage(outerNavController = outerNavController)
+            }
             composable(Screen.ScanTab.route) { ScanPage() }
             composable(Screen.GardenTab.route) {
                 GardenPage(navController = tabNavController)
