@@ -80,7 +80,7 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "dagger.hilt.android.testing.HiltTestRunner"
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -145,6 +145,8 @@ dependencies {
     //Dagger Hilt
     implementation(libs.hilt.android)
     kapt         (libs.hilt.compiler)
+    androidTestImplementation("com.google.dagger:hilt-android-testing:2.56.1")
+    kaptAndroidTest("com.google.dagger:hilt-android-compiler:2.56.1")
     implementation(libs.androidx.hilt.navigation.compose)
 
     //Room
