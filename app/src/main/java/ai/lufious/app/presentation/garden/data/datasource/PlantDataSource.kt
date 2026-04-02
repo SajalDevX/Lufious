@@ -55,7 +55,7 @@ class PlantDataSource @Inject constructor(
             .documents
             .mapNotNull { it.toCareLogModel() }
 
-    private fun PlantModel.toMap(): Map<String, Any> = mapOf(
+    private fun PlantModel.toMap(): Map<String, Any?> = mapOf(
         PlantFields.NICKNAME to nickname,
         PlantFields.SPECIES to species,
         PlantFields.PHOTO_URL to photoUrl,
@@ -68,7 +68,7 @@ class PlantDataSource @Inject constructor(
         PlantFields.HEALTH_STATUS to healthStatus
     )
 
-    private fun CareLogModel.toMap(): Map<String, Any> = mapOf(
+    private fun CareLogModel.toMap(): Map<String, Any?> = mapOf(
         LogFields.TYPE to type,
         LogFields.NOTE to note,
         LogFields.TIMESTAMP to timestamp
