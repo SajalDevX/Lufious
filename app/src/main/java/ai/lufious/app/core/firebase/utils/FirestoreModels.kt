@@ -28,3 +28,21 @@ object LogFields {
     const val NOTE = "note"
     const val TIMESTAMP = "timestamp"
 }
+
+object ListingFields {
+    const val MARKETPLACE = "marketplace"
+    const val COLLECTION = "listings"
+    const val SELLER_ID = "sellerId"
+    const val TITLE = "title"
+    const val DESCRIPTION = "description"
+    const val PRICE = "price"
+    const val CATEGORY = "category"
+    const val PHOTO_URLS = "photoUrls"
+    const val CREATED_AT = "createdAt"
+    const val STATUS = "status"
+}
+
+object WishlistFields {
+    const val COLLECTION = "wishlist"
+    const val ADDED_AT = "addedAt"
+}

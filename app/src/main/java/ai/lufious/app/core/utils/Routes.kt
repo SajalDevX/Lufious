@@ -22,6 +22,12 @@ sealed class Screen(val route: String) {
     object PlantDetail : Screen("garden/plant/{plantId}") {
         fun createRoute(plantId: String) = route.replace("{plantId}", plantId)
     }
+
+    // Shop sub-screens — still within MainScreen's inner NavHost
+    object CreateListing : Screen("shop/create_listing")
+    object ListingDetail : Screen("shop/listing/{listingId}") {
+        fun createRoute(listingId: String) = route.replace("{listingId}", listingId)
+    }
 }
 
 const val AUTH_GRAPH = "auth_graph"
