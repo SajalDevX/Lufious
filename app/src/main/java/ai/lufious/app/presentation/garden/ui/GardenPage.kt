@@ -58,61 +58,61 @@ fun GardenPage(
             }
         }
     ) { paddingValues ->
-        when {
-            state.isLoading -> Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator(color = PrimaryColor)
-            }
-
-            state.plants.isEmpty() -> Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .testTag("garden_screen"),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .testTag("garden_screen")
+        ) {
+            when {
+                state.isLoading -> Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Text("🌱", fontSize = 48.sp)
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text(
-                        text = "No plants yet",
-                        color = Color.White,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Text(
-                        text = "Tap + to add your first plant",
-                        color = Color.White.copy(alpha = 0.6f),
-                        fontSize = 14.sp
-                    )
+                    CircularProgressIndicator(color = PrimaryColor)
                 }
-            }
 
-            else -> LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .padding(horizontal = 12.dp, vertical = 12.dp)
-                    .testTag("garden_screen"),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(state.plants, key = { it.id }) { plant ->
-                    PlantCard(
-                        plant = plant,
-                        onClick = {
-                            navController.navigate(Screen.PlantDetail.createRoute(plant.id))
-                        }
-                    )
+                state.plants.isEmpty() -> Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text("🌱", fontSize = 48.sp)
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(
+                            text = "No plants yet",
+                            color = Color.White,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            text = "Tap + to add your first plant",
+                            color = Color.White.copy(alpha = 0.6f),
+                            fontSize = 14.sp
+                        )
+                    }
+                }
+
+                else -> LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 12.dp, vertical = 12.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(state.plants, key = { it.id }) { plant ->
+                        PlantCard(
+                            plant = plant,
+                            onClick = {
+                                navController.navigate(Screen.PlantDetail.createRoute(plant.id))
+                            }
+                        )
+                    }
                 }
             }
         }
