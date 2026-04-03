@@ -46,3 +46,14 @@ object WishlistFields {
     const val COLLECTION = "wishlist"
     const val ADDED_AT = "addedAt"
 }
+
+object ScanFields {
+    const val COLLECTION = "scans"
+    const val SPECIES_NAME = "speciesName"
+    const val COMMON_NAME = "commonName"
+    const val CONFIDENCE = "confidence"
+    const val HEALTH_STATUS = "healthStatus"
+    const val DIAGNOSIS = "diagnosis"
+    const val CARE_PLAN = "carePlan"
+    const val TIMESTAMP = "timestamp"
+}

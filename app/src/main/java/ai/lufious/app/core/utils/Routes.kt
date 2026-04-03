@@ -28,6 +28,17 @@ sealed class Screen(val route: String) {
     object ListingDetail : Screen("shop/listing/{listingId}") {
         fun createRoute(listingId: String) = route.replace("{listingId}", listingId)
     }
+
+    // Scan sub-screens — still within MainScreen's inner NavHost
+    object ScanResult : Screen("scan/result/{scanId}") {
+        fun createRoute(scanId: String) = route.replace("{scanId}", scanId)
+    }
+
+    // AddPlant with optional species pre-fill (from Scan)
+    object AddPlantWithSpecies {
+        fun createRoute(species: String) =
+            "garden/add_plant?species=${android.net.Uri.encode(species)}"
+    }
 }
 
 const val AUTH_GRAPH = "auth_graph"
