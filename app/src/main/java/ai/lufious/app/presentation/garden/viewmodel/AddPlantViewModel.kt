@@ -5,6 +5,7 @@ import ai.lufious.app.core.utils.DispatcherProvider
 import ai.lufious.app.core.utils.Result
 import ai.lufious.app.core.utils.UiEffect
 import ai.lufious.app.presentation.garden.data.usecases.AddPlantUseCase
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -12,9 +13,17 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AddPlantViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     private val addPlant: AddPlantUseCase,
     dispatchers: DispatcherProvider
 ) : BaseViewModel<AddPlantEvent, AddPlantState>(AddPlantState(), dispatchers) {
+
+    init {
+        val prefilledSpecies = savedStateHandle.get<String>("species") ?: ""
+        if (prefilledSpecies.isNotBlank()) {
+            setState { copy(species = prefilledSpecies) }
+        }
+    }
 
     fun onEvent(event: AddPlantEvent) {
         viewModelScope.launch { handleEvent(event) }

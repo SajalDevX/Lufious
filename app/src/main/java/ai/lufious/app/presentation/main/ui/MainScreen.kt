@@ -7,6 +7,7 @@ import ai.lufious.app.presentation.garden.ui.GardenPage
 import ai.lufious.app.presentation.garden.ui.PlantDetailScreen
 import ai.lufious.app.presentation.home.ui.HomePage
 import ai.lufious.app.presentation.scan.ui.ScanPage
+import ai.lufious.app.presentation.scan.ui.ScanResultScreen
 import ai.lufious.app.presentation.shop.ui.CreateListingScreen
 import ai.lufious.app.presentation.shop.ui.ListingDetailScreen
 import ai.lufious.app.presentation.shop.ui.ShopPage
@@ -40,14 +41,25 @@ fun MainScreen(outerNavController: NavHostController = rememberNavController()) 
             composable(Screen.HomeTab.route) {
                 HomePage(outerNavController = outerNavController)
             }
-            composable(Screen.ScanTab.route) { ScanPage() }
+            composable(Screen.ScanTab.route) {
+                ScanPage(navController = tabNavController)
+            }
             composable(Screen.GardenTab.route) {
                 GardenPage(navController = tabNavController)
             }
             composable(Screen.ShopTab.route) {
                 ShopPage(navController = tabNavController)
             }
-            composable(Screen.AddPlant.route) {
+            composable(
+                route = "garden/add_plant?species={species}",
+                arguments = listOf(
+                    navArgument("species") {
+                        type = NavType.StringType
+                        defaultValue = ""
+                        nullable = true
+                    }
+                )
+            ) {
                 AddPlantScreen(navController = tabNavController)
             }
             composable(
@@ -64,6 +76,12 @@ fun MainScreen(outerNavController: NavHostController = rememberNavController()) 
                 arguments = listOf(navArgument("listingId") { type = NavType.StringType })
             ) {
                 ListingDetailScreen(navController = tabNavController)
+            }
+            composable(
+                route = Screen.ScanResult.route,
+                arguments = listOf(navArgument("scanId") { type = NavType.StringType })
+            ) {
+                ScanResultScreen(navController = tabNavController)
             }
         }
     }
