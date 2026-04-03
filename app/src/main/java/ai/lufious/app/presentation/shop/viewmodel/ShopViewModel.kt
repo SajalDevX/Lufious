@@ -41,8 +41,9 @@ class ShopViewModel @Inject constructor(
                 ioLaunch {
                     when (val result = toggleWishlist(event.listingId)) {
                         is Result.Success -> {
+                            val isNowWishlisted = result.data ?: return@ioLaunch
                             val updated = state.value.wishlistIds.toMutableSet().apply {
-                                if (result.data == true) add(event.listingId) else remove(event.listingId)
+                                if (isNowWishlisted) add(event.listingId) else remove(event.listingId)
                             }
                             setState { copy(wishlistIds = updated) }
                         }
