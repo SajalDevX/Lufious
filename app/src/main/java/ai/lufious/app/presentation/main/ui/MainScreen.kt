@@ -7,6 +7,8 @@ import ai.lufious.app.presentation.garden.ui.GardenPage
 import ai.lufious.app.presentation.garden.ui.PlantDetailScreen
 import ai.lufious.app.presentation.home.ui.HomePage
 import ai.lufious.app.presentation.scan.ui.ScanPage
+import ai.lufious.app.presentation.shop.ui.CreateListingScreen
+import ai.lufious.app.presentation.shop.ui.ListingDetailScreen
 import ai.lufious.app.presentation.shop.ui.ShopPage
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -42,7 +44,9 @@ fun MainScreen(outerNavController: NavHostController = rememberNavController()) 
             composable(Screen.GardenTab.route) {
                 GardenPage(navController = tabNavController)
             }
-            composable(Screen.ShopTab.route) { ShopPage() }
+            composable(Screen.ShopTab.route) {
+                ShopPage(navController = tabNavController)
+            }
             composable(Screen.AddPlant.route) {
                 AddPlantScreen(navController = tabNavController)
             }
@@ -51,6 +55,15 @@ fun MainScreen(outerNavController: NavHostController = rememberNavController()) 
                 arguments = listOf(navArgument("plantId") { type = NavType.StringType })
             ) {
                 PlantDetailScreen(navController = tabNavController)
+            }
+            composable(Screen.CreateListing.route) {
+                CreateListingScreen(navController = tabNavController)
+            }
+            composable(
+                route = Screen.ListingDetail.route,
+                arguments = listOf(navArgument("listingId") { type = NavType.StringType })
+            ) {
+                ListingDetailScreen(navController = tabNavController)
             }
         }
     }
