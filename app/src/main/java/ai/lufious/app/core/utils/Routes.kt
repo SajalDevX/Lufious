@@ -39,6 +39,18 @@ sealed class Screen(val route: String) {
         fun createRoute(species: String) =
             "garden/add_plant?species=${android.net.Uri.encode(species)}"
     }
+
+    object PostOnboarding : Screen("setup/post_onboarding")
+
+    // AI Chat — launched from ScanResult
+    object AiChat : Screen("scan/chat/{scanId}") {
+        fun createRoute(scanId: String) = route.replace("{scanId}", scanId)
+    }
+
+    // Growth Timeline — per plant
+    object PlantGrowthTimeline : Screen("garden/plant/{plantId}/timeline") {
+        fun createRoute(plantId: String) = route.replace("{plantId}", plantId)
+    }
 }
 
 const val AUTH_GRAPH = "auth_graph"

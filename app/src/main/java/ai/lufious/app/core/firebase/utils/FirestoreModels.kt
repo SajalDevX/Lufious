@@ -47,6 +47,13 @@ object WishlistFields {
     const val ADDED_AT = "addedAt"
 }
 
+object PhotoFields {
+    const val COLLECTION = "photos"
+    const val NOTE = "note"
+    const val PHOTO_URL = "photoUrl"
+    const val TIMESTAMP = "timestamp"
+}
+
 object ScanFields {
     const val COLLECTION = "scans"
     const val SPECIES_NAME = "speciesName"

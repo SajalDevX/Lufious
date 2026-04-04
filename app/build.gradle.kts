@@ -184,4 +184,7 @@ dependencies {
     implementation("androidx.camera:camera-view:1.3.4")
     implementation("androidx.concurrent:concurrent-futures-ktx:1.2.0")
 
+    //WorkManager
+    implementation("androidx.work:work-runtime-ktx:2.9.0")
+
 }
