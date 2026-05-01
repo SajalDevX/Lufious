@@ -25,6 +25,7 @@ import ai.lufious.app.core.network.dto.ThreadCreateRequest
 import ai.lufious.app.core.network.dto.ThreadDto
 import ai.lufious.app.core.network.dto.ThreadListResponse
 import ai.lufious.app.core.network.dto.AiTipDto
+import ai.lufious.app.core.network.dto.FcmTokenRequest
 import ai.lufious.app.core.network.dto.LocationPatchRequest
 import ai.lufious.app.core.network.dto.NotificationPrefsDto
 import ai.lufious.app.core.network.dto.NotificationPrefsPatchRequest
@@ -158,4 +159,7 @@ interface LufiousApi {
 
     @GET("api/ai/tips")
     suspend fun getAiTip(): AiTipDto
+
+    @POST("api/devices/fcm")
+    suspend fun registerFcmToken(@Body body: FcmTokenRequest): retrofit2.Response<Unit>
 }

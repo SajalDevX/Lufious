@@ -80,6 +80,9 @@ data class NotificationPrefsPatchRequest(
 )
 
 @Serializable
+data class FcmTokenRequest(val token: String)
+
+@Serializable
 data class ProfilePatchRequest(
     val displayName: String? = null,
     val name: String? = null,
