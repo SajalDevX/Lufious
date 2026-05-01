@@ -8,6 +8,11 @@ import ai.lufious.app.core.network.dto.PlantCreateRequest
 import ai.lufious.app.core.network.dto.PlantDto
 import ai.lufious.app.core.network.dto.PlantListResponse
 import ai.lufious.app.core.network.dto.PlantPatchRequest
+import ai.lufious.app.core.network.dto.ScanCreateRequest
+import ai.lufious.app.core.network.dto.ScanDto
+import ai.lufious.app.core.network.dto.ScanListResponse
+import ai.lufious.app.core.network.dto.SignedUploadRequest
+import ai.lufious.app.core.network.dto.SignedUploadResponse
 import ai.lufious.app.core.network.dto.UserDto
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -45,4 +50,16 @@ interface LufiousApi {
 
     @POST("api/plants/{id}/logs")
     suspend fun addLog(@Path("id") id: String, @Body body: CareLogCreateRequest): CareLogDto
+
+    @POST("api/uploads/sign")
+    suspend fun signUpload(@Body body: SignedUploadRequest): SignedUploadResponse
+
+    @GET("api/scans")
+    suspend fun listScans(): ScanListResponse
+
+    @POST("api/scans")
+    suspend fun createScan(@Body body: ScanCreateRequest): ScanDto
+
+    @GET("api/scans/{id}")
+    suspend fun getScan(@Path("id") id: String): ScanDto
 }
