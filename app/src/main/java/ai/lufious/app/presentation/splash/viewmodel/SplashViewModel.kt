@@ -3,6 +3,8 @@ package ai.lufious.app.presentation.splash.viewmodel
 import ai.lufious.app.core.local_cache.LocalCacheManager
 import ai.lufious.app.core.utils.BaseViewModel
 import ai.lufious.app.core.utils.DispatcherProvider
+import ai.lufious.app.core.utils.MAIN_GRAPH
+import ai.lufious.app.core.utils.Screen
 import ai.lufious.app.core.utils.UiEffect
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
@@ -29,8 +31,15 @@ class SplashViewModel @Inject constructor(
                 ioLaunch {
                     val user = cache.getUser()
                     _isReady.value = true
-                    if (user != null) emitEffect(UiEffect.Navigate("home"))
-                    else emitEffect(UiEffect.Navigate("onboarding"))
+                    if (user != null) {
+                        if (cache.isPostOnboardingComplete()) {
+                            emitEffect(UiEffect.Navigate(MAIN_GRAPH))
+                        } else {
+                            emitEffect(UiEffect.Navigate(Screen.PostOnboarding.route))
+                        }
+                    } else {
+                        emitEffect(UiEffect.Navigate("onboarding"))
+                    }
                 }
             }
         }

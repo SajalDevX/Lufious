@@ -3,6 +3,7 @@ package ai.lufious.app.navgraph
 import ai.lufious.app.core.utils.Screen
 import ai.lufious.app.navgraph.utils.animatedComposable
 import ai.lufious.app.presentation.onboarding.ui.OnBoardingPage
+import ai.lufious.app.presentation.onboarding.ui.PostOnboardingScreen
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -27,6 +28,11 @@ fun AppNavHost(
             launchGoogleIntent = launchGoogleIntent,
             launchFacebookIntent = launchFacebookIntent
         )
+
+        animatedComposable(Screen.PostOnboarding.route) {
+            PostOnboardingScreen(navController = navController)
+        }
+
         mainNavGraph(navController)
     }
 }

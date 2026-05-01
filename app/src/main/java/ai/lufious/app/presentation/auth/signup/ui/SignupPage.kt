@@ -66,9 +66,8 @@ fun SignupPage(
 ) {
     SignupSelectionScreen(
         navigateToHome = {
-            navController.navigate(MAIN_GRAPH) {
+            navController.navigate(Screen.PostOnboarding.route) {
                 popUpTo(AUTH_GRAPH) { inclusive = true }
-                launchSingleTop = true
             }
         },
         onEmailSignUp = { navController.navigate(Screen.EmailSignup.route) },
