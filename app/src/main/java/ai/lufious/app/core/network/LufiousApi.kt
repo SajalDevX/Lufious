@@ -8,12 +8,17 @@ import ai.lufious.app.core.network.dto.PlantCreateRequest
 import ai.lufious.app.core.network.dto.PlantDto
 import ai.lufious.app.core.network.dto.PlantListResponse
 import ai.lufious.app.core.network.dto.PlantPatchRequest
+import ai.lufious.app.core.network.dto.ListingCreateRequest
+import ai.lufious.app.core.network.dto.ListingDto
+import ai.lufious.app.core.network.dto.ListingPageDto
+import ai.lufious.app.core.network.dto.ListingPatchRequest
 import ai.lufious.app.core.network.dto.ScanCreateRequest
 import ai.lufious.app.core.network.dto.ScanDto
 import ai.lufious.app.core.network.dto.ScanListResponse
 import ai.lufious.app.core.network.dto.SignedUploadRequest
 import ai.lufious.app.core.network.dto.SignedUploadResponse
 import ai.lufious.app.core.network.dto.UserDto
+import ai.lufious.app.core.network.dto.WishlistResponse
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -21,6 +26,7 @@ import retrofit2.http.HTTP
 import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface LufiousApi {
 
@@ -62,4 +68,37 @@ interface LufiousApi {
 
     @GET("api/scans/{id}")
     suspend fun getScan(@Path("id") id: String): ScanDto
+
+    @GET("api/listings")
+    suspend fun listListings(
+        @Query("category") category: String? = null,
+        @Query("q") q: String? = null,
+        @Query("minPrice") minPrice: Double? = null,
+        @Query("maxPrice") maxPrice: Double? = null,
+        @Query("sellerId") sellerId: String? = null,
+        @Query("status") status: String? = null,
+        @Query("page") page: Int = 1,
+        @Query("size") size: Int = 20
+    ): ListingPageDto
+
+    @POST("api/listings")
+    suspend fun createListing(@Body body: ListingCreateRequest): ListingDto
+
+    @GET("api/listings/{id}")
+    suspend fun getListing(@Path("id") id: String): ListingDto
+
+    @PATCH("api/listings/{id}")
+    suspend fun patchListing(@Path("id") id: String, @Body body: ListingPatchRequest): ListingDto
+
+    @HTTP(method = "DELETE", path = "api/listings/{id}", hasBody = false)
+    suspend fun deleteListing(@Path("id") id: String): retrofit2.Response<Unit>
+
+    @GET("api/wishlist")
+    suspend fun getWishlist(): WishlistResponse
+
+    @POST("api/wishlist/{listingId}")
+    suspend fun addToWishlist(@Path("listingId") listingId: String): WishlistResponse
+
+    @HTTP(method = "DELETE", path = "api/wishlist/{listingId}", hasBody = false)
+    suspend fun removeFromWishlist(@Path("listingId") listingId: String): WishlistResponse
 }
