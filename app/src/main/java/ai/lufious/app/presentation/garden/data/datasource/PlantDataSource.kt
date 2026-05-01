@@ -1,5 +1,6 @@
 package ai.lufious.app.presentation.garden.data.datasource
 
+import ai.lufious.app.core.firebase.StorageManager
 import ai.lufious.app.core.firebase.utils.LogFields
 import ai.lufious.app.core.firebase.utils.PlantFields
 import ai.lufious.app.core.local_cache.LocalCacheManager
@@ -13,7 +14,8 @@ import kotlinx.coroutines.tasks.await
 
 class PlantDataSource @Inject constructor(
     private val firestore: FirebaseFirestore,
-    private val localCache: LocalCacheManager
+    private val localCache: LocalCacheManager,
+    private val storage: StorageManager
 ) {
     private val uid get() = localCache.getUser()?.uid ?: error("User not logged in")
 
@@ -23,9 +25,14 @@ class PlantDataSource @Inject constructor(
     private fun logsRef(plantId: String) =
         plantsRef().document(plantId).collection(LogFields.COLLECTION)
 
-    suspend fun addPlant(plant: PlantModel): PlantModel {
+    suspend fun addPlant(plant: PlantModel, imageBytes: ByteArray? = null): PlantModel {
         val doc = plantsRef().document()
-        val withId = plant.copy(id = doc.id, addedAt = System.currentTimeMillis())
+        val photoUrl = imageBytes?.let { storage.uploadPlantPhoto(uid, doc.id, it) } ?: plant.photoUrl
+        val withId = plant.copy(
+            id = doc.id,
+            photoUrl = photoUrl,
+            addedAt = System.currentTimeMillis()
+        )
         doc.set(withId.toMap()).await()
         return withId
     }

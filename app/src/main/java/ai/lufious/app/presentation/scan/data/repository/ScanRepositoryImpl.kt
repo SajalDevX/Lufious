@@ -13,8 +13,8 @@ class ScanRepositoryImpl @Inject constructor(
     override suspend fun scanPlant(imageBytes: ByteArray): Result<ScanResultModel> =
         wrap { ds.scanPlant(imageBytes) }
 
-    override suspend fun saveScan(scan: ScanResultModel): Result<ScanResultModel> =
-        wrap { ds.saveScan(scan) }
+    override suspend fun saveScan(scan: ScanResultModel, imageBytes: ByteArray?): Result<ScanResultModel> =
+        wrap { ds.saveScan(scan, imageBytes) }
 
     override suspend fun getScanHistory(): Result<List<ScanResultModel>> =
         wrap { ds.getScanHistory() }

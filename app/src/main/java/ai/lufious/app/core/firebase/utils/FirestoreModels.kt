@@ -2,9 +2,16 @@ package ai.lufious.app.core.firebase.utils
 
 sealed class FirestoreModels(val collection: String) {
     object User : FirestoreModels("users") {
+        const val UID = "uid"
         const val NAME = "name"
         const val EMAIL = "email"
         const val AGE = "age"
+        const val PHOTO_URL = "photoUrl"
+        const val PHONE = "phoneNumber"
+        const val FCM_TOKEN = "fcmToken"
+        const val PROVIDER = "provider"
+        const val CREATED_AT = "createdAt"
+        const val UPDATED_AT = "updatedAt"
     }
 }
 
@@ -62,5 +69,6 @@ object ScanFields {
     const val HEALTH_STATUS = "healthStatus"
     const val DIAGNOSIS = "diagnosis"
     const val CARE_PLAN = "carePlan"
+    const val PHOTO_URL = "photoUrl"
     const val TIMESTAMP = "timestamp"
 }

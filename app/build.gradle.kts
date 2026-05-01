@@ -181,6 +181,8 @@ dependencies {
     implementation(libs.firebase.auth.ktx)
     implementation(libs.play.services.auth)
     implementation(libs.firebase.firestore)
+    implementation("com.google.firebase:firebase-storage-ktx")
+    implementation("com.google.firebase:firebase-messaging-ktx")
 //    implementation("com.facebook.android:facebook-login:16.3.0")
 
     //Splash

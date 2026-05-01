@@ -11,7 +11,7 @@ class ScanPlantUseCase @Inject constructor(private val repository: ScanRepositor
             is Result.Success -> result.data ?: return Result.Error("No scan result returned")
             is Result.Error -> return result
         }
-        return repository.saveScan(scanResult)
+        return repository.saveScan(scanResult, imageBytes)
     }
 }
 

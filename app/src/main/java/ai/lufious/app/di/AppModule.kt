@@ -64,8 +64,16 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideAuthDataSource(auth: FirebaseAuth, firestoreManager: FirestoreManager) =
-        FirebaseAuthDataSource(auth, firestoreManager)
+    fun provideAuthDataSource(
+        auth: FirebaseAuth,
+        firestoreManager: FirestoreManager,
+        firestore: FirebaseFirestore
+    ) = FirebaseAuthDataSource(auth, firestoreManager, firestore)
+
+    @Provides
+    @Singleton
+    fun provideFirebaseStorage(): com.google.firebase.storage.FirebaseStorage =
+        com.google.firebase.storage.FirebaseStorage.getInstance()
 
     @Provides
     @Singleton

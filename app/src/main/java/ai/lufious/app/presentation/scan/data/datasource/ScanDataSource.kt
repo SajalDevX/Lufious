@@ -1,5 +1,6 @@
 package ai.lufious.app.presentation.scan.data.datasource
 
+import ai.lufious.app.core.firebase.StorageManager
 import ai.lufious.app.core.firebase.utils.ScanFields
 import ai.lufious.app.core.local_cache.LocalCacheManager
 import ai.lufious.app.presentation.scan.data.models.ScanResultModel
@@ -12,7 +13,8 @@ import kotlinx.coroutines.tasks.await
 
 class ScanDataSource @Inject constructor(
     private val firestore: FirebaseFirestore,
-    private val localCache: LocalCacheManager
+    private val localCache: LocalCacheManager,
+    private val storage: StorageManager
 ) {
     private val uid get() = localCache.getUser()?.uid ?: error("User not logged in")
 
@@ -36,9 +38,10 @@ class ScanDataSource @Inject constructor(
         )
     }
 
-    suspend fun saveScan(scan: ScanResultModel): ScanResultModel {
+    suspend fun saveScan(scan: ScanResultModel, imageBytes: ByteArray? = null): ScanResultModel {
         val doc = scansRef().document()
-        val withId = scan.copy(id = doc.id)
+        val photoUrl = imageBytes?.let { storage.uploadScanPhoto(uid, doc.id, it) } ?: ""
+        val withId = scan.copy(id = doc.id, photoUrl = photoUrl)
         doc.set(withId.toMap()).await()
         return withId
     }
@@ -62,6 +65,7 @@ class ScanDataSource @Inject constructor(
         ScanFields.HEALTH_STATUS to healthStatus,
         ScanFields.DIAGNOSIS to diagnosis,
         ScanFields.CARE_PLAN to carePlan,
+        ScanFields.PHOTO_URL to photoUrl,
         ScanFields.TIMESTAMP to timestamp
     )
 
@@ -74,6 +78,7 @@ class ScanDataSource @Inject constructor(
             healthStatus = getString(ScanFields.HEALTH_STATUS) ?: "healthy",
             diagnosis = getString(ScanFields.DIAGNOSIS) ?: "",
             carePlan = getString(ScanFields.CARE_PLAN) ?: "",
+            photoUrl = getString(ScanFields.PHOTO_URL) ?: "",
             timestamp = getLong(ScanFields.TIMESTAMP) ?: 0L
         )
     } catch (e: Exception) { null }

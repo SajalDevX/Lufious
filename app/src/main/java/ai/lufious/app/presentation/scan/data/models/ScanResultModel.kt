@@ -8,5 +8,6 @@ data class ScanResultModel(
     val healthStatus: String = "healthy",
     val diagnosis: String = "",
     val carePlan: String = "",
+    val photoUrl: String = "",
     val timestamp: Long = 0L
 )
