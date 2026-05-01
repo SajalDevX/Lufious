@@ -47,4 +47,11 @@ class LocalCacheManagerImpl @Inject constructor(
     override fun clearAll() {
         prefs.edit { clear() }
     }
+
+    override fun isPostOnboardingComplete(): Boolean =
+        prefs.getBoolean("post_onboarding_complete", false)
+
+    override fun setPostOnboardingComplete() {
+        prefs.edit { putBoolean("post_onboarding_complete", true) }
+    }
 }

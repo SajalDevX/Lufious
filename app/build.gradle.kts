@@ -80,7 +80,7 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "dagger.hilt.android.testing.HiltTestRunner"
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -145,6 +145,8 @@ dependencies {
     //Dagger Hilt
     implementation(libs.hilt.android)
     kapt         (libs.hilt.compiler)
+    androidTestImplementation("com.google.dagger:hilt-android-testing:2.56.1")
+    kaptAndroidTest("com.google.dagger:hilt-android-compiler:2.56.1")
     implementation(libs.androidx.hilt.navigation.compose)
 
     //Room
@@ -175,5 +177,14 @@ dependencies {
 
     //Splash
     implementation("androidx.core:core-splashscreen:1.0.0")
+
+    //CameraX
+    implementation("androidx.camera:camera-camera2:1.3.4")
+    implementation("androidx.camera:camera-lifecycle:1.3.4")
+    implementation("androidx.camera:camera-view:1.3.4")
+    implementation("androidx.concurrent:concurrent-futures-ktx:1.2.0")
+
+    //WorkManager
+    implementation("androidx.work:work-runtime-ktx:2.9.0")
 
 }

@@ -123,7 +123,14 @@ class LoginViewModel @Inject constructor(
                 setState { copy(isLoading = true) }
                 ioLaunch {
                     when (val res = fbUC(event.accessToken)) {
-                        is Result.Success -> emitEffect(Navigate("home"))
+                        is Result.Success -> {
+                            val user = res.data
+                            if (user != null) cacheAndNavigate(user)
+                            else {
+                                setState { copy(isLoading = false) }
+                                emitEffect(ShowError("Facebook login succeeded but no user data"))
+                            }
+                        }
                         is Result.Error -> {
                             setState { copy(isLoading = false) }
                             emitEffect(ShowError(res.message ?: "Facebook login failed"))

@@ -21,6 +21,7 @@ fun LoginPage(
             }
         },
         onEmailLogin={navController.navigate(Screen.EmailLogin.route) },
+        onSignUp = { navController.navigate(Screen.Signup.route) },
         launchGoogleSignIn = launchGoogleIntent,
         launchFacebookSignIn = launchFacebookIntent
     )

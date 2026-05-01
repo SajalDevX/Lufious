@@ -11,4 +11,7 @@ interface LocalCacheManager {
     fun getAuthToken(): String?
 
     fun clearAll()
+
+    fun isPostOnboardingComplete(): Boolean
+    fun setPostOnboardingComplete()
 }

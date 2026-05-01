@@ -10,6 +10,7 @@ import ai.lufious.app.core.utils.UiEffect.Navigate
 import ai.lufious.app.core.utils.UiEffect.ShowError
 import ai.lufious.app.core.utils.ValidationResult
 import ai.lufious.app.presentation.auth.data.models.UserModel
+import ai.lufious.app.presentation.auth.data.usecases.LoginWithFacebookUseCase
 import ai.lufious.app.presentation.auth.data.usecases.SignupUseCase
 import ai.lufious.app.presentation.auth.data.usecases.SignupWithGoogleUseCase
 import ai.lufious.app.presentation.auth.data.usecases.ValidateEmailUseCase
@@ -23,6 +24,7 @@ import javax.inject.Inject
 class SignupViewModel @Inject constructor(
     private val signupUseCase: SignupUseCase,
     private val googleSignupUC: SignupWithGoogleUseCase,
+    private val fbUC: LoginWithFacebookUseCase,
     private val validateEmail: ValidateEmailUseCase,
     private val validatePassword: ValidatePasswordUseCase,
     private val localCache: LocalCacheManager,
@@ -111,7 +113,21 @@ class SignupViewModel @Inject constructor(
 
             is SignupEvent.FacebookSignUpResult -> {
                 setState { copy(isLoading = true) }
-
+                ioLaunch {
+                    when (val res = fbUC(event.accessToken)) {
+                        is Result.Success -> {
+                            res.data?.let { cacheAndNavigate(it) }
+                                ?: run {
+                                    setState { copy(isLoading = false) }
+                                    emitEffect(ShowError("Facebook sign-up succeeded but no user data"))
+                                }
+                        }
+                        is Result.Error -> {
+                            setState { copy(isLoading = false) }
+                            emitEffect(ShowError(res.message ?: "Facebook sign-up failed"))
+                        }
+                    }
+                }
             }
         }
     }
