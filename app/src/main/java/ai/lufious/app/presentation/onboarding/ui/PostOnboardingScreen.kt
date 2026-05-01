@@ -1,6 +1,5 @@
 package ai.lufious.app.presentation.onboarding.ui
 
-import ai.lufious.app.core.notifications.NotificationScheduler
 import ai.lufious.app.core.theme.Background
 import ai.lufious.app.core.theme.LimeAccent
 import ai.lufious.app.core.theme.PrimaryColor
@@ -118,7 +117,6 @@ fun PostOnboardingScreen(
     val notifPermLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) {
-        NotificationScheduler.scheduleDailyCarePlan(context)
         viewModel.onEvent(PostOnboardingEvent.Complete)
     }
 
@@ -246,7 +244,6 @@ fun PostOnboardingScreen(
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                             notifPermLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                         } else {
-                            NotificationScheduler.scheduleDailyCarePlan(context)
                             viewModel.onEvent(PostOnboardingEvent.Complete)
                         }
                     }
