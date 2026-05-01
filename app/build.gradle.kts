@@ -9,6 +9,7 @@ plugins {
     id("com.google.dagger.hilt.android")
     kotlin("plugin.serialization") version "1.9.10"
     id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
 }
 
 kapt {
@@ -183,6 +184,8 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation("com.google.firebase:firebase-storage-ktx")
     implementation("com.google.firebase:firebase-messaging-ktx")
+    implementation("com.google.firebase:firebase-crashlytics-ktx")
+    implementation("com.google.firebase:firebase-analytics-ktx")
 //    implementation("com.facebook.android:facebook-login:16.3.0")
 
     //Splash
