@@ -203,4 +203,7 @@ dependencies {
     //WorkManager
     implementation("androidx.work:work-runtime-ktx:2.9.0")
 
+    //Location
+    implementation("com.google.android.gms:play-services-location:21.3.0")
+
 }

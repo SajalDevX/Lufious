@@ -45,8 +45,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.google.android.gms.location.LocationServices
 
 private data class OnboardStep(
     val emoji: String,
@@ -86,7 +88,32 @@ fun PostOnboardingScreen(
 
     val locationPermLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
-    ) { viewModel.onEvent(PostOnboardingEvent.NextStep) }
+    ) { granted ->
+        if (granted &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) ==
+            android.content.pm.PackageManager.PERMISSION_GRANTED
+        ) {
+            try {
+                LocationServices.getFusedLocationProviderClient(context)
+                    .lastLocation
+                    .addOnSuccessListener { loc ->
+                        if (loc != null) {
+                            viewModel.onEvent(
+                                PostOnboardingEvent.SaveLocation(loc.latitude, loc.longitude)
+                            )
+                        }
+                        viewModel.onEvent(PostOnboardingEvent.NextStep)
+                    }
+                    .addOnFailureListener {
+                        viewModel.onEvent(PostOnboardingEvent.NextStep)
+                    }
+            } catch (_: SecurityException) {
+                viewModel.onEvent(PostOnboardingEvent.NextStep)
+            }
+        } else {
+            viewModel.onEvent(PostOnboardingEvent.NextStep)
+        }
+    }
 
     val notifPermLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()

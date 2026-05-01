@@ -24,6 +24,12 @@ import ai.lufious.app.core.network.dto.MessageListResponse
 import ai.lufious.app.core.network.dto.ThreadCreateRequest
 import ai.lufious.app.core.network.dto.ThreadDto
 import ai.lufious.app.core.network.dto.ThreadListResponse
+import ai.lufious.app.core.network.dto.AiTipDto
+import ai.lufious.app.core.network.dto.LocationPatchRequest
+import ai.lufious.app.core.network.dto.NotificationPrefsDto
+import ai.lufious.app.core.network.dto.NotificationPrefsPatchRequest
+import ai.lufious.app.core.network.dto.ProfilePatchRequest
+import ai.lufious.app.core.network.dto.WeatherDto
 import ai.lufious.app.core.network.dto.WishlistResponse
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -128,4 +134,28 @@ interface LufiousApi {
 
     @POST("api/threads/{id}/read")
     suspend fun markThreadRead(@Path("id") threadId: String): ThreadDto
+
+    @GET("api/me/profile")
+    suspend fun getProfile(): UserDto
+
+    @PATCH("api/me/profile")
+    suspend fun patchProfile(@Body body: ProfilePatchRequest): UserDto
+
+    @PATCH("api/me/location")
+    suspend fun patchLocation(@Body body: LocationPatchRequest): retrofit2.Response<Unit>
+
+    @GET("api/me/preferences")
+    suspend fun getPreferences(): NotificationPrefsDto
+
+    @PATCH("api/me/preferences")
+    suspend fun patchPreferences(@Body body: NotificationPrefsPatchRequest): NotificationPrefsDto
+
+    @GET("api/weather")
+    suspend fun getWeather(
+        @Query("lat") lat: Double,
+        @Query("lon") lon: Double
+    ): WeatherDto
+
+    @GET("api/ai/tips")
+    suspend fun getAiTip(): AiTipDto
 }
