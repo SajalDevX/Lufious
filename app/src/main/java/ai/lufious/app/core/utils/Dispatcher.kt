@@ -1,6 +1,6 @@
 package ai.lufious.app.core.utils
 
-import jakarta.inject.Inject
+import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 

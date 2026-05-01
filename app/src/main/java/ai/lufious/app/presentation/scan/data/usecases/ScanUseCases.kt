@@ -3,7 +3,7 @@ package ai.lufious.app.presentation.scan.data.usecases
 import ai.lufious.app.core.utils.Result
 import ai.lufious.app.presentation.scan.data.models.ScanResultModel
 import ai.lufious.app.presentation.scan.data.repository.ScanRepository
-import jakarta.inject.Inject
+import javax.inject.Inject
 
 class ScanPlantUseCase @Inject constructor(private val repository: ScanRepository) {
     suspend operator fun invoke(imageBytes: ByteArray): Result<ScanResultModel> {

@@ -8,7 +8,7 @@ import ai.lufious.app.presentation.garden.data.models.PlantModel
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
-import jakarta.inject.Inject
+import javax.inject.Inject
 import kotlinx.coroutines.tasks.await
 
 class PlantDataSource @Inject constructor(

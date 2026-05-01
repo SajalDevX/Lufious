@@ -1,7 +1,7 @@
 package ai.lufious.app.presentation.scan.data.datasource
 
 import ai.lufious.app.presentation.scan.data.models.AiChatMessageModel
-import jakarta.inject.Inject
+import javax.inject.Inject
 import kotlinx.coroutines.delay
 
 class AiChatDataSource @Inject constructor() {

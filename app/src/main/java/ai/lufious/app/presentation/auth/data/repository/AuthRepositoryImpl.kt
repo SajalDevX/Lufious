@@ -2,7 +2,7 @@ package ai.lufious.app.presentation.auth.data.repository
 
 import ai.lufious.app.presentation.auth.data.datasource.FirebaseAuthDataSource
 import com.google.firebase.auth.FirebaseUser
-import jakarta.inject.Inject
+import javax.inject.Inject
 import ai.lufious.app.core.utils.Result
 import ai.lufious.app.presentation.auth.data.models.UserModel
 

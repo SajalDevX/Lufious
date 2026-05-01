@@ -3,7 +3,7 @@ package ai.lufious.app.presentation.scan.data.repository
 import ai.lufious.app.core.utils.Result
 import ai.lufious.app.presentation.scan.data.datasource.ScanDataSource
 import ai.lufious.app.presentation.scan.data.models.ScanResultModel
-import jakarta.inject.Inject
+import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 
 class ScanRepositoryImpl @Inject constructor(

@@ -4,7 +4,7 @@ import ai.lufious.app.core.utils.Result
 import ai.lufious.app.presentation.shop.data.models.ListingCategory
 import ai.lufious.app.presentation.shop.data.models.ListingModel
 import ai.lufious.app.presentation.shop.data.repository.ListingRepository
-import jakarta.inject.Inject
+import javax.inject.Inject
 
 class GetListingsUseCase @Inject constructor(private val repository: ListingRepository) {
     suspend operator fun invoke(category: String): Result<List<ListingModel>> {

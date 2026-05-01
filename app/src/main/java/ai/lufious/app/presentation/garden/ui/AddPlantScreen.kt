@@ -60,6 +60,7 @@ import kotlinx.coroutines.flow.collectLatest
 
 private val locationOptions = listOf("Living Room", "Balcony", "Bedroom", "Office", "Outdoor")
 
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
 fun AddPlantScreen(
     navController: NavController,

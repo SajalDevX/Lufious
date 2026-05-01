@@ -4,7 +4,7 @@ import ai.lufious.app.core.utils.Result
 import ai.lufious.app.presentation.garden.data.datasource.PlantDataSource
 import ai.lufious.app.presentation.garden.data.models.CareLogModel
 import ai.lufious.app.presentation.garden.data.models.PlantModel
-import jakarta.inject.Inject
+import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 
 class PlantRepositoryImpl @Inject constructor(

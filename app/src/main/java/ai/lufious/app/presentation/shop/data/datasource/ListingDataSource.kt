@@ -7,7 +7,7 @@ import ai.lufious.app.presentation.shop.data.models.ListingModel
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
-import jakarta.inject.Inject
+import javax.inject.Inject
 import kotlinx.coroutines.tasks.await
 
 class ListingDataSource @Inject constructor(
@@ -17,7 +17,9 @@ class ListingDataSource @Inject constructor(
     private val uid get() = localCache.getUser()?.uid ?: error("User not logged in")
 
     private fun listingsRef() =
-        firestore.collection(ListingFields.MARKETPLACE).collection(ListingFields.COLLECTION)
+        firestore.collection(ListingFields.MARKETPLACE)
+            .document("global")
+            .collection(ListingFields.COLLECTION)
 
     private fun wishlistRef() =
         firestore.collection("users").document(uid).collection(WishlistFields.COLLECTION)

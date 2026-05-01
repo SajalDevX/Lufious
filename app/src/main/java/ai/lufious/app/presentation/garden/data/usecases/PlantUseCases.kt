@@ -4,7 +4,7 @@ import ai.lufious.app.core.utils.Result
 import ai.lufious.app.presentation.garden.data.models.CareLogModel
 import ai.lufious.app.presentation.garden.data.models.PlantModel
 import ai.lufious.app.presentation.garden.data.repository.PlantRepository
-import jakarta.inject.Inject
+import javax.inject.Inject
 
 class AddPlantUseCase @Inject constructor(private val repo: PlantRepository) {
     suspend operator fun invoke(
