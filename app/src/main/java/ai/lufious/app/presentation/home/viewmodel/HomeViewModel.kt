@@ -1,18 +1,18 @@
 package ai.lufious.app.presentation.home.viewmodel
 
 import ai.lufious.app.core.local_cache.LocalCacheManager
+import ai.lufious.app.core.network.LufiousApi
+import ai.lufious.app.core.network.dto.toModel
 import ai.lufious.app.core.utils.BaseViewModel
 import ai.lufious.app.core.utils.DispatcherProvider
-import ai.lufious.app.core.utils.Result
-import ai.lufious.app.presentation.garden.data.usecases.GetPlantsUseCase
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val getPlants: GetPlantsUseCase,
+    private val api: LufiousApi,
     private val localCache: LocalCacheManager,
     dispatchers: DispatcherProvider
 ) : BaseViewModel<HomeEvent, HomeState>(HomeState(), dispatchers) {
@@ -28,31 +28,37 @@ class HomeViewModel @Inject constructor(
     override suspend fun handleEvent(event: HomeEvent) {
         when (event) {
             HomeEvent.LoadDashboard -> {
-                val user = localCache.getUser()
-                val userName = user?.displayName
-                    ?: user?.email?.substringBefore("@")
+                val cachedUser = localCache.getUser()
+                val fallbackName = cachedUser?.displayName
+                    ?: cachedUser?.email?.substringBefore("@")
                     ?: "Gardener"
-                setState { copy(userName = userName, isLoading = true) }
+                setState { copy(userName = fallbackName, isLoading = true, errorMessage = null) }
+
                 ioLaunch {
-                    when (val result = getPlants()) {
-                        is Result.Success -> {
-                            val plants = result.data ?: emptyList()
-                            val now = System.currentTimeMillis()
-                            val needsWater = plants.filter { plant ->
-                                plant.wateringIntervalDays > 0 &&
-                                    (now - plant.lastWatered) >= plant.wateringIntervalDays * 86_400_000L
-                            }
+                    runCatching { api.homeDashboard() }
+                        .onSuccess { dash ->
+                            val name = dash.user?.displayName
+                                ?: dash.user?.name
+                                ?: dash.user?.email?.substringBefore("@")
+                                ?: fallbackName
                             setState {
                                 copy(
-                                    totalPlants = plants.size,
-                                    plantsNeedingWater = needsWater,
-                                    isLoading = false
+                                    userName = name,
+                                    totalPlants = dash.totalPlants,
+                                    plantsNeedingWater = dash.needsWater.map { it.toModel() },
+                                    recentPlants = dash.recentPlants.map { it.toModel() },
+                                    weatherAlertsCount = dash.weatherAlertsCount,
+                                    aiTip = dash.aiTip?.content,
+                                    isLoading = false,
+                                    errorMessage = null
                                 )
                             }
                         }
-                        is Result.Error ->
-                            setState { copy(isLoading = false) }
-                    }
+                        .onFailure { e ->
+                            setState {
+                                copy(isLoading = false, errorMessage = e.message ?: "Failed to load dashboard")
+                            }
+                        }
                 }
             }
         }

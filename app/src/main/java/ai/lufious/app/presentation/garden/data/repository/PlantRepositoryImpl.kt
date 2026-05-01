@@ -1,14 +1,14 @@
 package ai.lufious.app.presentation.garden.data.repository
 
 import ai.lufious.app.core.utils.Result
-import ai.lufious.app.presentation.garden.data.datasource.PlantDataSource
+import ai.lufious.app.presentation.garden.data.datasource.PlantApiDataSource
 import ai.lufious.app.presentation.garden.data.models.CareLogModel
 import ai.lufious.app.presentation.garden.data.models.PlantModel
 import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 
 class PlantRepositoryImpl @Inject constructor(
-    private val ds: PlantDataSource
+    private val ds: PlantApiDataSource
 ) : PlantRepository {
 
     override suspend fun addPlant(

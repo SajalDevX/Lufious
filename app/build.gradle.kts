@@ -29,7 +29,7 @@ android {
             buildConfigField(
                 "String",
                 "BASE_URL",
-                "\"https://api.yoursite.com/\""
+                "\"http://10.0.2.2:3000/\""
             )
             buildConfigField("boolean", "IS_PRODUCTION", "false")
         }
@@ -38,7 +38,7 @@ android {
             buildConfigField(
                 "String",
                 "BASE_URL",
-                "\"https://api.yoursite.com/\""
+                "\"https://api.lufious.ai/\""
             )
             buildConfigField("boolean", "IS_PRODUCTION", "true")
         }
@@ -171,6 +171,7 @@ dependencies {
     //Networking
     implementation(libs.retrofit)
     implementation(libs.okhttp)
+    implementation("com.squareup.okhttp3:logging-interceptor:5.1.0")
 
     //Serialization
     implementation(libs.kotlinx.serialization.json)
