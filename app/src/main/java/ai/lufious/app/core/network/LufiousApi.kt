@@ -18,6 +18,12 @@ import ai.lufious.app.core.network.dto.ScanListResponse
 import ai.lufious.app.core.network.dto.SignedUploadRequest
 import ai.lufious.app.core.network.dto.SignedUploadResponse
 import ai.lufious.app.core.network.dto.UserDto
+import ai.lufious.app.core.network.dto.MessageCreateRequest
+import ai.lufious.app.core.network.dto.MessageDto
+import ai.lufious.app.core.network.dto.MessageListResponse
+import ai.lufious.app.core.network.dto.ThreadCreateRequest
+import ai.lufious.app.core.network.dto.ThreadDto
+import ai.lufious.app.core.network.dto.ThreadListResponse
 import ai.lufious.app.core.network.dto.WishlistResponse
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -101,4 +107,25 @@ interface LufiousApi {
 
     @HTTP(method = "DELETE", path = "api/wishlist/{listingId}", hasBody = false)
     suspend fun removeFromWishlist(@Path("listingId") listingId: String): WishlistResponse
+
+    @GET("api/threads")
+    suspend fun listThreads(): ThreadListResponse
+
+    @POST("api/threads")
+    suspend fun createThread(@Body body: ThreadCreateRequest): ThreadDto
+
+    @GET("api/threads/{id}/messages")
+    suspend fun listMessages(
+        @Path("id") threadId: String,
+        @Query("before") before: Long? = null
+    ): MessageListResponse
+
+    @POST("api/threads/{id}/messages")
+    suspend fun postMessage(
+        @Path("id") threadId: String,
+        @Body body: MessageCreateRequest
+    ): MessageDto
+
+    @POST("api/threads/{id}/read")
+    suspend fun markThreadRead(@Path("id") threadId: String): ThreadDto
 }
