@@ -5,7 +5,6 @@ import ai.lufious.app.core.utils.BaseViewModel
 import ai.lufious.app.core.utils.DispatcherProvider
 import ai.lufious.app.core.utils.MAIN_GRAPH
 import ai.lufious.app.core.utils.Screen
-import ai.lufious.app.core.utils.UiEffect
 import ai.lufious.app.presentation.auth.data.models.UserModel
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,6 +25,9 @@ class SplashViewModel @Inject constructor(
 
     private val _isReady = MutableStateFlow(false)
     val isReady: StateFlow<Boolean> = _isReady.asStateFlow()
+
+    private val _startRoute = MutableStateFlow<String?>(null)
+    val startRoute: StateFlow<String?> = _startRoute.asStateFlow()
 
     override suspend fun handleEvent(event: SplashEvent) {
         when (event) {
@@ -53,16 +55,13 @@ class SplashViewModel @Inject constructor(
                         else -> null
                     }
 
-                    _isReady.value = true
-                    if (user != null) {
-                        if (cache.isPostOnboardingComplete()) {
-                            emitEffect(UiEffect.Navigate(MAIN_GRAPH))
-                        } else {
-                            emitEffect(UiEffect.Navigate(Screen.PostOnboarding.route))
-                        }
-                    } else {
-                        emitEffect(UiEffect.Navigate("onboarding"))
+                    val route = when {
+                        user == null -> "onboarding"
+                        cache.isPostOnboardingComplete() -> MAIN_GRAPH
+                        else -> Screen.PostOnboarding.route
                     }
+                    _startRoute.value = route
+                    _isReady.value = true
                 }
             }
         }

@@ -12,8 +12,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import ai.lufious.app.core.theme.LufiousTheme
-import ai.lufious.app.core.utils.UiEffect
 import ai.lufious.app.navgraph.AppNavHost
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import ai.lufious.app.presentation.auth.login.viewmodel.LoginEvent
 import ai.lufious.app.presentation.auth.login.viewmodel.LoginViewModel
 import ai.lufious.app.presentation.splash.viewmodel.SplashEvent
@@ -21,7 +22,6 @@ import ai.lufious.app.presentation.splash.viewmodel.SplashViewModel
 import android.content.Intent
 import androidx.activity.result.ActivityResultLauncher
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collectLatest
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
@@ -56,19 +56,16 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val navController = rememberNavController()
+            val startRoute by splashViewModel.startRoute.collectAsState()
 
-            LaunchedEffect(Unit) {
-                splashViewModel.effects
-                    .collectLatest { effect ->
-                        if (effect is UiEffect.Navigate) {
-                            navController.navigate(effect.route) {
-                                popUpTo(navController.graph.startDestinationId) {
-                                    inclusive = true
-                                }
-                                launchSingleTop = true
-                            }
-                        }
+            LaunchedEffect(startRoute) {
+                val route = startRoute ?: return@LaunchedEffect
+                navController.navigate(route) {
+                    popUpTo(navController.graph.startDestinationId) {
+                        inclusive = true
                     }
+                    launchSingleTop = true
+                }
             }
 
             LufiousTheme {
