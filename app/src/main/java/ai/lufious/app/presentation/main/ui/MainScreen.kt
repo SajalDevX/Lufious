@@ -39,7 +39,10 @@ fun MainScreen(outerNavController: NavHostController = rememberNavController()) 
                 .padding(paddingValues)
         ) {
             composable(Screen.HomeTab.route) {
-                HomePage(outerNavController = outerNavController)
+                HomePage(
+                    outerNavController = outerNavController,
+                    tabNavController = tabNavController
+                )
             }
             composable(Screen.ScanTab.route) {
                 ScanPage(navController = tabNavController)

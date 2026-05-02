@@ -204,4 +204,7 @@ dependencies {
     //Location
     implementation("com.google.android.gms:play-services-location:21.3.0")
 
+    //Coil image loading
+    implementation("io.coil-kt:coil-compose:2.7.0")
+
 }
