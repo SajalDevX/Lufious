@@ -39,8 +39,8 @@ import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -184,6 +184,20 @@ fun HomePage(
             )
         }
 
+        item {
+            // Reserved 2dp slot — visible bar while loading, transparent when idle.
+            // Prevents LazyColumn reflow when isLoading toggles.
+            Box(modifier = Modifier.fillMaxWidth().height(2.dp)) {
+                if (state.isLoading) {
+                    LinearProgressIndicator(
+                        modifier = Modifier.fillMaxWidth(),
+                        color = PrimaryColor,
+                        trackColor = Color.Transparent
+                    )
+                }
+            }
+        }
+
         item { BannerCarousel(banners = banners) }
 
         item {
@@ -197,17 +211,6 @@ fun HomePage(
         item { SectionTitle("Quick actions") }
 
         item { FeatureGrid(cards = features) }
-
-        if (state.isLoading) {
-            item {
-                Box(
-                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(color = PrimaryColor)
-                }
-            }
-        }
 
         if (state.plantsNeedingWater.isNotEmpty()) {
             item { SectionTitle("Needs water") }
@@ -288,12 +291,13 @@ private fun BannerCarousel(banners: List<HomeBanner>) {
         ) { page ->
             BannerCard(banners[page])
         }
-        if (banners.size > 1) {
-            Spacer(Modifier.height(10.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) {
+        Spacer(Modifier.height(10.dp))
+        // Always reserve indicator slot so growing banner count doesn't reflow.
+        Row(
+            modifier = Modifier.fillMaxWidth().height(6.dp),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            if (banners.size > 1) {
                 repeat(banners.size) { i ->
                     val active = pagerState.currentPage == i
                     Box(
