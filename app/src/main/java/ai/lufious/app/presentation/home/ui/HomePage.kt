@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -173,6 +174,11 @@ fun HomePage(
         }
     )
 
+    val suggestedSpecies = remember(state.userName) {
+        plantCatalog.shuffled().take(8)
+    }
+    val featured = remember { featuredListings.shuffled().take(6) }
+
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
@@ -226,13 +232,9 @@ fun HomePage(
             item { AllHappyCard() }
         }
 
-        val suggestedSpecies = remember(state.userName) {
-            plantCatalog.shuffled().take(8)
-        }
         item { SectionTitle("Plants to try") }
         item { SuggestedSpeciesRow(species = suggestedSpecies) }
 
-        val featured = remember { featuredListings.shuffled().take(6) }
         item { SectionTitle("Trending in Shop") }
         item {
             FeaturedListingsRow(
@@ -247,10 +249,10 @@ fun HomePage(
 
 @Composable
 private fun SuggestedSpeciesRow(species: List<PlantSpecies>) {
-    androidx.compose.foundation.lazy.LazyRow(
+    LazyRow(
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        androidx.compose.foundation.lazy.items(species, key = { it.id }) { s ->
+        items(species, key = { it.id }) { s ->
             Column(
                 modifier = Modifier
                     .width(120.dp)
@@ -290,10 +292,10 @@ private fun FeaturedListingsRow(
     listings: List<DemoListing>,
     onClick: () -> Unit
 ) {
-    androidx.compose.foundation.lazy.LazyRow(
+    LazyRow(
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        androidx.compose.foundation.lazy.items(listings, key = { it.id }) { l ->
+        items(listings, key = { it.id }) { l ->
             Column(
                 modifier = Modifier
                     .width(150.dp)

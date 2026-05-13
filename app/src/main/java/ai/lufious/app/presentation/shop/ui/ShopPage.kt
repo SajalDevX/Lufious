@@ -74,6 +74,14 @@ fun ShopPage(
         }
     }
 
+    val demoListings = remember(state.selectedCategory) {
+        val sel = state.selectedCategory
+        if (sel == null || sel.equals("all", ignoreCase = true)) featuredListings
+        else featuredListings
+            .filter { it.category.equals(sel, ignoreCase = true) }
+            .ifEmpty { featuredListings }
+    }
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = Background,
@@ -167,13 +175,6 @@ fun ShopPage(
                         )
                     }
                 } else if (state.listings.isEmpty()) {
-                    val demos = remember(state.selectedCategory) {
-                        val sel = state.selectedCategory
-                        val all = featuredListings
-                        if (sel == null || sel.equals("all", ignoreCase = true)) all
-                        else all.filter { it.category.equals(sel, ignoreCase = true) }
-                            .ifEmpty { all }
-                    }
                     item {
                         Column {
                             Text(
@@ -190,7 +191,7 @@ fun ShopPage(
                             )
                         }
                     }
-                    items(demos, key = { it.id }) { demo ->
+                    items(demoListings, key = { it.id }) { demo ->
                         DemoListingCard(demo = demo) {
                             Toast.makeText(
                                 context,
