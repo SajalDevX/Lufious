@@ -1,12 +1,16 @@
 package ai.lufious.app.presentation.shop.ui
 
 import ai.lufious.app.core.theme.Background
+import ai.lufious.app.core.theme.LimeAccent
 import ai.lufious.app.core.theme.PrimaryColor
 import ai.lufious.app.core.utils.Screen
 import ai.lufious.app.core.utils.UiEffect
+import ai.lufious.app.presentation.catalog.DemoListing
+import ai.lufious.app.presentation.catalog.featuredListings
 import ai.lufious.app.presentation.shop.data.models.ListingCategory
 import ai.lufious.app.presentation.shop.viewmodel.ShopEvent
 import ai.lufious.app.presentation.shop.viewmodel.ShopViewModel
+import coil.compose.AsyncImage
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -37,6 +41,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -161,11 +167,37 @@ fun ShopPage(
                         )
                     }
                 } else if (state.listings.isEmpty()) {
+                    val demos = remember(state.selectedCategory) {
+                        val sel = state.selectedCategory
+                        val all = featuredListings
+                        if (sel == null || sel.equals("all", ignoreCase = true)) all
+                        else all.filter { it.category.equals(sel, ignoreCase = true) }
+                            .ifEmpty { all }
+                    }
                     item {
-                        EmptyState(
-                            title = "No listings yet",
-                            subtitle = "Try another category or create the first listing."
-                        )
+                        Column {
+                            Text(
+                                text = "Featured listings",
+                                color = Color.White,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Spacer(Modifier.height(4.dp))
+                            Text(
+                                text = "Demo items — marketplace launching soon.",
+                                color = Color.White.copy(alpha = 0.6f),
+                                fontSize = 12.sp
+                            )
+                        }
+                    }
+                    items(demos, key = { it.id }) { demo ->
+                        DemoListingCard(demo = demo) {
+                            Toast.makeText(
+                                context,
+                                "Marketplace launching soon",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                     }
                 } else {
                     items(state.listings, key = { it.id }) { listing ->
@@ -182,6 +214,69 @@ fun ShopPage(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun DemoListingCard(demo: DemoListing, onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(14.dp))
+            .background(Color.White.copy(alpha = 0.06f))
+            .clickable { onClick() }
+            .padding(12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        AsyncImage(
+            model = demo.photoUrl,
+            contentDescription = demo.title,
+            modifier = Modifier
+                .size(82.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .background(Color.White.copy(alpha = 0.05f))
+        )
+        Spacer(Modifier.width(12.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = demo.title,
+                    color = Color.White,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(Modifier.width(6.dp))
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(LimeAccent.copy(alpha = 0.18f))
+                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                ) {
+                    Text(
+                        text = "Demo",
+                        color = LimeAccent,
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+            Spacer(Modifier.height(4.dp))
+            Text(
+                text = demo.description,
+                color = Color.White.copy(alpha = 0.65f),
+                fontSize = 11.sp,
+                maxLines = 2
+            )
+            Spacer(Modifier.height(6.dp))
+            Text(
+                text = "₹${demo.priceCents / 100} · ${demo.sellerName}",
+                color = PrimaryColor,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.SemiBold
+            )
         }
     }
 }
