@@ -7,8 +7,14 @@ import ai.lufious.app.core.theme.LimeAccent
 import ai.lufious.app.core.theme.PrimaryColor
 import ai.lufious.app.core.theme.WarningOrange
 import ai.lufious.app.core.utils.Screen
+import ai.lufious.app.presentation.catalog.DemoListing
+import ai.lufious.app.presentation.catalog.PlantSpecies
+import ai.lufious.app.presentation.catalog.featuredListings
+import ai.lufious.app.presentation.catalog.plantCatalog
+import ai.lufious.app.presentation.catalog.tipOfTheDay
 import ai.lufious.app.presentation.garden.data.models.PlantModel
 import ai.lufious.app.presentation.home.viewmodel.HomeViewModel
+import coil.compose.AsyncImage
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -114,18 +120,17 @@ fun HomePage(
                     )
                 )
             }
-            state.aiTip?.let { tip ->
-                add(
-                    HomeBanner(
-                        title = "AI Care Tip",
-                        subtitle = tip,
-                        cta = "Open Scan",
-                        icon = Icons.Default.WbSunny,
-                        gradient = listOf(Color(0xFF1E3D1E), Color(0xFF152415)),
-                        onClick = { goTab(Screen.ScanTab.route) }
-                    )
+            val tipText = state.aiTip ?: tipOfTheDay()
+            add(
+                HomeBanner(
+                    title = if (state.aiTip != null) "AI Care Tip" else "Tip of the day",
+                    subtitle = tipText,
+                    cta = "Open Scan",
+                    icon = Icons.Default.WbSunny,
+                    gradient = listOf(Color(0xFF1E3D1E), Color(0xFF152415)),
+                    onClick = { goTab(Screen.ScanTab.route) }
                 )
-            }
+            )
             if (state.weatherAlertsCount > 0) {
                 add(
                     HomeBanner(
@@ -221,7 +226,107 @@ fun HomePage(
             item { AllHappyCard() }
         }
 
+        val suggestedSpecies = remember(state.userName) {
+            plantCatalog.shuffled().take(8)
+        }
+        item { SectionTitle("Plants to try") }
+        item { SuggestedSpeciesRow(species = suggestedSpecies) }
+
+        val featured = remember { featuredListings.shuffled().take(6) }
+        item { SectionTitle("Trending in Shop") }
+        item {
+            FeaturedListingsRow(
+                listings = featured,
+                onClick = { goTab(Screen.ShopTab.route) }
+            )
+        }
+
         item { Spacer(Modifier.height(8.dp)) }
+    }
+}
+
+@Composable
+private fun SuggestedSpeciesRow(species: List<PlantSpecies>) {
+    androidx.compose.foundation.lazy.LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        androidx.compose.foundation.lazy.items(species, key = { it.id }) { s ->
+            Column(
+                modifier = Modifier
+                    .width(120.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(Color.White.copy(alpha = 0.06f))
+                    .padding(12.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(PrimaryColor.copy(alpha = 0.15f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(s.emoji, fontSize = 24.sp)
+                }
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    text = s.name,
+                    color = Color.White,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1
+                )
+                Text(
+                    text = s.difficulty.name,
+                    color = Color.White.copy(alpha = 0.55f),
+                    fontSize = 10.sp
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun FeaturedListingsRow(
+    listings: List<DemoListing>,
+    onClick: () -> Unit
+) {
+    androidx.compose.foundation.lazy.LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        androidx.compose.foundation.lazy.items(listings, key = { it.id }) { l ->
+            Column(
+                modifier = Modifier
+                    .width(150.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(Color.White.copy(alpha = 0.06f))
+                    .clickable { onClick() }
+                    .padding(10.dp)
+            ) {
+                AsyncImage(
+                    model = l.photoUrl,
+                    contentDescription = l.title,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(90.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(Color.White.copy(alpha = 0.05f))
+                )
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    text = l.title,
+                    color = Color.White,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1
+                )
+                Text(
+                    text = "₹${l.priceCents / 100}",
+                    color = PrimaryColor,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+        }
     }
 }
 
