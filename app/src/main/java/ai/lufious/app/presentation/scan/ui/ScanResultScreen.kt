@@ -38,6 +38,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import ai.lufious.app.core.theme.TextPrimary
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -70,7 +71,7 @@ fun ScanResultScreen(
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
                         contentDescription = "Back",
-                        tint = Color.White,
+                        tint = TextPrimary,
                         modifier = Modifier.size(28.dp)
                     )
                 }
@@ -79,7 +80,7 @@ fun ScanResultScreen(
                     text = "Scan Result",
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = TextPrimary
                 )
             }
         }
@@ -104,7 +105,7 @@ fun ScanResultScreen(
                 ) {
                     Text(
                         text = state.error ?: "Unable to load scan result",
-                        color = Color.White,
+                        color = TextPrimary,
                         fontSize = 14.sp
                     )
                 }
@@ -122,7 +123,7 @@ fun ScanResultScreen(
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(18.dp),
                                 colors = CardDefaults.cardColors(
-                                    containerColor = Color.White.copy(alpha = 0.1f)
+                                    containerColor = TextPrimary.copy(alpha = 0.1f)
                                 )
                             ) {
                                 Column(modifier = Modifier.padding(18.dp)) {
@@ -134,13 +135,13 @@ fun ScanResultScreen(
                                         Column(modifier = Modifier.weight(1f)) {
                                             Text(
                                                 text = scan.commonName,
-                                                color = Color.White.copy(alpha = 0.65f),
+                                                color = TextPrimary.copy(alpha = 0.65f),
                                                 fontSize = 13.sp
                                             )
                                             Spacer(modifier = Modifier.height(4.dp))
                                             Text(
                                                 text = scan.speciesName,
-                                                color = Color.White,
+                                                color = TextPrimary,
                                                 fontSize = 22.sp,
                                                 fontWeight = FontWeight.Bold
                                             )
@@ -178,7 +179,7 @@ fun ScanResultScreen(
                             ) {
                                 Text(
                                     text = "ADD TO GARDEN",
-                                    color = Color.White,
+                                    color = TextPrimary,
                                     fontWeight = FontWeight.Bold
                                 )
                             }
@@ -233,19 +234,19 @@ private fun SectionCard(title: String, body: String) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.08f))
+        colors = CardDefaults.cardColors(containerColor = TextPrimary.copy(alpha = 0.08f))
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
                 text = title,
-                color = Color.White,
+                color = TextPrimary,
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = body,
-                color = Color.White.copy(alpha = 0.82f),
+                color = TextPrimary.copy(alpha = 0.82f),
                 fontSize = 14.sp,
                 lineHeight = 22.sp
             )

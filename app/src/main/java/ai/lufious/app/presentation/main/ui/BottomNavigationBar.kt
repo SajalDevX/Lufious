@@ -16,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
+import ai.lufious.app.core.theme.TextPrimary
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -41,7 +42,7 @@ fun BottomNavigationBar(navController: NavController) {
 
     NavigationBar(
         containerColor = Background,
-        contentColor = Color.White
+        contentColor = TextPrimary
     ) {
         items.forEach { item ->
             NavigationBarItem(
@@ -60,8 +61,8 @@ fun BottomNavigationBar(navController: NavController) {
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = PrimaryColor,
                     selectedTextColor = PrimaryColor,
-                    unselectedIconColor = Color.White.copy(alpha = 0.5f),
-                    unselectedTextColor = Color.White.copy(alpha = 0.5f),
+                    unselectedIconColor = TextPrimary.copy(alpha = 0.5f),
+                    unselectedTextColor = TextPrimary.copy(alpha = 0.5f),
                     indicatorColor = PrimaryColor.copy(alpha = 0.18f)
                 )
             )

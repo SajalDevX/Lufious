@@ -9,6 +9,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import ai.lufious.app.core.theme.TextPrimary
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -36,11 +37,11 @@ fun CommonTextField(
     isPassword: Boolean = false,
     isError: Boolean = false,
     enabled: Boolean = true,
-    textColor: Color = Color.White,
-    placeholderColor: Color = Color.White.copy(alpha = 0.5f),
-    backgroundColor: Color = Color.White.copy(alpha = 0.1f),
-    borderColor: Color = Color.White.copy(alpha = 0.5f),
-    cursorColor: Color = Color.White,
+    textColor: Color = TextPrimary,
+    placeholderColor: Color = TextPrimary.copy(alpha = 0.5f),
+    backgroundColor: Color = TextPrimary.copy(alpha = 0.1f),
+    borderColor: Color = TextPrimary.copy(alpha = 0.5f),
+    cursorColor: Color = TextPrimary,
     imeAction: ImeAction = ImeAction.Done,
     onImeAction: (() -> Unit)? = null,
     singleLine: Boolean = true,

@@ -55,6 +55,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import ai.lufious.app.core.theme.TextPrimary
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
@@ -106,7 +107,7 @@ fun PlantDetailScreen(
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
                         contentDescription = "Back",
-                        tint = Color.White,
+                        tint = TextPrimary,
                         modifier = Modifier.size(28.dp)
                     )
                 }
@@ -115,7 +116,7 @@ fun PlantDetailScreen(
                     text = state.plant?.nickname ?: "Plant Detail",
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = TextPrimary
                 )
             }
         }
@@ -174,20 +175,20 @@ fun PlantDetailScreen(
                                             text = plant.nickname.firstOrNull()
                                                 ?.uppercaseChar()?.toString() ?: "🌱",
                                             fontSize = 22.sp,
-                                            color = Color.White
+                                            color = TextPrimary
                                         )
                                     }
                                     Spacer(modifier = Modifier.width(12.dp))
                                     Column {
                                         Text(
                                             text = plant.nickname,
-                                            color = Color.White,
+                                            color = TextPrimary,
                                             fontSize = 18.sp,
                                             fontWeight = FontWeight.Bold
                                         )
                                         Text(
                                             text = plant.species,
-                                            color = Color.White.copy(alpha = 0.6f),
+                                            color = TextPrimary.copy(alpha = 0.6f),
                                             fontSize = 13.sp
                                         )
                                     }
@@ -217,7 +218,7 @@ fun PlantDetailScreen(
                         ) {
                             Text(
                                 text = "LOG CARE ACTION",
-                                color = Color.White,
+                                color = TextPrimary,
                                 fontWeight = FontWeight.Bold
                             )
                         }
@@ -233,7 +234,7 @@ fun PlantDetailScreen(
                             ) {
                                 Text(
                                     text = "No care actions logged yet",
-                                    color = Color.White.copy(alpha = 0.4f),
+                                    color = TextPrimary.copy(alpha = 0.4f),
                                     fontSize = 13.sp
                                 )
                             }
@@ -242,7 +243,7 @@ fun PlantDetailScreen(
                         item {
                             Text(
                                 text = "Care Log",
-                                color = Color.White.copy(alpha = 0.7f),
+                                color = TextPrimary.copy(alpha = 0.7f),
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.SemiBold
                             )
@@ -264,7 +265,7 @@ fun PlantDetailScreen(
             title = {
                 Text(
                     text = "Log Care Action",
-                    color = Color.White,
+                    color = TextPrimary,
                     fontWeight = FontWeight.Bold
                 )
             },
@@ -272,7 +273,7 @@ fun PlantDetailScreen(
                 Column {
                     Text(
                         text = "Type",
-                        color = Color.White.copy(alpha = 0.7f),
+                        color = TextPrimary.copy(alpha = 0.7f),
                         fontSize = 12.sp
                     )
                     Spacer(modifier = Modifier.height(8.dp))
@@ -283,7 +284,7 @@ fun PlantDetailScreen(
                                 modifier = Modifier
                                     .background(
                                         color = if (selected) PrimaryColor
-                                        else Color.White.copy(alpha = 0.15f),
+                                        else TextPrimary.copy(alpha = 0.15f),
                                         shape = RoundedCornerShape(8.dp)
                                     )
                                     .clickable {
@@ -293,7 +294,7 @@ fun PlantDetailScreen(
                             ) {
                                 Text(
                                     text = type.replaceFirstChar { it.uppercase() },
-                                    color = Color.White,
+                                    color = TextPrimary,
                                     fontSize = 11.sp
                                 )
                             }
@@ -306,16 +307,16 @@ fun PlantDetailScreen(
                         placeholder = {
                             Text(
                                 "Note (optional)",
-                                color = Color.White.copy(alpha = 0.4f)
+                                color = TextPrimary.copy(alpha = 0.4f)
                             )
                         },
                         colors = TextFieldDefaults.colors(
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White,
-                            focusedContainerColor = Color.White.copy(alpha = 0.1f),
-                            unfocusedContainerColor = Color.White.copy(alpha = 0.1f),
+                            focusedTextColor = TextPrimary,
+                            unfocusedTextColor = TextPrimary,
+                            focusedContainerColor = TextPrimary.copy(alpha = 0.1f),
+                            unfocusedContainerColor = TextPrimary.copy(alpha = 0.1f),
                             focusedIndicatorColor = PrimaryColor,
-                            unfocusedIndicatorColor = Color.White.copy(alpha = 0.3f)
+                            unfocusedIndicatorColor = TextPrimary.copy(alpha = 0.3f)
                         ),
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -333,7 +334,7 @@ fun PlantDetailScreen(
                 TextButton(
                     onClick = { viewModel.onEvent(PlantDetailEvent.DismissLogDialog) }
                 ) {
-                    Text("CANCEL", color = Color.White.copy(alpha = 0.6f))
+                    Text("CANCEL", color = TextPrimary.copy(alpha = 0.6f))
                 }
             },
             containerColor = Color(0xFF1E2020)
@@ -346,12 +347,12 @@ private fun InfoChip(label: String) {
     Box(
         modifier = Modifier
             .background(
-                color = Color.White.copy(alpha = 0.12f),
+                color = TextPrimary.copy(alpha = 0.12f),
                 shape = RoundedCornerShape(8.dp)
             )
             .padding(horizontal = 8.dp, vertical = 4.dp)
     ) {
-        Text(text = label, color = Color.White.copy(alpha = 0.8f), fontSize = 11.sp)
+        Text(text = label, color = TextPrimary.copy(alpha = 0.8f), fontSize = 11.sp)
     }
 }
 
@@ -363,7 +364,7 @@ private fun CareLogItem(log: CareLogModel) {
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                color = Color.White.copy(alpha = 0.06f),
+                color = TextPrimary.copy(alpha = 0.06f),
                 shape = RoundedCornerShape(10.dp)
             )
             .padding(12.dp),
@@ -382,20 +383,20 @@ private fun CareLogItem(log: CareLogModel) {
         Column {
             Text(
                 text = log.type.replaceFirstChar { it.uppercase() },
-                color = Color.White,
+                color = TextPrimary,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.SemiBold
             )
             if (log.note.isNotBlank()) {
                 Text(
                     text = log.note,
-                    color = Color.White.copy(alpha = 0.6f),
+                    color = TextPrimary.copy(alpha = 0.6f),
                     fontSize = 11.sp
                 )
             }
             Text(
                 text = dateStr,
-                color = Color.White.copy(alpha = 0.4f),
+                color = TextPrimary.copy(alpha = 0.4f),
                 fontSize = 10.sp
             )
         }

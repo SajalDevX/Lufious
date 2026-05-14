@@ -53,6 +53,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import ai.lufious.app.core.theme.TextPrimary
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -140,7 +141,7 @@ fun PostOnboardingScreen(
         Spacer(modifier = Modifier.height(6.dp))
         Text(
             text = "Step ${state.currentStep + 1} of $TOTAL_ONBOARDING_STEPS",
-            color = Color.White.copy(alpha = 0.45f),
+            color = TextPrimary.copy(alpha = 0.45f),
             fontSize = 11.sp,
             modifier = Modifier.fillMaxWidth(),
             textAlign = TextAlign.Center
@@ -268,7 +269,7 @@ private fun ProgressBar(step: Int, total: Int) {
             .fillMaxWidth()
             .height(6.dp)
             .clip(RoundedCornerShape(3.dp))
-            .background(Color.White.copy(alpha = 0.10f))
+            .background(TextPrimary.copy(alpha = 0.10f))
     ) {
         Box(
             modifier = Modifier
@@ -309,7 +310,7 @@ private fun WelcomeStep() {
         Spacer(Modifier.height(32.dp))
         Text(
             text = "Welcome to Lufious",
-            color = Color.White,
+            color = TextPrimary,
             fontSize = 28.sp,
             fontWeight = FontWeight.ExtraBold,
             textAlign = TextAlign.Center
@@ -317,7 +318,7 @@ private fun WelcomeStep() {
         Spacer(Modifier.height(12.dp))
         Text(
             text = "Let's set up your garden in a few quick steps.",
-            color = Color.White.copy(alpha = 0.7f),
+            color = TextPrimary.copy(alpha = 0.7f),
             fontSize = 15.sp,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth()
@@ -346,11 +347,11 @@ private fun ChoiceStep(
                     .clip(RoundedCornerShape(14.dp))
                     .background(
                         if (active) PrimaryColor.copy(alpha = 0.22f)
-                        else Color.White.copy(alpha = 0.06f)
+                        else TextPrimary.copy(alpha = 0.06f)
                     )
                     .border(
                         width = if (active) 2.dp else 1.dp,
-                        color = if (active) PrimaryColor else Color.White.copy(alpha = 0.10f),
+                        color = if (active) PrimaryColor else TextPrimary.copy(alpha = 0.10f),
                         shape = RoundedCornerShape(14.dp)
                     )
                     .clickable { onPick(id) }
@@ -358,7 +359,7 @@ private fun ChoiceStep(
             ) {
                 Text(
                     text = label,
-                    color = Color.White,
+                    color = TextPrimary,
                     fontSize = 15.sp,
                     fontWeight = if (active) FontWeight.Bold else FontWeight.Medium
                 )
@@ -400,11 +401,11 @@ private fun InterestsStep(
                         .clip(RoundedCornerShape(14.dp))
                         .background(
                             if (active) PrimaryColor.copy(alpha = 0.22f)
-                            else Color.White.copy(alpha = 0.06f)
+                            else TextPrimary.copy(alpha = 0.06f)
                         )
                         .border(
                             if (active) 2.dp else 1.dp,
-                            if (active) PrimaryColor else Color.White.copy(alpha = 0.10f),
+                            if (active) PrimaryColor else TextPrimary.copy(alpha = 0.10f),
                             RoundedCornerShape(14.dp)
                         )
                         .clickable { onToggle(id) }
@@ -412,7 +413,7 @@ private fun InterestsStep(
                 ) {
                     Text(
                         text = label,
-                        color = Color.White,
+                        color = TextPrimary,
                         fontSize = 14.sp,
                         fontWeight = if (active) FontWeight.Bold else FontWeight.Medium
                     )
@@ -449,7 +450,7 @@ private fun SimpleStep(emoji: String, title: String, subtitle: String) {
         Spacer(Modifier.height(28.dp))
         Text(
             text = title,
-            color = Color.White,
+            color = TextPrimary,
             fontSize = 24.sp,
             fontWeight = FontWeight.ExtraBold,
             textAlign = TextAlign.Center
@@ -457,7 +458,7 @@ private fun SimpleStep(emoji: String, title: String, subtitle: String) {
         Spacer(Modifier.height(12.dp))
         Text(
             text = subtitle,
-            color = Color.White.copy(alpha = 0.7f),
+            color = TextPrimary.copy(alpha = 0.7f),
             fontSize = 14.sp,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
@@ -491,11 +492,11 @@ private fun PickPlantsStep(
                         .clip(RoundedCornerShape(14.dp))
                         .background(
                             if (picked) PrimaryColor.copy(alpha = 0.22f)
-                            else Color.White.copy(alpha = 0.06f)
+                            else TextPrimary.copy(alpha = 0.06f)
                         )
                         .border(
                             if (picked) 2.dp else 1.dp,
-                            if (picked) PrimaryColor else Color.White.copy(alpha = 0.10f),
+                            if (picked) PrimaryColor else TextPrimary.copy(alpha = 0.10f),
                             RoundedCornerShape(14.dp)
                         )
                         .clickable { onToggle(species.id) }
@@ -513,14 +514,14 @@ private fun PickPlantsStep(
                     Spacer(Modifier.height(8.dp))
                     Text(
                         text = species.name,
-                        color = Color.White,
+                        color = TextPrimary,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
                         maxLines = 1
                     )
                     Text(
                         text = species.difficulty.name,
-                        color = Color.White.copy(alpha = 0.55f),
+                        color = TextPrimary.copy(alpha = 0.55f),
                         fontSize = 10.sp
                     )
                 }
@@ -561,14 +562,14 @@ private fun CompleteStep() {
         Spacer(Modifier.height(28.dp))
         Text(
             text = "You're all set!",
-            color = Color.White,
+            color = TextPrimary,
             fontSize = 28.sp,
             fontWeight = FontWeight.ExtraBold
         )
         Spacer(Modifier.height(12.dp))
         Text(
             text = "Your home is tuned to your preferences.",
-            color = Color.White.copy(alpha = 0.7f),
+            color = TextPrimary.copy(alpha = 0.7f),
             fontSize = 15.sp,
             textAlign = TextAlign.Center
         )
@@ -582,14 +583,14 @@ private fun StepHeader(emoji: String, title: String, subtitle: String) {
         Spacer(Modifier.height(10.dp))
         Text(
             text = title,
-            color = Color.White,
+            color = TextPrimary,
             fontSize = 24.sp,
             fontWeight = FontWeight.ExtraBold
         )
         Spacer(Modifier.height(6.dp))
         Text(
             text = subtitle,
-            color = Color.White.copy(alpha = 0.7f),
+            color = TextPrimary.copy(alpha = 0.7f),
             fontSize = 14.sp,
             lineHeight = 20.sp
         )
@@ -615,7 +616,7 @@ private fun FooterButtons(
     ) {
         Text(
             text = primaryLabel,
-            color = Color.White,
+            color = TextPrimary,
             fontWeight = FontWeight.ExtraBold,
             fontSize = 15.sp
         )
@@ -631,7 +632,7 @@ private fun FooterButtons(
         ) {
             Text(
                 text = "Skip for now",
-                color = Color.White.copy(alpha = 0.55f),
+                color = TextPrimary.copy(alpha = 0.55f),
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Medium
             )

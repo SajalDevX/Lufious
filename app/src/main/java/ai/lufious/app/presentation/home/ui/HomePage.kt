@@ -59,6 +59,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import ai.lufious.app.core.theme.TextPrimary
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
@@ -257,7 +258,7 @@ private fun SuggestedSpeciesRow(species: List<PlantSpecies>) {
                 modifier = Modifier
                     .width(120.dp)
                     .clip(RoundedCornerShape(14.dp))
-                    .background(Color.White.copy(alpha = 0.06f))
+                    .background(TextPrimary.copy(alpha = 0.06f))
                     .padding(12.dp)
             ) {
                 Box(
@@ -272,14 +273,14 @@ private fun SuggestedSpeciesRow(species: List<PlantSpecies>) {
                 Spacer(Modifier.height(8.dp))
                 Text(
                     text = s.name,
-                    color = Color.White,
+                    color = TextPrimary,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1
                 )
                 Text(
                     text = s.difficulty.name,
-                    color = Color.White.copy(alpha = 0.55f),
+                    color = TextPrimary.copy(alpha = 0.55f),
                     fontSize = 10.sp
                 )
             }
@@ -300,7 +301,7 @@ private fun FeaturedListingsRow(
                 modifier = Modifier
                     .width(150.dp)
                     .clip(RoundedCornerShape(14.dp))
-                    .background(Color.White.copy(alpha = 0.06f))
+                    .background(TextPrimary.copy(alpha = 0.06f))
                     .clickable { onClick() }
                     .padding(10.dp)
             ) {
@@ -311,12 +312,12 @@ private fun FeaturedListingsRow(
                         .fillMaxWidth()
                         .height(90.dp)
                         .clip(RoundedCornerShape(10.dp))
-                        .background(Color.White.copy(alpha = 0.05f))
+                        .background(TextPrimary.copy(alpha = 0.05f))
                 )
                 Spacer(Modifier.height(8.dp))
                 Text(
                     text = l.title,
-                    color = Color.White,
+                    color = TextPrimary,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1
@@ -346,13 +347,13 @@ private fun HomeHeader(
         Column {
             Text(
                 text = "$greeting 🌿",
-                color = Color.White,
+                color = TextPrimary,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.ExtraBold
             )
             Text(
                 text = userName,
-                color = Color.White.copy(alpha = 0.6f),
+                color = TextPrimary.copy(alpha = 0.6f),
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Medium
             )
@@ -361,14 +362,14 @@ private fun HomeHeader(
             modifier = Modifier
                 .size(42.dp)
                 .clip(CircleShape)
-                .background(Color.White.copy(alpha = 0.08f))
+                .background(TextPrimary.copy(alpha = 0.08f))
                 .clickable { onProfileClick() },
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = Icons.Default.Person,
                 contentDescription = "Profile",
-                tint = Color.White.copy(alpha = 0.85f),
+                tint = TextPrimary.copy(alpha = 0.85f),
                 modifier = Modifier.size(22.dp)
             )
         }
@@ -415,7 +416,7 @@ private fun BannerCarousel(banners: List<HomeBanner>) {
                             .clip(RoundedCornerShape(3.dp))
                             .background(
                                 if (active) PrimaryColor
-                                else Color.White.copy(alpha = 0.25f)
+                                else TextPrimary.copy(alpha = 0.25f)
                             )
                     )
                 }
@@ -446,7 +447,7 @@ private fun BannerCard(banner: HomeBanner) {
                         modifier = Modifier
                             .size(40.dp)
                             .clip(RoundedCornerShape(10.dp))
-                            .background(Color.White.copy(alpha = 0.12f)),
+                            .background(TextPrimary.copy(alpha = 0.12f)),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
@@ -459,7 +460,7 @@ private fun BannerCard(banner: HomeBanner) {
                     Spacer(Modifier.width(12.dp))
                     Text(
                         text = banner.title,
-                        color = Color.White,
+                        color = TextPrimary,
                         fontSize = 17.sp,
                         fontWeight = FontWeight.ExtraBold,
                         maxLines = 1
@@ -468,7 +469,7 @@ private fun BannerCard(banner: HomeBanner) {
                 Spacer(Modifier.height(8.dp))
                 Text(
                     text = banner.subtitle,
-                    color = Color.White.copy(alpha = 0.78f),
+                    color = TextPrimary.copy(alpha = 0.78f),
                     fontSize = 13.sp,
                     lineHeight = 18.sp,
                     maxLines = 3
@@ -486,7 +487,7 @@ private fun BannerCard(banner: HomeBanner) {
                     ) {
                         Text(
                             text = banner.cta,
-                            color = Color.White,
+                            color = TextPrimary,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -550,7 +551,7 @@ private fun StatTile(
             )
             Text(
                 text = label,
-                color = Color.White.copy(alpha = 0.7f),
+                color = TextPrimary.copy(alpha = 0.7f),
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Medium
             )
@@ -562,7 +563,7 @@ private fun StatTile(
 private fun SectionTitle(text: String) {
     Text(
         text = text,
-        color = Color.White,
+        color = TextPrimary,
         fontSize = 16.sp,
         fontWeight = FontWeight.Bold,
         modifier = Modifier.padding(top = 4.dp, bottom = 2.dp)
@@ -589,7 +590,7 @@ private fun FeatureTile(modifier: Modifier = Modifier, card: FeatureCard) {
         modifier = modifier
             .height(118.dp)
             .clip(RoundedCornerShape(16.dp))
-            .background(Color.White.copy(alpha = 0.06f))
+            .background(TextPrimary.copy(alpha = 0.06f))
             .clickable { card.onClick() }
             .padding(14.dp)
     ) {
@@ -611,7 +612,7 @@ private fun FeatureTile(modifier: Modifier = Modifier, card: FeatureCard) {
             Spacer(Modifier.weight(1f))
             Text(
                 text = card.title,
-                color = Color.White,
+                color = TextPrimary,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
                 maxLines = 1
@@ -619,7 +620,7 @@ private fun FeatureTile(modifier: Modifier = Modifier, card: FeatureCard) {
             Spacer(Modifier.height(2.dp))
             Text(
                 text = card.subtitle,
-                color = Color.White.copy(alpha = 0.55f),
+                color = TextPrimary.copy(alpha = 0.55f),
                 fontSize = 11.sp,
                 maxLines = 1,
                 overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
@@ -649,7 +650,7 @@ private fun WaterReminderCard(plant: PlantModel, onClick: () -> Unit) {
             Text(
                 text = plant.nickname.firstOrNull()?.uppercaseChar()?.toString() ?: "🌱",
                 fontSize = 16.sp,
-                color = Color.White,
+                color = TextPrimary,
                 fontWeight = FontWeight.Bold
             )
         }
@@ -657,7 +658,7 @@ private fun WaterReminderCard(plant: PlantModel, onClick: () -> Unit) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = plant.nickname,
-                color = Color.White,
+                color = TextPrimary,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold
             )
@@ -669,7 +670,7 @@ private fun WaterReminderCard(plant: PlantModel, onClick: () -> Unit) {
         }
         Text(
             text = "›",
-            color = Color.White.copy(alpha = 0.4f),
+            color = TextPrimary.copy(alpha = 0.4f),
             fontSize = 22.sp
         )
     }

@@ -44,6 +44,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import ai.lufious.app.core.theme.TextPrimary
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
@@ -93,7 +94,7 @@ fun ListingDetailScreen(
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
                         contentDescription = "Back",
-                        tint = Color.White,
+                        tint = TextPrimary,
                         modifier = Modifier.size(28.dp)
                     )
                 }
@@ -102,7 +103,7 @@ fun ListingDetailScreen(
                     text = state.listing?.title ?: "Listing Detail",
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = TextPrimary
                 )
             }
         }
@@ -127,7 +128,7 @@ fun ListingDetailScreen(
                 ) {
                     Text(
                         text = state.error ?: "Unable to load listing",
-                        color = Color.White,
+                        color = TextPrimary,
                         fontSize = 14.sp
                     )
                 }
@@ -145,7 +146,7 @@ fun ListingDetailScreen(
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(18.dp),
                                 colors = CardDefaults.cardColors(
-                                    containerColor = Color.White.copy(alpha = 0.12f)
+                                    containerColor = TextPrimary.copy(alpha = 0.12f)
                                 )
                             ) {
                                 Column(modifier = Modifier.padding(18.dp)) {
@@ -157,13 +158,13 @@ fun ListingDetailScreen(
                                         Column(modifier = Modifier.weight(1f)) {
                                             Text(
                                                 text = listing.category,
-                                                color = Color.White.copy(alpha = 0.65f),
+                                                color = TextPrimary.copy(alpha = 0.65f),
                                                 fontSize = 12.sp
                                             )
                                             Spacer(modifier = Modifier.height(6.dp))
                                             Text(
                                                 text = listing.title,
-                                                color = Color.White,
+                                                color = TextPrimary,
                                                 fontSize = 24.sp,
                                                 fontWeight = FontWeight.Bold
                                             )
@@ -190,7 +191,7 @@ fun ListingDetailScreen(
                                         text = listing.description.ifBlank {
                                             "No description provided for this item."
                                         },
-                                        color = Color.White.copy(alpha = 0.82f),
+                                        color = TextPrimary.copy(alpha = 0.82f),
                                         fontSize = 14.sp,
                                         lineHeight = 22.sp
                                     )
@@ -214,7 +215,7 @@ fun ListingDetailScreen(
                                 shape = RoundedCornerShape(14.dp),
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = if (state.isWishlisted) {
-                                        Color.White.copy(alpha = 0.14f)
+                                        TextPrimary.copy(alpha = 0.14f)
                                     } else {
                                         PrimaryColor
                                     }
@@ -227,7 +228,7 @@ fun ListingDetailScreen(
                                         Icons.Outlined.FavoriteBorder
                                     },
                                     contentDescription = null,
-                                    tint = Color.White
+                                    tint = TextPrimary
                                 )
                                 Spacer(modifier = Modifier.width(10.dp))
                                 Text(
@@ -236,7 +237,7 @@ fun ListingDetailScreen(
                                     } else {
                                         "ADD TO WISHLIST"
                                     },
-                                    color = Color.White,
+                                    color = TextPrimary,
                                     fontWeight = FontWeight.Bold
                                 )
                             }
@@ -253,13 +254,13 @@ private fun InfoLine(label: String, value: String) {
     Column {
         Text(
             text = label,
-            color = Color.White.copy(alpha = 0.55f),
+            color = TextPrimary.copy(alpha = 0.55f),
             fontSize = 11.sp
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = value,
-            color = Color.White,
+            color = TextPrimary,
             fontSize = 14.sp
         )
         Spacer(modifier = Modifier.height(10.dp))

@@ -44,6 +44,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import ai.lufious.app.core.theme.TextPrimary
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
@@ -164,7 +165,7 @@ private fun CameraContent(
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
                         text = "Identifying plant…",
-                        color = Color.White,
+                        color = TextPrimary,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Medium
                     )
@@ -182,7 +183,7 @@ private fun CameraContent(
                 Icon(
                     imageVector = Icons.Default.Camera,
                     contentDescription = "Scan plant",
-                    tint = Color.White,
+                    tint = TextPrimary,
                     modifier = Modifier.size(32.dp)
                 )
             }
@@ -204,14 +205,14 @@ private fun PermissionDeniedContent(onRequestPermission: () -> Unit) {
         Spacer(modifier = Modifier.height(20.dp))
         Text(
             text = "Camera access needed",
-            color = Color.White,
+            color = TextPrimary,
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = "Grant camera permission to scan and identify plants with AI.",
-            color = Color.White.copy(alpha = 0.65f),
+            color = TextPrimary.copy(alpha = 0.65f),
             fontSize = 14.sp,
             textAlign = TextAlign.Center
         )

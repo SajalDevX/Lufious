@@ -44,6 +44,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import ai.lufious.app.core.theme.TextPrimary
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -100,7 +101,7 @@ fun EmailSignupScreen(
                         imageVector = Icons.Default.ArrowBack,
                         contentDescription = "Back",
                         modifier = Modifier.size(28.R(dimensions).dp),
-                        tint = Color.White,
+                        tint = TextPrimary,
                     )
                 }
                 Spacer(modifier = Modifier.width(8.R(dimensions).dp))
@@ -109,7 +110,7 @@ fun EmailSignupScreen(
                     text = "Lufious",
                     fontSize = 28.R(dimensions).sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = TextPrimary,
                 )
             }
         }) { innerPadding ->

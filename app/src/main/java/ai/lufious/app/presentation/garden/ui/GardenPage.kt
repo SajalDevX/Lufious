@@ -36,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import ai.lufious.app.core.theme.TextPrimary
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -62,7 +63,7 @@ fun GardenPage(
                 Icon(
                     imageVector = Icons.Default.Add,
                     contentDescription = "Add plant",
-                    tint = Color.White
+                    tint = TextPrimary
                 )
             }
         }
@@ -129,14 +130,14 @@ private fun EmptyGardenWithSuggestions(
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = "No plants yet",
-                    color = Color.White,
+                    color = TextPrimary,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "Tap + to add your own, or start with these:",
-                    color = Color.White.copy(alpha = 0.6f),
+                    color = TextPrimary.copy(alpha = 0.6f),
                     fontSize = 13.sp
                 )
                 Spacer(modifier = Modifier.height(14.dp))
@@ -154,7 +155,7 @@ private fun SuggestionCard(species: PlantSpecies, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(14.dp))
-            .background(Color.White.copy(alpha = 0.06f))
+            .background(TextPrimary.copy(alpha = 0.06f))
             .clickable { onClick() }
             .padding(14.dp)
     ) {
@@ -170,14 +171,14 @@ private fun SuggestionCard(species: PlantSpecies, onClick: () -> Unit) {
         Spacer(Modifier.height(10.dp))
         Text(
             text = species.name,
-            color = Color.White,
+            color = TextPrimary,
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold,
             maxLines = 1
         )
         Text(
             text = "${species.difficulty.name} · ${species.category}",
-            color = Color.White.copy(alpha = 0.55f),
+            color = TextPrimary.copy(alpha = 0.55f),
             fontSize = 11.sp
         )
     }
