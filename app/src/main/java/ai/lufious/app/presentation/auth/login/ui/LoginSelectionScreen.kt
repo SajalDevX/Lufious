@@ -94,6 +94,7 @@ fun LoginSelectionScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(Background)
+            .safeDrawingPadding()
     ) {
         Text(
             modifier = Modifier
