@@ -29,7 +29,7 @@ android {
             buildConfigField(
                 "String",
                 "BASE_URL",
-                "\"http://43.205.12.74:3000/\""
+                "\"http://65.1.178.39:3000/\""
             )
             buildConfigField("boolean", "IS_PRODUCTION", "false")
         }
@@ -38,7 +38,7 @@ android {
             buildConfigField(
                 "String",
                 "BASE_URL",
-                "\"http://43.205.12.74:3000/\""
+                "\"http://65.1.178.39:3000/\""
             )
             buildConfigField("boolean", "IS_PRODUCTION", "true")
         }
