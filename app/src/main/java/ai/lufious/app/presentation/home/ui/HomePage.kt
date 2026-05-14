@@ -1,10 +1,19 @@
 package ai.lufious.app.presentation.home.ui
 
 import ai.lufious.app.core.theme.Background
+import ai.lufious.app.core.theme.CardBorder
 import ai.lufious.app.core.theme.CriticalRed
+import ai.lufious.app.core.theme.DeepForestGreen
 import ai.lufious.app.core.theme.HealthyGreen
 import ai.lufious.app.core.theme.LimeAccent
 import ai.lufious.app.core.theme.PrimaryColor
+import ai.lufious.app.core.theme.Surface
+import ai.lufious.app.core.theme.TextMuted
+import ai.lufious.app.core.theme.TextSecondary
+import ai.lufious.app.core.theme.TintBlush
+import ai.lufious.app.core.theme.TintButter
+import ai.lufious.app.core.theme.TintPeach
+import ai.lufious.app.core.theme.TintSage
 import ai.lufious.app.core.theme.WarningOrange
 import ai.lufious.app.core.utils.Screen
 import ai.lufious.app.presentation.catalog.DemoListing
@@ -117,7 +126,7 @@ fun HomePage(
                         subtitle = "Tap to log a watering and reset the schedule.",
                         cta = "Open Garden",
                         icon = Icons.Default.WaterDrop,
-                        gradient = listOf(Color(0xFF2E5D2E), Color(0xFF1E3D1E)),
+                        gradient = listOf(TintPeach, TintButter),
                         onClick = { goTab(Screen.GardenTab.route) }
                     )
                 )
@@ -129,7 +138,7 @@ fun HomePage(
                     subtitle = tipText,
                     cta = "Open Scan",
                     icon = Icons.Default.WbSunny,
-                    gradient = listOf(Color(0xFF1E3D1E), Color(0xFF152415)),
+                    gradient = listOf(TintSage, Surface),
                     onClick = { goTab(Screen.ScanTab.route) }
                 )
             )
@@ -140,7 +149,7 @@ fun HomePage(
                         subtitle = "Active weather conditions for your area. Adjust care today.",
                         cta = "View",
                         icon = Icons.Default.NotificationsActive,
-                        gradient = listOf(Color(0xFF5D2E1E), Color(0xFF3D1E12)),
+                        gradient = listOf(TintBlush, TintPeach),
                         onClick = { goTab(Screen.HomeTab.route) }
                     )
                 )
@@ -152,7 +161,7 @@ fun HomePage(
                         subtitle = "Add your first plant or scan one with the camera to get started.",
                         cta = "Scan a Plant",
                         icon = Icons.Default.LocalFlorist,
-                        gradient = listOf(Color(0xFF2E5D2E), Color(0xFF1E3D1E)),
+                        gradient = listOf(TintPeach, TintButter),
                         onClick = { goTab(Screen.ScanTab.route) }
                     )
                 )
@@ -447,13 +456,13 @@ private fun BannerCard(banner: HomeBanner) {
                         modifier = Modifier
                             .size(40.dp)
                             .clip(RoundedCornerShape(10.dp))
-                            .background(TextPrimary.copy(alpha = 0.12f)),
+                            .background(Surface),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = banner.icon,
                             contentDescription = null,
-                            tint = LimeAccent,
+                            tint = DeepForestGreen,
                             modifier = Modifier.size(22.dp)
                         )
                     }
@@ -487,7 +496,7 @@ private fun BannerCard(banner: HomeBanner) {
                     ) {
                         Text(
                             text = banner.cta,
-                            color = TextPrimary,
+                            color = Surface,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold
                         )
