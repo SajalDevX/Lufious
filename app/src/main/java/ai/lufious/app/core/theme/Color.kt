@@ -18,10 +18,10 @@ val ButtonShadowColor = Color(0x4015803D)
 val LimeAccent = Color(0xFF65A30D)
 
 // Stage — cool cream-grey base + white cards (Prepairo pattern, farming-flavored).
-val Background = Color(0xFFF4F6F0)
+val Background = Color(0xFFDCE3EC)
 val Surface = Color(0xFFFFFFFF)
-val SurfaceHigh = Color(0xFFE9F1E4)
-val CardBorder = Color(0xFFDCE5D5)
+val SurfaceHigh = Color(0xFFEEF3F7)
+val CardBorder = Color(0xFFDCE3EC)
 val BgCard = Color(0x0A000000)
 val BgCardDark = Color(0x14000000)
 

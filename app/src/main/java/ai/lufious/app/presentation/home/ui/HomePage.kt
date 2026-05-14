@@ -8,6 +8,7 @@ import ai.lufious.app.core.theme.HealthyGreen
 import ai.lufious.app.core.theme.LimeAccent
 import ai.lufious.app.core.theme.PrimaryColor
 import ai.lufious.app.core.theme.Surface
+import ai.lufious.app.core.theme.SurfaceHigh
 import ai.lufious.app.core.theme.TextMuted
 import ai.lufious.app.core.theme.TextSecondary
 import ai.lufious.app.core.theme.TintBlush
@@ -26,7 +27,9 @@ import ai.lufious.app.presentation.home.viewmodel.HomeViewModel
 import coil.compose.AsyncImage
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -222,35 +225,62 @@ fun HomePage(
         item { BannerCarousel(banners = banners) }
 
         item {
-            StatsRow(
-                totalPlants = state.totalPlants,
-                needsWater = state.plantsNeedingWater.size,
-                weatherAlerts = state.weatherAlertsCount
-            )
+            SectionCard {
+                SectionLabel("Today")
+                Spacer(Modifier.height(12.dp))
+                StatsRow(
+                    totalPlants = state.totalPlants,
+                    needsWater = state.plantsNeedingWater.size,
+                    weatherAlerts = state.weatherAlertsCount
+                )
+            }
         }
 
-        item { SectionTitle("Quick actions") }
-
-        item { FeatureGrid(cards = features) }
+        item {
+            SectionCard {
+                SectionLabel("Quick actions")
+                Spacer(Modifier.height(12.dp))
+                FeatureGrid(cards = features)
+            }
+        }
 
         if (state.plantsNeedingWater.isNotEmpty()) {
-            item { SectionTitle("Needs water") }
-            items(state.plantsNeedingWater, key = { it.id }) { plant ->
-                WaterReminderCard(plant = plant) { goTab(Screen.GardenTab.route) }
+            item {
+                SectionCard {
+                    SectionLabel("Needs water")
+                    Spacer(Modifier.height(12.dp))
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        state.plantsNeedingWater.forEach { plant ->
+                            WaterReminderCard(plant = plant) { goTab(Screen.GardenTab.route) }
+                        }
+                    }
+                }
             }
         } else if (state.totalPlants > 0 && !state.isLoading) {
-            item { AllHappyCard() }
+            item {
+                SectionCard {
+                    AllHappyCard()
+                }
+            }
         }
 
-        item { SectionTitle("Plants to try") }
-        item { SuggestedSpeciesRow(species = suggestedSpecies) }
-
-        item { SectionTitle("Trending in Shop") }
         item {
-            FeaturedListingsRow(
-                listings = featured,
-                onClick = { goTab(Screen.ShopTab.route) }
-            )
+            SectionCard {
+                SectionLabel("Plants to try")
+                Spacer(Modifier.height(12.dp))
+                SuggestedSpeciesRow(species = suggestedSpecies)
+            }
+        }
+
+        item {
+            SectionCard {
+                SectionLabel("Trending in Shop")
+                Spacer(Modifier.height(12.dp))
+                FeaturedListingsRow(
+                    listings = featured,
+                    onClick = { goTab(Screen.ShopTab.route) }
+                )
+            }
         }
 
         item { Spacer(Modifier.height(8.dp)) }
@@ -267,7 +297,7 @@ private fun SuggestedSpeciesRow(species: List<PlantSpecies>) {
                 modifier = Modifier
                     .width(120.dp)
                     .clip(RoundedCornerShape(14.dp))
-                    .background(TextPrimary.copy(alpha = 0.06f))
+                    .background(SurfaceHigh)
                     .padding(12.dp)
             ) {
                 Box(
@@ -310,7 +340,7 @@ private fun FeaturedListingsRow(
                 modifier = Modifier
                     .width(150.dp)
                     .clip(RoundedCornerShape(14.dp))
-                    .background(TextPrimary.copy(alpha = 0.06f))
+                    .background(SurfaceHigh)
                     .clickable { onClick() }
                     .padding(10.dp)
             ) {
@@ -321,7 +351,7 @@ private fun FeaturedListingsRow(
                         .fillMaxWidth()
                         .height(90.dp)
                         .clip(RoundedCornerShape(10.dp))
-                        .background(TextPrimary.copy(alpha = 0.05f))
+                        .background(SurfaceHigh)
                 )
                 Spacer(Modifier.height(8.dp))
                 Text(
@@ -569,13 +599,25 @@ private fun StatTile(
 }
 
 @Composable
-private fun SectionTitle(text: String) {
+private fun SectionCard(content: @Composable ColumnScope.() -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .background(Surface)
+            .border(1.dp, CardBorder, RoundedCornerShape(20.dp))
+            .padding(16.dp),
+        content = content
+    )
+}
+
+@Composable
+private fun SectionLabel(text: String) {
     Text(
         text = text,
-        color = TextPrimary,
-        fontSize = 16.sp,
-        fontWeight = FontWeight.Bold,
-        modifier = Modifier.padding(top = 4.dp, bottom = 2.dp)
+        color = TextSecondary,
+        fontSize = 14.sp,
+        fontWeight = FontWeight.SemiBold
     )
 }
 
@@ -599,7 +641,7 @@ private fun FeatureTile(modifier: Modifier = Modifier, card: FeatureCard) {
         modifier = modifier
             .height(118.dp)
             .clip(RoundedCornerShape(16.dp))
-            .background(TextPrimary.copy(alpha = 0.06f))
+            .background(SurfaceHigh)
             .clickable { card.onClick() }
             .padding(14.dp)
     ) {
