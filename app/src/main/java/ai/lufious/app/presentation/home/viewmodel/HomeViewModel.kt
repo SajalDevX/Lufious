@@ -49,6 +49,10 @@ class HomeViewModel @Inject constructor(
                                     recentPlants = dash.recentPlants.map { it.toModel() },
                                     weatherAlertsCount = dash.weatherAlertsCount,
                                     aiTip = dash.aiTip?.content,
+                                    currentTempC = dash.weather?.temp,
+                                    currentCondition = dash.weather?.description,
+                                    currentIcon = dash.weather?.icon,
+                                    weatherForecast = dash.weather?.daily.orEmpty(),
                                     isLoading = false,
                                     errorMessage = null
                                 )

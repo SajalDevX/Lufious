@@ -222,6 +222,15 @@ fun HomePage(
             }
         }
 
+        item {
+            WeatherCarousel(
+                currentTempC = state.currentTempC,
+                currentCondition = state.currentCondition,
+                currentIcon = state.currentIcon,
+                forecast = state.weatherForecast
+            )
+        }
+
         item { BannerCarousel(banners = banners) }
 
         item {
@@ -593,6 +602,158 @@ private fun StatTile(
                 color = TextPrimary.copy(alpha = 0.7f),
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Medium
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun WeatherCarousel(
+    currentTempC: Double?,
+    currentCondition: String?,
+    currentIcon: String?,
+    forecast: List<ai.lufious.app.core.network.dto.DailyForecastDto>
+) {
+    data class WeatherPage(
+        val label: String,
+        val tempLabel: String,
+        val condition: String,
+        val iconCode: String?
+    )
+
+    val pages = remember(currentTempC, currentCondition, currentIcon, forecast) {
+        buildList {
+            add(
+                WeatherPage(
+                    label = "Today",
+                    tempLabel = currentTempC?.let { "${it.toInt()}°" } ?: "--°",
+                    condition = currentCondition?.replaceFirstChar { it.uppercase() } ?: "No data",
+                    iconCode = currentIcon
+                )
+            )
+            forecast.drop(1).take(6).forEach { d ->
+                val dayName = java.time.Instant.ofEpochMilli(d.dt)
+                    .atZone(java.time.ZoneId.systemDefault())
+                    .dayOfWeek
+                    .getDisplayName(java.time.format.TextStyle.SHORT, java.util.Locale.getDefault())
+                val lo = d.tempMin?.toInt()
+                val hi = d.tempMax?.toInt()
+                val range = when {
+                    lo != null && hi != null -> "$hi° / $lo°"
+                    hi != null -> "$hi°"
+                    lo != null -> "$lo°"
+                    else -> "--"
+                }
+                add(
+                    WeatherPage(
+                        label = dayName,
+                        tempLabel = range,
+                        condition = d.description?.replaceFirstChar { it.uppercase() } ?: "—",
+                        iconCode = d.icon
+                    )
+                )
+            }
+            if (size == 1) {
+                // No forecast yet: pad with placeholder days so the carousel still hints swipe.
+                val today = java.time.LocalDate.now()
+                repeat(6) { i ->
+                    val name = today.plusDays((i + 1).toLong()).dayOfWeek
+                        .getDisplayName(java.time.format.TextStyle.SHORT, java.util.Locale.getDefault())
+                    add(WeatherPage(label = name, tempLabel = "--°", condition = "—", iconCode = null))
+                }
+            }
+        }
+    }
+
+    val pagerState = rememberPagerState(pageCount = { pages.size })
+
+    Column {
+        HorizontalPager(
+            state = pagerState,
+            pageSpacing = 10.dp,
+            modifier = Modifier.fillMaxWidth().height(140.dp)
+        ) { page ->
+            WeatherCard(
+                label = pages[page].label,
+                tempLabel = pages[page].tempLabel,
+                condition = pages[page].condition,
+                iconCode = pages[page].iconCode
+            )
+        }
+        Spacer(Modifier.height(8.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth().height(6.dp),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            repeat(pages.size) { i ->
+                val active = pagerState.currentPage == i
+                Box(
+                    modifier = Modifier
+                        .padding(horizontal = 2.5.dp)
+                        .height(6.dp)
+                        .width(if (active) 18.dp else 6.dp)
+                        .clip(RoundedCornerShape(3.dp))
+                        .background(if (active) PrimaryColor else CardBorder)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun WeatherCard(
+    label: String,
+    tempLabel: String,
+    condition: String,
+    iconCode: String?
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(140.dp)
+            .clip(RoundedCornerShape(20.dp))
+            .background(
+                Brush.linearGradient(
+                    listOf(DeepForestGreen, PrimaryColor)
+                )
+            )
+            .padding(18.dp)
+    ) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            Text(
+                text = label,
+                color = LimeAccent,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(Modifier.height(6.dp))
+            Text(
+                text = tempLabel,
+                color = Surface,
+                fontSize = 38.sp,
+                fontWeight = FontWeight.ExtraBold
+            )
+            Text(
+                text = condition,
+                color = Surface.copy(alpha = 0.85f),
+                fontSize = 13.sp,
+                maxLines = 1
+            )
+        }
+        if (iconCode != null) {
+            AsyncImage(
+                model = "https://openweathermap.org/img/wn/${iconCode}@2x.png",
+                contentDescription = condition,
+                modifier = Modifier
+                    .size(96.dp)
+                    .align(Alignment.CenterEnd)
+            )
+        } else {
+            Text(
+                text = "☀️",
+                fontSize = 56.sp,
+                modifier = Modifier.align(Alignment.CenterEnd)
             )
         }
     }

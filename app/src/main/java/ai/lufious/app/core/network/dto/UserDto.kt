@@ -43,10 +43,20 @@ data class WeatherAlertDto(
 )
 
 @Serializable
+data class DailyForecastDto(
+    val dt: Long,
+    val tempMin: Double? = null,
+    val tempMax: Double? = null,
+    val description: String? = null,
+    val icon: String? = null
+)
+
+@Serializable
 data class WeatherDto(
     val temp: Double? = null,
     val description: String? = null,
     val icon: String? = null,
+    val daily: List<DailyForecastDto> = emptyList(),
     val alerts: List<WeatherAlertDto> = emptyList(),
     val fetchedAt: Long = 0L
 )
