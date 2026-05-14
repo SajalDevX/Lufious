@@ -51,6 +51,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import ai.lufious.app.core.theme.TextPrimary
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
@@ -100,7 +101,7 @@ fun CreateListingScreen(
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
                         contentDescription = "Back",
-                        tint = Color.White,
+                        tint = TextPrimary,
                         modifier = Modifier.size(28.dp)
                     )
                 }
@@ -109,7 +110,7 @@ fun CreateListingScreen(
                     text = "Create Listing",
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = TextPrimary
                 )
             }
         }
@@ -189,15 +190,15 @@ fun CreateListingScreen(
                                 value = state.category,
                                 onValueChange = {},
                                 readOnly = true,
-                                label = { Text("Category", color = Color.White.copy(alpha = 0.6f)) },
+                                label = { Text("Category", color = TextPrimary.copy(alpha = 0.6f)) },
                                 trailingIcon = {
                                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
                                 },
                                 colors = TextFieldDefaults.colors(
-                                    focusedContainerColor = Color.White.copy(alpha = 0.1f),
-                                    unfocusedContainerColor = Color.White.copy(alpha = 0.1f),
-                                    focusedTextColor = Color.White,
-                                    unfocusedTextColor = Color.White,
+                                    focusedContainerColor = TextPrimary.copy(alpha = 0.1f),
+                                    unfocusedContainerColor = TextPrimary.copy(alpha = 0.1f),
+                                    focusedTextColor = TextPrimary,
+                                    unfocusedTextColor = TextPrimary,
                                     focusedIndicatorColor = Color.Transparent,
                                     unfocusedIndicatorColor = Color.Transparent
                                 ),

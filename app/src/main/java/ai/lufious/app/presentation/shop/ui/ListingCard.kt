@@ -26,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import ai.lufious.app.core.theme.TextPrimary
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -45,7 +46,7 @@ fun ListingCard(
             .fillMaxWidth()
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(18.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.12f))
+        colors = CardDefaults.cardColors(containerColor = TextPrimary.copy(alpha = 0.12f))
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
@@ -64,7 +65,7 @@ fun ListingCard(
                 ) {
                     Text(
                         text = listing.title.firstOrNull()?.uppercase() ?: "?",
-                        color = Color.White,
+                        color = TextPrimary,
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp
                     )
@@ -81,7 +82,7 @@ fun ListingCard(
                         } else {
                             "Add to wishlist"
                         },
-                        tint = if (isWishlisted) Color(0xFFFF7A7A) else Color.White.copy(alpha = 0.7f)
+                        tint = if (isWishlisted) Color(0xFFFF7A7A) else TextPrimary.copy(alpha = 0.7f)
                     )
                 }
             }
@@ -90,20 +91,20 @@ fun ListingCard(
 
             Text(
                 text = listing.title,
-                color = Color.White,
+                color = TextPrimary,
                 fontSize = 17.sp,
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = listing.category,
-                color = Color.White.copy(alpha = 0.6f),
+                color = TextPrimary.copy(alpha = 0.6f),
                 fontSize = 12.sp
             )
             Spacer(modifier = Modifier.height(10.dp))
             Text(
                 text = listing.description.ifBlank { "No description provided." },
-                color = Color.White.copy(alpha = 0.78f),
+                color = TextPrimary.copy(alpha = 0.78f),
                 fontSize = 13.sp,
                 maxLines = 3
             )

@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import ai.lufious.app.core.theme.TextPrimary
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -83,7 +84,7 @@ fun OnboardingScreen(
                         fontWeight = FontWeight.W500,
                         fontSize = dims.R(14f).sp
                     ),
-                    color = Color.White
+                    color = TextPrimary
                 )
 
                 Spacer(modifier = Modifier.weight(1f))

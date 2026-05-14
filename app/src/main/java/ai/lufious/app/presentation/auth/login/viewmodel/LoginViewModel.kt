@@ -94,6 +94,8 @@ class LoginViewModel @Inject constructor(
             }
 
             LoginEvent.GoogleSignInClicked -> {
+                if (state.value.isLoading) return
+                setState { copy(isLoading = true) }
                 emitEffect(LaunchGoogleSignIn)
             }
 

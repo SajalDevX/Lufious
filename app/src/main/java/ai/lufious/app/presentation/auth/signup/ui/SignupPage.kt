@@ -42,6 +42,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import ai.lufious.app.core.theme.TextPrimary
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -148,7 +149,7 @@ fun SignupSelectionScreen(
                 withStyle(
                     style = SpanStyle(
                         fontWeight = FontWeight.Bold,
-                        color = Color.White.copy(alpha = 0.6f),
+                        color = TextPrimary.copy(alpha = 0.6f),
                         fontSize = MaterialTheme.typography.h3.fontSize
                     )
                 ) {
@@ -157,7 +158,7 @@ fun SignupSelectionScreen(
                 withStyle(
                     style = SpanStyle(
                         fontWeight = FontWeight.SemiBold,
-                        color = Color.White
+                        color = TextPrimary
                     )
                 ) {
                     append("Lufious Community")
@@ -192,7 +193,7 @@ fun SignupSelectionScreen(
             ) {
                 Text(
                     text = "Create Your Lufious Account",
-                    style = MaterialTheme.typography.subtitle1.copy(color = Color.White.copy(alpha = 0.6f))
+                    style = MaterialTheme.typography.subtitle1.copy(color = TextPrimary.copy(alpha = 0.6f))
                 )
 
                 Spacer(modifier = Modifier.height(dims.hR(12f).dp))
@@ -204,7 +205,7 @@ fun SignupSelectionScreen(
                         .fillMaxWidth()
                         .height(dims.hR(48f).dp),
                     colors = ButtonDefaults.buttonColors(
-                        backgroundColor = Color.White.copy(alpha = 0.2f)
+                        backgroundColor = TextPrimary.copy(alpha = 0.2f)
                     )
                 ) {
                     Icon(
@@ -215,7 +216,7 @@ fun SignupSelectionScreen(
                     Spacer(modifier = Modifier.width(dims.wR(8f).dp))
                     Text(
                         "Sign up with Google",
-                        style = MaterialTheme.typography.body2.copy(color = Color.White, fontWeight = FontWeight.W500)
+                        style = MaterialTheme.typography.body2.copy(color = TextPrimary, fontWeight = FontWeight.W500)
                     )
                 }
 
@@ -235,18 +236,18 @@ fun SignupSelectionScreen(
                         .fillMaxWidth()
                         .height(dims.hR(48f).dp),
                     colors = ButtonDefaults.buttonColors(
-                        backgroundColor = Color.White.copy(alpha = 0.2f)
+                        backgroundColor = TextPrimary.copy(alpha = 0.2f)
                     ),
                 ) {
                     Icon(
                         painter = painterResource(R.drawable.ic_email),
                         contentDescription = null,
-                        tint = Color.White
+                        tint = TextPrimary
                     )
                     Spacer(modifier = Modifier.width(dims.wR(8f).dp))
                     Text(
                         "Sign up with email",
-                        style = MaterialTheme.typography.body2.copy(color = Color.White, fontWeight = FontWeight.W500)
+                        style = MaterialTheme.typography.body2.copy(color = TextPrimary, fontWeight = FontWeight.W500)
                     )
                 }
 

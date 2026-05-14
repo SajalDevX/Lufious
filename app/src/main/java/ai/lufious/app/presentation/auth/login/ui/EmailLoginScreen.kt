@@ -51,6 +51,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import ai.lufious.app.core.theme.TextPrimary
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -109,7 +110,7 @@ fun EmailLoginScreen(
                         imageVector = Icons.Default.ArrowBack,
                         contentDescription = "Back",
                         modifier = Modifier.size(28.R(dimensions).dp),
-                        tint = Color.White,
+                        tint = TextPrimary,
                     )
                 }
                 Spacer(modifier = Modifier.width(8.R(dimensions).dp))
@@ -118,7 +119,7 @@ fun EmailLoginScreen(
                     text = "Lufious",
                     fontSize = 28.R(dimensions).sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = TextPrimary,
                 )
             }
         }) { innerPadding ->
@@ -199,7 +200,7 @@ fun EmailLoginScreen(
 //                            if (state.isLoading) {
 //                                CircularProgressIndicator(
 //                                    modifier = Modifier.size(24.R(dimensions).dp),
-//                                    color = Color.White,
+//                                    color = TextPrimary,
 //                                    strokeWidth = 2.dp
 //                                )
 //                            } else {

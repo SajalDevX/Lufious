@@ -1,10 +1,20 @@
 package ai.lufious.app.presentation.home.ui
 
 import ai.lufious.app.core.theme.Background
+import ai.lufious.app.core.theme.CardBorder
 import ai.lufious.app.core.theme.CriticalRed
+import ai.lufious.app.core.theme.DeepForestGreen
 import ai.lufious.app.core.theme.HealthyGreen
 import ai.lufious.app.core.theme.LimeAccent
 import ai.lufious.app.core.theme.PrimaryColor
+import ai.lufious.app.core.theme.Surface
+import ai.lufious.app.core.theme.SurfaceHigh
+import ai.lufious.app.core.theme.TextMuted
+import ai.lufious.app.core.theme.TextSecondary
+import ai.lufious.app.core.theme.TintBlush
+import ai.lufious.app.core.theme.TintButter
+import ai.lufious.app.core.theme.TintPeach
+import ai.lufious.app.core.theme.TintSage
 import ai.lufious.app.core.theme.WarningOrange
 import ai.lufious.app.core.utils.Screen
 import ai.lufious.app.presentation.catalog.DemoListing
@@ -17,7 +27,9 @@ import ai.lufious.app.presentation.home.viewmodel.HomeViewModel
 import coil.compose.AsyncImage
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -59,6 +71,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import ai.lufious.app.core.theme.TextPrimary
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
@@ -116,7 +129,7 @@ fun HomePage(
                         subtitle = "Tap to log a watering and reset the schedule.",
                         cta = "Open Garden",
                         icon = Icons.Default.WaterDrop,
-                        gradient = listOf(Color(0xFF2E5D2E), Color(0xFF1E3D1E)),
+                        gradient = listOf(TintPeach, TintButter),
                         onClick = { goTab(Screen.GardenTab.route) }
                     )
                 )
@@ -128,7 +141,7 @@ fun HomePage(
                     subtitle = tipText,
                     cta = "Open Scan",
                     icon = Icons.Default.WbSunny,
-                    gradient = listOf(Color(0xFF1E3D1E), Color(0xFF152415)),
+                    gradient = listOf(TintSage, Surface),
                     onClick = { goTab(Screen.ScanTab.route) }
                 )
             )
@@ -139,7 +152,7 @@ fun HomePage(
                         subtitle = "Active weather conditions for your area. Adjust care today.",
                         cta = "View",
                         icon = Icons.Default.NotificationsActive,
-                        gradient = listOf(Color(0xFF5D2E1E), Color(0xFF3D1E12)),
+                        gradient = listOf(TintBlush, TintPeach),
                         onClick = { goTab(Screen.HomeTab.route) }
                     )
                 )
@@ -151,7 +164,7 @@ fun HomePage(
                         subtitle = "Add your first plant or scan one with the camera to get started.",
                         cta = "Scan a Plant",
                         icon = Icons.Default.LocalFlorist,
-                        gradient = listOf(Color(0xFF2E5D2E), Color(0xFF1E3D1E)),
+                        gradient = listOf(TintPeach, TintButter),
                         onClick = { goTab(Screen.ScanTab.route) }
                     )
                 )
@@ -209,38 +222,74 @@ fun HomePage(
             }
         }
 
+        item {
+            WeatherCarousel(
+                currentTempC = state.currentTempC,
+                currentCondition = state.currentCondition,
+                currentIcon = state.currentIcon,
+                forecast = state.weatherForecast
+            )
+        }
+
         item { BannerCarousel(banners = banners) }
 
         item {
-            StatsRow(
-                totalPlants = state.totalPlants,
-                needsWater = state.plantsNeedingWater.size,
-                weatherAlerts = state.weatherAlertsCount
-            )
+            SectionCard {
+                SectionLabel("Today")
+                Spacer(Modifier.height(12.dp))
+                StatsRow(
+                    totalPlants = state.totalPlants,
+                    needsWater = state.plantsNeedingWater.size,
+                    weatherAlerts = state.weatherAlertsCount
+                )
+            }
         }
 
-        item { SectionTitle("Quick actions") }
-
-        item { FeatureGrid(cards = features) }
+        item {
+            SectionCard {
+                SectionLabel("Quick actions")
+                Spacer(Modifier.height(12.dp))
+                FeatureGrid(cards = features)
+            }
+        }
 
         if (state.plantsNeedingWater.isNotEmpty()) {
-            item { SectionTitle("Needs water") }
-            items(state.plantsNeedingWater, key = { it.id }) { plant ->
-                WaterReminderCard(plant = plant) { goTab(Screen.GardenTab.route) }
+            item {
+                SectionCard {
+                    SectionLabel("Needs water")
+                    Spacer(Modifier.height(12.dp))
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        state.plantsNeedingWater.forEach { plant ->
+                            WaterReminderCard(plant = plant) { goTab(Screen.GardenTab.route) }
+                        }
+                    }
+                }
             }
         } else if (state.totalPlants > 0 && !state.isLoading) {
-            item { AllHappyCard() }
+            item {
+                SectionCard {
+                    AllHappyCard()
+                }
+            }
         }
 
-        item { SectionTitle("Plants to try") }
-        item { SuggestedSpeciesRow(species = suggestedSpecies) }
-
-        item { SectionTitle("Trending in Shop") }
         item {
-            FeaturedListingsRow(
-                listings = featured,
-                onClick = { goTab(Screen.ShopTab.route) }
-            )
+            SectionCard {
+                SectionLabel("Plants to try")
+                Spacer(Modifier.height(12.dp))
+                SuggestedSpeciesRow(species = suggestedSpecies)
+            }
+        }
+
+        item {
+            SectionCard {
+                SectionLabel("Trending in Shop")
+                Spacer(Modifier.height(12.dp))
+                FeaturedListingsRow(
+                    listings = featured,
+                    onClick = { goTab(Screen.ShopTab.route) }
+                )
+            }
         }
 
         item { Spacer(Modifier.height(8.dp)) }
@@ -257,7 +306,7 @@ private fun SuggestedSpeciesRow(species: List<PlantSpecies>) {
                 modifier = Modifier
                     .width(120.dp)
                     .clip(RoundedCornerShape(14.dp))
-                    .background(Color.White.copy(alpha = 0.06f))
+                    .background(SurfaceHigh)
                     .padding(12.dp)
             ) {
                 Box(
@@ -272,14 +321,14 @@ private fun SuggestedSpeciesRow(species: List<PlantSpecies>) {
                 Spacer(Modifier.height(8.dp))
                 Text(
                     text = s.name,
-                    color = Color.White,
+                    color = TextPrimary,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1
                 )
                 Text(
                     text = s.difficulty.name,
-                    color = Color.White.copy(alpha = 0.55f),
+                    color = TextPrimary.copy(alpha = 0.55f),
                     fontSize = 10.sp
                 )
             }
@@ -300,7 +349,7 @@ private fun FeaturedListingsRow(
                 modifier = Modifier
                     .width(150.dp)
                     .clip(RoundedCornerShape(14.dp))
-                    .background(Color.White.copy(alpha = 0.06f))
+                    .background(SurfaceHigh)
                     .clickable { onClick() }
                     .padding(10.dp)
             ) {
@@ -311,12 +360,12 @@ private fun FeaturedListingsRow(
                         .fillMaxWidth()
                         .height(90.dp)
                         .clip(RoundedCornerShape(10.dp))
-                        .background(Color.White.copy(alpha = 0.05f))
+                        .background(SurfaceHigh)
                 )
                 Spacer(Modifier.height(8.dp))
                 Text(
                     text = l.title,
-                    color = Color.White,
+                    color = TextPrimary,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1
@@ -346,13 +395,13 @@ private fun HomeHeader(
         Column {
             Text(
                 text = "$greeting 🌿",
-                color = Color.White,
+                color = TextPrimary,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.ExtraBold
             )
             Text(
                 text = userName,
-                color = Color.White.copy(alpha = 0.6f),
+                color = TextPrimary.copy(alpha = 0.6f),
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Medium
             )
@@ -361,14 +410,14 @@ private fun HomeHeader(
             modifier = Modifier
                 .size(42.dp)
                 .clip(CircleShape)
-                .background(Color.White.copy(alpha = 0.08f))
+                .background(TextPrimary.copy(alpha = 0.08f))
                 .clickable { onProfileClick() },
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = Icons.Default.Person,
                 contentDescription = "Profile",
-                tint = Color.White.copy(alpha = 0.85f),
+                tint = TextPrimary.copy(alpha = 0.85f),
                 modifier = Modifier.size(22.dp)
             )
         }
@@ -415,7 +464,7 @@ private fun BannerCarousel(banners: List<HomeBanner>) {
                             .clip(RoundedCornerShape(3.dp))
                             .background(
                                 if (active) PrimaryColor
-                                else Color.White.copy(alpha = 0.25f)
+                                else TextPrimary.copy(alpha = 0.25f)
                             )
                     )
                 }
@@ -446,20 +495,20 @@ private fun BannerCard(banner: HomeBanner) {
                         modifier = Modifier
                             .size(40.dp)
                             .clip(RoundedCornerShape(10.dp))
-                            .background(Color.White.copy(alpha = 0.12f)),
+                            .background(Surface),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = banner.icon,
                             contentDescription = null,
-                            tint = LimeAccent,
+                            tint = DeepForestGreen,
                             modifier = Modifier.size(22.dp)
                         )
                     }
                     Spacer(Modifier.width(12.dp))
                     Text(
                         text = banner.title,
-                        color = Color.White,
+                        color = TextPrimary,
                         fontSize = 17.sp,
                         fontWeight = FontWeight.ExtraBold,
                         maxLines = 1
@@ -468,7 +517,7 @@ private fun BannerCard(banner: HomeBanner) {
                 Spacer(Modifier.height(8.dp))
                 Text(
                     text = banner.subtitle,
-                    color = Color.White.copy(alpha = 0.78f),
+                    color = TextPrimary.copy(alpha = 0.78f),
                     fontSize = 13.sp,
                     lineHeight = 18.sp,
                     maxLines = 3
@@ -486,7 +535,7 @@ private fun BannerCard(banner: HomeBanner) {
                     ) {
                         Text(
                             text = banner.cta,
-                            color = Color.White,
+                            color = Surface,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -550,7 +599,7 @@ private fun StatTile(
             )
             Text(
                 text = label,
-                color = Color.White.copy(alpha = 0.7f),
+                color = TextPrimary.copy(alpha = 0.7f),
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Medium
             )
@@ -558,14 +607,178 @@ private fun StatTile(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun SectionTitle(text: String) {
+private fun WeatherCarousel(
+    currentTempC: Double?,
+    currentCondition: String?,
+    currentIcon: String?,
+    forecast: List<ai.lufious.app.core.network.dto.DailyForecastDto>
+) {
+    data class WeatherPage(
+        val label: String,
+        val tempLabel: String,
+        val condition: String,
+        val iconCode: String?
+    )
+
+    val pages = remember(currentTempC, currentCondition, currentIcon, forecast) {
+        buildList {
+            add(
+                WeatherPage(
+                    label = "Today",
+                    tempLabel = currentTempC?.let { "${it.toInt()}°" } ?: "--°",
+                    condition = currentCondition?.replaceFirstChar { it.uppercase() } ?: "No data",
+                    iconCode = currentIcon
+                )
+            )
+            forecast.drop(1).take(6).forEach { d ->
+                val dayName = java.time.Instant.ofEpochMilli(d.dt)
+                    .atZone(java.time.ZoneId.systemDefault())
+                    .dayOfWeek
+                    .getDisplayName(java.time.format.TextStyle.SHORT, java.util.Locale.getDefault())
+                val lo = d.tempMin?.toInt()
+                val hi = d.tempMax?.toInt()
+                val range = when {
+                    lo != null && hi != null -> "$hi° / $lo°"
+                    hi != null -> "$hi°"
+                    lo != null -> "$lo°"
+                    else -> "--"
+                }
+                add(
+                    WeatherPage(
+                        label = dayName,
+                        tempLabel = range,
+                        condition = d.description?.replaceFirstChar { it.uppercase() } ?: "—",
+                        iconCode = d.icon
+                    )
+                )
+            }
+            if (size == 1) {
+                // No forecast yet: pad with placeholder days so the carousel still hints swipe.
+                val today = java.time.LocalDate.now()
+                repeat(6) { i ->
+                    val name = today.plusDays((i + 1).toLong()).dayOfWeek
+                        .getDisplayName(java.time.format.TextStyle.SHORT, java.util.Locale.getDefault())
+                    add(WeatherPage(label = name, tempLabel = "--°", condition = "—", iconCode = null))
+                }
+            }
+        }
+    }
+
+    val pagerState = rememberPagerState(pageCount = { pages.size })
+
+    Column {
+        HorizontalPager(
+            state = pagerState,
+            pageSpacing = 10.dp,
+            modifier = Modifier.fillMaxWidth().height(140.dp)
+        ) { page ->
+            WeatherCard(
+                label = pages[page].label,
+                tempLabel = pages[page].tempLabel,
+                condition = pages[page].condition,
+                iconCode = pages[page].iconCode
+            )
+        }
+        Spacer(Modifier.height(8.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth().height(6.dp),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            repeat(pages.size) { i ->
+                val active = pagerState.currentPage == i
+                Box(
+                    modifier = Modifier
+                        .padding(horizontal = 2.5.dp)
+                        .height(6.dp)
+                        .width(if (active) 18.dp else 6.dp)
+                        .clip(RoundedCornerShape(3.dp))
+                        .background(if (active) PrimaryColor else CardBorder)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun WeatherCard(
+    label: String,
+    tempLabel: String,
+    condition: String,
+    iconCode: String?
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(140.dp)
+            .clip(RoundedCornerShape(20.dp))
+            .background(
+                Brush.linearGradient(
+                    listOf(DeepForestGreen, PrimaryColor)
+                )
+            )
+            .padding(18.dp)
+    ) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            Text(
+                text = label,
+                color = LimeAccent,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(Modifier.height(6.dp))
+            Text(
+                text = tempLabel,
+                color = Surface,
+                fontSize = 38.sp,
+                fontWeight = FontWeight.ExtraBold
+            )
+            Text(
+                text = condition,
+                color = Surface.copy(alpha = 0.85f),
+                fontSize = 13.sp,
+                maxLines = 1
+            )
+        }
+        if (iconCode != null) {
+            AsyncImage(
+                model = "https://openweathermap.org/img/wn/${iconCode}@2x.png",
+                contentDescription = condition,
+                modifier = Modifier
+                    .size(96.dp)
+                    .align(Alignment.CenterEnd)
+            )
+        } else {
+            Text(
+                text = "☀️",
+                fontSize = 56.sp,
+                modifier = Modifier.align(Alignment.CenterEnd)
+            )
+        }
+    }
+}
+
+@Composable
+private fun SectionCard(content: @Composable ColumnScope.() -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .background(Surface)
+            .border(1.dp, CardBorder, RoundedCornerShape(20.dp))
+            .padding(16.dp),
+        content = content
+    )
+}
+
+@Composable
+private fun SectionLabel(text: String) {
     Text(
         text = text,
-        color = Color.White,
-        fontSize = 16.sp,
-        fontWeight = FontWeight.Bold,
-        modifier = Modifier.padding(top = 4.dp, bottom = 2.dp)
+        color = TextSecondary,
+        fontSize = 14.sp,
+        fontWeight = FontWeight.SemiBold
     )
 }
 
@@ -587,9 +800,9 @@ private fun FeatureGrid(cards: List<FeatureCard>) {
 private fun FeatureTile(modifier: Modifier = Modifier, card: FeatureCard) {
     Box(
         modifier = modifier
-            .height(96.dp)
+            .height(118.dp)
             .clip(RoundedCornerShape(16.dp))
-            .background(Color.White.copy(alpha = 0.06f))
+            .background(SurfaceHigh)
             .clickable { card.onClick() }
             .padding(14.dp)
     ) {
@@ -611,14 +824,18 @@ private fun FeatureTile(modifier: Modifier = Modifier, card: FeatureCard) {
             Spacer(Modifier.weight(1f))
             Text(
                 text = card.title,
-                color = Color.White,
+                color = TextPrimary,
                 fontSize = 14.sp,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                maxLines = 1
             )
+            Spacer(Modifier.height(2.dp))
             Text(
                 text = card.subtitle,
-                color = Color.White.copy(alpha = 0.55f),
-                fontSize = 11.sp
+                color = TextPrimary.copy(alpha = 0.55f),
+                fontSize = 11.sp,
+                maxLines = 1,
+                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
             )
         }
     }
@@ -645,7 +862,7 @@ private fun WaterReminderCard(plant: PlantModel, onClick: () -> Unit) {
             Text(
                 text = plant.nickname.firstOrNull()?.uppercaseChar()?.toString() ?: "🌱",
                 fontSize = 16.sp,
-                color = Color.White,
+                color = TextPrimary,
                 fontWeight = FontWeight.Bold
             )
         }
@@ -653,7 +870,7 @@ private fun WaterReminderCard(plant: PlantModel, onClick: () -> Unit) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = plant.nickname,
-                color = Color.White,
+                color = TextPrimary,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold
             )
@@ -665,7 +882,7 @@ private fun WaterReminderCard(plant: PlantModel, onClick: () -> Unit) {
         }
         Text(
             text = "›",
-            color = Color.White.copy(alpha = 0.4f),
+            color = TextPrimary.copy(alpha = 0.4f),
             fontSize = 22.sp
         )
     }

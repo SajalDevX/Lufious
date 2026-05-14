@@ -25,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import ai.lufious.app.core.theme.TextPrimary
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -68,7 +69,7 @@ fun PlantCard(
                 Text(
                     text = initial,
                     fontSize = 28.sp,
-                    color = Color.White,
+                    color = TextPrimary,
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -84,7 +85,7 @@ fun PlantCard(
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = plant.nickname,
-                    color = Color.White,
+                    color = TextPrimary,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 1,
@@ -96,7 +97,7 @@ fun PlantCard(
 
             Text(
                 text = plant.species,
-                color = Color.White.copy(alpha = 0.55f),
+                color = TextPrimary.copy(alpha = 0.55f),
                 fontSize = 11.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis

@@ -36,6 +36,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import ai.lufious.app.core.theme.TextPrimary
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -83,7 +84,7 @@ fun ProfileScreen(
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
                         contentDescription = "Back",
-                        tint = Color.White,
+                        tint = TextPrimary,
                         modifier = Modifier.size(28.dp)
                     )
                 }
@@ -92,7 +93,7 @@ fun ProfileScreen(
                     text = "Profile",
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = TextPrimary
                 )
             }
         }
@@ -116,7 +117,7 @@ fun ProfileScreen(
                 Text(
                     text = state.displayName.firstOrNull()?.uppercaseChar()?.toString() ?: "G",
                     fontSize = 32.sp,
-                    color = Color.White,
+                    color = TextPrimary,
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -125,7 +126,7 @@ fun ProfileScreen(
 
             Text(
                 text = state.displayName,
-                color = Color.White,
+                color = TextPrimary,
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -134,7 +135,7 @@ fun ProfileScreen(
 
             Text(
                 text = state.email,
-                color = Color.White.copy(alpha = 0.6f),
+                color = TextPrimary.copy(alpha = 0.6f),
                 fontSize = 14.sp
             )
 
@@ -153,14 +154,14 @@ fun ProfileScreen(
             ) {
                 if (state.isLoading) {
                     CircularProgressIndicator(
-                        color = Color.White,
+                        color = TextPrimary,
                         modifier = Modifier.size(20.dp),
                         strokeWidth = 2.dp
                     )
                 } else {
                     Text(
                         text = "Sign Out",
-                        color = Color.White,
+                        color = TextPrimary,
                         fontWeight = FontWeight.Bold
                     )
                 }

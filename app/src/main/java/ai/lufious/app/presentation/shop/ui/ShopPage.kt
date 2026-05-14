@@ -46,6 +46,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import ai.lufious.app.core.theme.TextPrimary
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
@@ -93,7 +94,7 @@ fun ShopPage(
                 Icon(
                     imageVector = Icons.Default.Add,
                     contentDescription = "Create listing",
-                    tint = Color.White
+                    tint = TextPrimary
                 )
             }
         }
@@ -120,14 +121,14 @@ fun ShopPage(
                     Column {
                         Text(
                             text = "Marketplace",
-                            color = Color.White,
+                            color = TextPrimary,
                             fontSize = 28.sp,
                             fontWeight = FontWeight.Bold
                         )
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(
                             text = "Browse community listings and save favorites.",
-                            color = Color.White.copy(alpha = 0.7f),
+                            color = TextPrimary.copy(alpha = 0.7f),
                             fontSize = 14.sp
                         )
                     }
@@ -146,7 +147,7 @@ fun ShopPage(
                                         color = if (selected) {
                                             PrimaryColor
                                         } else {
-                                            Color.White.copy(alpha = 0.12f)
+                                            TextPrimary.copy(alpha = 0.12f)
                                         },
                                         shape = RoundedCornerShape(999.dp)
                                     )
@@ -155,7 +156,7 @@ fun ShopPage(
                             ) {
                                 Text(
                                     text = category,
-                                    color = Color.White,
+                                    color = TextPrimary,
                                     fontSize = 12.sp,
                                     fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
                                     modifier = Modifier
@@ -179,14 +180,14 @@ fun ShopPage(
                         Column {
                             Text(
                                 text = "Featured listings",
-                                color = Color.White,
+                                color = TextPrimary,
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold
                             )
                             Spacer(Modifier.height(4.dp))
                             Text(
                                 text = "Demo items — marketplace launching soon.",
-                                color = Color.White.copy(alpha = 0.6f),
+                                color = TextPrimary.copy(alpha = 0.6f),
                                 fontSize = 12.sp
                             )
                         }
@@ -225,7 +226,7 @@ private fun DemoListingCard(demo: DemoListing, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(14.dp))
-            .background(Color.White.copy(alpha = 0.06f))
+            .background(TextPrimary.copy(alpha = 0.06f))
             .clickable { onClick() }
             .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -236,14 +237,14 @@ private fun DemoListingCard(demo: DemoListing, onClick: () -> Unit) {
             modifier = Modifier
                 .size(82.dp)
                 .clip(RoundedCornerShape(10.dp))
-                .background(Color.White.copy(alpha = 0.05f))
+                .background(TextPrimary.copy(alpha = 0.05f))
         )
         Spacer(Modifier.width(12.dp))
         Column(modifier = Modifier.weight(1f)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = demo.title,
-                    color = Color.White,
+                    color = TextPrimary,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1,
@@ -267,7 +268,7 @@ private fun DemoListingCard(demo: DemoListing, onClick: () -> Unit) {
             Spacer(Modifier.height(4.dp))
             Text(
                 text = demo.description,
-                color = Color.White.copy(alpha = 0.65f),
+                color = TextPrimary.copy(alpha = 0.65f),
                 fontSize = 11.sp,
                 maxLines = 2
             )
@@ -294,14 +295,14 @@ private fun EmptyState(title: String, subtitle: String) {
         Spacer(modifier = Modifier.height(12.dp))
         Text(
             text = title,
-            color = Color.White,
+            color = TextPrimary,
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = subtitle,
-            color = Color.White.copy(alpha = 0.7f),
+            color = TextPrimary.copy(alpha = 0.7f),
             fontSize = 13.sp
         )
     }
