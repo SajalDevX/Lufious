@@ -1,7 +1,7 @@
 package ai.lufious.app.presentation.main.ui
 
-import ai.lufious.app.core.theme.Background
 import ai.lufious.app.core.theme.PrimaryColor
+import ai.lufious.app.core.theme.Surface
 import ai.lufious.app.core.utils.Screen
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
@@ -41,7 +41,7 @@ fun BottomNavigationBar(navController: NavController) {
     val currentRoute = navBackStackEntry?.destination?.route
 
     NavigationBar(
-        containerColor = Background,
+        containerColor = Surface,
         contentColor = TextPrimary
     ) {
         items.forEach { item ->
