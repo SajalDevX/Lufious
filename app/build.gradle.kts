@@ -9,6 +9,7 @@ plugins {
     id("com.google.dagger.hilt.android")
     kotlin("plugin.serialization") version "1.9.10"
     id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
 }
 
 kapt {
@@ -28,7 +29,7 @@ android {
             buildConfigField(
                 "String",
                 "BASE_URL",
-                "\"https://api.yoursite.com/\""
+                "\"http://65.1.178.39:3000/\""
             )
             buildConfigField("boolean", "IS_PRODUCTION", "false")
         }
@@ -37,7 +38,7 @@ android {
             buildConfigField(
                 "String",
                 "BASE_URL",
-                "\"https://api.yoursite.com/\""
+                "\"http://65.1.178.39:3000/\""
             )
             buildConfigField("boolean", "IS_PRODUCTION", "true")
         }
@@ -50,15 +51,21 @@ android {
     }
 
     val keystoreProps = Properties().apply {
-        load(FileInputStream(rootProject.file("local.properties")))
+        val f = rootProject.file("local.properties")
+        if (f.exists()) FileInputStream(f).use { load(it) }
     }
+    val hasReleaseSigning = listOf(
+        "KEYSTORE_PATH", "KEYSTORE_PASSWORD", "KEY_ALIAS", "KEY_PASSWORD"
+    ).all { keystoreProps[it] != null }
 
     signingConfigs {
-        create("release") {
-            storeFile = file(keystoreProps["KEYSTORE_PATH"] as String)
-            storePassword = keystoreProps["KEYSTORE_PASSWORD"] as String
-            keyAlias = keystoreProps["KEY_ALIAS"] as String
-            keyPassword = keystoreProps["KEY_PASSWORD"] as String
+        if (hasReleaseSigning) {
+            create("release") {
+                storeFile = file(keystoreProps["KEYSTORE_PATH"] as String)
+                storePassword = keystoreProps["KEYSTORE_PASSWORD"] as String
+                keyAlias = keystoreProps["KEY_ALIAS"] as String
+                keyPassword = keystoreProps["KEY_PASSWORD"] as String
+            }
         }
     }
 
@@ -69,7 +76,9 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("release")
+            if (hasReleaseSigning) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
     }
 
@@ -162,6 +171,7 @@ dependencies {
     //Networking
     implementation(libs.retrofit)
     implementation(libs.okhttp)
+    implementation("com.squareup.okhttp3:logging-interceptor:5.1.0")
 
     //Serialization
     implementation(libs.kotlinx.serialization.json)
@@ -172,7 +182,9 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth.ktx)
     implementation(libs.play.services.auth)
-    implementation(libs.firebase.firestore)
+    implementation("com.google.firebase:firebase-messaging-ktx")
+    implementation("com.google.firebase:firebase-crashlytics-ktx")
+    implementation("com.google.firebase:firebase-analytics-ktx")
 //    implementation("com.facebook.android:facebook-login:16.3.0")
 
     //Splash
@@ -183,8 +195,16 @@ dependencies {
     implementation("androidx.camera:camera-lifecycle:1.3.4")
     implementation("androidx.camera:camera-view:1.3.4")
     implementation("androidx.concurrent:concurrent-futures-ktx:1.2.0")
+    implementation("com.google.guava:guava:32.1.3-android")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
 
     //WorkManager
     implementation("androidx.work:work-runtime-ktx:2.9.0")
+
+    //Location
+    implementation("com.google.android.gms:play-services-location:21.3.0")
+
+    //Coil image loading
+    implementation("io.coil-kt:coil-compose:2.7.0")
 
 }

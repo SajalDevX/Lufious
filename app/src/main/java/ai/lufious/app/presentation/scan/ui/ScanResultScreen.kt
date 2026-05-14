@@ -5,7 +5,7 @@ import ai.lufious.app.core.theme.CriticalRed
 import ai.lufious.app.core.theme.HealthyGreen
 import ai.lufious.app.core.theme.PrimaryColor
 import ai.lufious.app.core.theme.WarningOrange
-import ai.lufious.app.core.utils.AddPlantWithSpecies
+import ai.lufious.app.core.utils.Screen.AddPlantWithSpecies
 import ai.lufious.app.presentation.scan.viewmodel.ScanResultViewModel
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

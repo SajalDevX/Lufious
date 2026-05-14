@@ -6,7 +6,7 @@ data class CreateListingState(
     val title: String = "",
     val description: String = "",
     val price: String = "",
-    val category: String = ListingCategory.PLANTS,
+    val category: String = ListingCategory.PRODUCE,
     val isLoading: Boolean = false,
     val isSubmitEnabled: Boolean = false
 )

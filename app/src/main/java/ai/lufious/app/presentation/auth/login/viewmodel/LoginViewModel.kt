@@ -1,6 +1,7 @@
 package ai.lufious.app.presentation.auth.login.viewmodel
 
 import ai.lufious.app.core.local_cache.LocalCacheManager
+import ai.lufious.app.core.network.LufiousApi
 import ai.lufious.app.core.utils.BaseViewModel
 import ai.lufious.app.core.utils.DispatcherProvider
 import ai.lufious.app.core.utils.LaunchFacebookSignIn
@@ -27,6 +28,7 @@ class LoginViewModel @Inject constructor(
     private val validateEmail: ValidateEmailUseCase,
     private val validatePassword: ValidatePasswordUseCase,
     private val localCache: LocalCacheManager,
+    private val api: LufiousApi,
     dispatchers: DispatcherProvider
 ) : BaseViewModel<LoginEvent, LoginState>(
     initialState = LoginState(),
@@ -151,22 +153,15 @@ class LoginViewModel @Inject constructor(
             .getInstance()
             .currentUser
 
-        firebaseUser
-            ?.getIdToken(true)
-            ?.addOnSuccessListener { result ->
-                result.token?.let(localCache::saveAuthToken)
-                viewModelScope.launch {
-                    emitEffect(Navigate("home"))
-                }
+        viewModelScope.launch {
+            firebaseUser?.getIdToken(true)?.let { task ->
+                runCatching { com.google.android.gms.tasks.Tasks.await(task) }
+                    .getOrNull()
+                    ?.token
+                    ?.let(localCache::saveAuthToken)
             }
-            ?.addOnFailureListener {
-                viewModelScope.launch {
-                    emitEffect(Navigate("home"))
-                }            }
-            ?: run {
-                viewModelScope.launch {
-                    emitEffect(Navigate("home"))
-                }
-            }
+            runCatching { api.authSync() }
+            emitEffect(Navigate("home"))
+        }
     }
 }

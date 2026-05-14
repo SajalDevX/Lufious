@@ -33,6 +33,7 @@ fun OnboardingScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(Background)
+            .safeDrawingPadding()
     ) {
 
         Surface(

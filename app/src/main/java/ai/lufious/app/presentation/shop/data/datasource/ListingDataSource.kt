@@ -1,88 +1,54 @@
 package ai.lufious.app.presentation.shop.data.datasource
 
-import ai.lufious.app.core.firebase.utils.ListingFields
-import ai.lufious.app.core.firebase.utils.WishlistFields
-import ai.lufious.app.core.local_cache.LocalCacheManager
+import ai.lufious.app.core.network.LufiousApi
+import ai.lufious.app.core.network.dto.ListingCreateRequest
+import ai.lufious.app.core.network.dto.toModel
+import ai.lufious.app.presentation.shop.data.models.ListingCategory
 import ai.lufious.app.presentation.shop.data.models.ListingModel
-import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
-import jakarta.inject.Inject
-import kotlinx.coroutines.tasks.await
+import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class ListingDataSource @Inject constructor(
-    private val firestore: FirebaseFirestore,
-    private val localCache: LocalCacheManager
+    private val api: LufiousApi
 ) {
-    private val uid get() = localCache.getUser()?.uid ?: error("User not logged in")
 
-    private fun listingsRef() =
-        firestore.collection(ListingFields.MARKETPLACE).collection(ListingFields.COLLECTION)
-
-    private fun wishlistRef() =
-        firestore.collection("users").document(uid).collection(WishlistFields.COLLECTION)
-
-    suspend fun getListings(category: String? = null): List<ListingModel> {
-        val base: Query = listingsRef()
-            .whereEqualTo(ListingFields.STATUS, "active")
-            .orderBy(ListingFields.CREATED_AT, Query.Direction.DESCENDING)
-        val query = if (category != null) base.whereEqualTo(ListingFields.CATEGORY, category) else base
-        return query.get().await().documents.mapNotNull { it.toListingModel() }
+    suspend fun getListings(category: String? = null, query: String? = null): List<ListingModel> {
+        val effectiveCategory = category?.takeIf { it != ListingCategory.ALL && it.isNotBlank() }
+        val effectiveQuery = query?.takeIf { it.isNotBlank() }
+        return api.listListings(category = effectiveCategory, q = effectiveQuery)
+            .items
+            .map { it.toModel() }
     }
 
     suspend fun getListingById(listingId: String): ListingModel =
-        listingsRef().document(listingId).get().await().toListingModel()
-            ?: error("Listing $listingId not found")
+        api.getListing(listingId).toModel()
 
-    suspend fun createListing(listing: ListingModel): ListingModel {
-        val doc = listingsRef().document()
-        val withId = listing.copy(
-            id = doc.id,
-            sellerId = uid,
-            createdAt = System.currentTimeMillis(),
-            status = "active"
-        )
-        doc.set(withId.toMap()).await()
-        return withId
-    }
+    suspend fun createListing(listing: ListingModel): ListingModel =
+        api.createListing(
+            ListingCreateRequest(
+                title = listing.title,
+                description = listing.description,
+                price = listing.price,
+                category = listing.category,
+                photoUrl = listing.photoUrls.firstOrNull()
+            )
+        ).toModel()
 
     suspend fun getWishlistIds(): List<String> =
-        wishlistRef().get().await().documents.map { it.id }
+        api.getWishlist().listingIds
+
+    suspend fun getWishlistListings(): List<ListingModel> =
+        api.getWishlist().items.map { it.toModel() }
 
     suspend fun toggleWishlist(listingId: String): Boolean {
-        val doc = wishlistRef().document(listingId)
-        val exists = doc.get().await().exists()
-        if (exists) {
-            doc.delete().await()
+        val existing = api.getWishlist().listingIds
+        return if (listingId in existing) {
+            api.removeFromWishlist(listingId)
+            false
         } else {
-            doc.set(mapOf(WishlistFields.ADDED_AT to System.currentTimeMillis())).await()
+            api.addToWishlist(listingId)
+            true
         }
-        return !exists
     }
-
-    private fun ListingModel.toMap(): Map<String, Any?> = mapOf(
-        ListingFields.SELLER_ID to sellerId,
-        ListingFields.TITLE to title,
-        ListingFields.DESCRIPTION to description,
-        ListingFields.PRICE to price,
-        ListingFields.CATEGORY to category,
-        ListingFields.PHOTO_URLS to photoUrls,
-        ListingFields.CREATED_AT to createdAt,
-        ListingFields.STATUS to status
-    )
-
-    @Suppress("UNCHECKED_CAST")
-    private fun DocumentSnapshot.toListingModel(): ListingModel? = try {
-        ListingModel(
-            id = id,
-            sellerId = getString(ListingFields.SELLER_ID) ?: "",
-            title = getString(ListingFields.TITLE) ?: "",
-            description = getString(ListingFields.DESCRIPTION) ?: "",
-            price = getDouble(ListingFields.PRICE) ?: 0.0,
-            category = getString(ListingFields.CATEGORY) ?: "",
-            photoUrls = get(ListingFields.PHOTO_URLS) as? List<String> ?: emptyList(),
-            createdAt = getLong(ListingFields.CREATED_AT) ?: 0L,
-            status = getString(ListingFields.STATUS) ?: "active"
-        )
-    } catch (e: Exception) { null }
 }

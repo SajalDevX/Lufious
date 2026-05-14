@@ -2,7 +2,7 @@ package ai.lufious.app.presentation.auth.data.usecases
 
 import ai.lufious.app.core.utils.ValidationResult
 import android.util.Patterns
-import jakarta.inject.Inject
+import javax.inject.Inject
 
 class ValidateEmailUseCase @Inject constructor() {
     operator fun invoke(email: String) =

@@ -3,7 +3,7 @@ package ai.lufious.app.presentation.auth.data.usecases
 import ai.lufious.app.core.utils.Result
 import ai.lufious.app.presentation.auth.data.models.UserModel
 import ai.lufious.app.presentation.auth.data.repository.AuthRepository
-import jakarta.inject.Inject
+import javax.inject.Inject
 
 class SignupUseCase @Inject constructor(
     private val repo: AuthRepository

@@ -6,5 +6,9 @@ data class HomeState(
     val userName: String = "",
     val totalPlants: Int = 0,
     val plantsNeedingWater: List<PlantModel> = emptyList(),
-    val isLoading: Boolean = false
+    val recentPlants: List<PlantModel> = emptyList(),
+    val weatherAlertsCount: Int = 0,
+    val aiTip: String? = null,
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null
 )

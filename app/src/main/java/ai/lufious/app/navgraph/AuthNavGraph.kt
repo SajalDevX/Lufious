@@ -21,7 +21,7 @@ fun NavGraphBuilder.authNavGraph(
     launchFacebookIntent: () -> Unit
 ) {
     navigation(
-        startDestination = Screen.Onboarding.route,
+        startDestination = Screen.Login.route,
         route = AUTH_GRAPH
     ) {
 

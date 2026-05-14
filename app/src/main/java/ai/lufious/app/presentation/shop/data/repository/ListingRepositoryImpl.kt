@@ -3,7 +3,7 @@ package ai.lufious.app.presentation.shop.data.repository
 import ai.lufious.app.core.utils.Result
 import ai.lufious.app.presentation.shop.data.datasource.ListingDataSource
 import ai.lufious.app.presentation.shop.data.models.ListingModel
-import jakarta.inject.Inject
+import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 
 class ListingRepositoryImpl @Inject constructor(

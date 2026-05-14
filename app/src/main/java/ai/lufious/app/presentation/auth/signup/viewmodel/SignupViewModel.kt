@@ -1,6 +1,7 @@
 package ai.lufious.app.presentation.auth.signup.viewmodel
 
 import ai.lufious.app.core.local_cache.LocalCacheManager
+import ai.lufious.app.core.network.LufiousApi
 import ai.lufious.app.core.utils.BaseViewModel
 import ai.lufious.app.core.utils.DispatcherProvider
 import ai.lufious.app.core.utils.LaunchFacebookSignIn
@@ -28,6 +29,7 @@ class SignupViewModel @Inject constructor(
     private val validateEmail: ValidateEmailUseCase,
     private val validatePassword: ValidatePasswordUseCase,
     private val localCache: LocalCacheManager,
+    private val api: LufiousApi,
     dispatchers: DispatcherProvider
 ) : BaseViewModel<SignupEvent, SignupState>(
     initialState = SignupState(),
@@ -132,20 +134,22 @@ class SignupViewModel @Inject constructor(
         }
     }
 
-    /** Save user & fresh Firebase token, then navigate home **/
+    /** Save user & fresh Firebase token, sync with backend, then navigate home **/
     private fun cacheAndNavigate(user: UserModel) {
         localCache.saveUser(user)
-        com.google.firebase.auth.FirebaseAuth
-            .getInstance()
-            .currentUser
-            ?.getIdToken(true)
-            ?.addOnSuccessListener { result ->
-                result.token?.let(localCache::saveAuthToken)
-                viewModelScope.launch { emitEffect(Navigate("home")) }
-            }
-            ?.addOnFailureListener {
-                viewModelScope.launch { emitEffect(Navigate("home")) }
-            }
-            ?: viewModelScope.launch { emitEffect(Navigate("home")) }
+        viewModelScope.launch {
+            com.google.firebase.auth.FirebaseAuth
+                .getInstance()
+                .currentUser
+                ?.getIdToken(true)
+                ?.let { task ->
+                    runCatching { com.google.android.gms.tasks.Tasks.await(task) }
+                        .getOrNull()
+                        ?.token
+                        ?.let(localCache::saveAuthToken)
+                }
+            runCatching { api.authSync() }
+            emitEffect(Navigate("home"))
+        }
     }
 }

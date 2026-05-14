@@ -12,9 +12,10 @@ import androidx.navigation.compose.NavHost
 fun AppNavHost(
     navController: NavHostController,
     launchGoogleIntent: () -> Unit,
-    launchFacebookIntent: () -> Unit
+    launchFacebookIntent: () -> Unit,
+    startDestination: String = Screen.Onboarding.route
 ) {
-    NavHost(navController, startDestination = Screen.Onboarding.route) {
+    NavHost(navController, startDestination = startDestination) {
         animatedComposable(
             route = Screen.Onboarding.route) {
             OnBoardingPage(
