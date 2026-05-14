@@ -80,9 +80,7 @@ fun LoginSelectionScreen(
                 }
 
                 is LaunchGoogleSignIn -> {
-                    googleClient.signOut().addOnCompleteListener {
-                        googleLauncher.launch(googleClient.signInIntent)
-                    }
+                    googleLauncher.launch(googleClient.signInIntent)
                 }
 
                 is LaunchFacebookSignIn -> launchFacebookSignIn()
