@@ -587,7 +587,7 @@ private fun FeatureGrid(cards: List<FeatureCard>) {
 private fun FeatureTile(modifier: Modifier = Modifier, card: FeatureCard) {
     Box(
         modifier = modifier
-            .height(96.dp)
+            .height(118.dp)
             .clip(RoundedCornerShape(16.dp))
             .background(Color.White.copy(alpha = 0.06f))
             .clickable { card.onClick() }
@@ -613,12 +613,16 @@ private fun FeatureTile(modifier: Modifier = Modifier, card: FeatureCard) {
                 text = card.title,
                 color = Color.White,
                 fontSize = 14.sp,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                maxLines = 1
             )
+            Spacer(Modifier.height(2.dp))
             Text(
                 text = card.subtitle,
                 color = Color.White.copy(alpha = 0.55f),
-                fontSize = 11.sp
+                fontSize = 11.sp,
+                maxLines = 1,
+                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
             )
         }
     }
