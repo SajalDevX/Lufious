@@ -12,9 +12,22 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = PrimaryColor,
+    onPrimary = White,
+    primaryContainer = DeepForestGreen,
+    onPrimaryContainer = LimeAccent,
+    secondary = LimeAccent,
+    onSecondary = Background,
+    tertiary = SunlightYellow,
+    onTertiary = Background,
+    background = Background,
+    onBackground = White,
+    surface = Surface,
+    onSurface = White,
+    surfaceVariant = SurfaceHigh,
+    onSurfaceVariant = WhiteDim,
+    error = CriticalRed,
+    onError = White
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -34,9 +47,9 @@ private val LightColorScheme = lightColorScheme(
 
 @Composable
 fun LufiousTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    darkTheme: Boolean = true,
+    // Wallpaper-based dynamic color was hijacking brand identity; keep brand palette.
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
