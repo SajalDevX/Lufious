@@ -77,7 +77,7 @@ fun ShopPage(
 
     val demoListings = remember(state.selectedCategory) {
         val sel = state.selectedCategory
-        if (sel == null || sel.equals("all", ignoreCase = true)) featuredListings
+        if (sel.equals("all", ignoreCase = true)) featuredListings
         else featuredListings
             .filter { it.category.equals(sel, ignoreCase = true) }
             .ifEmpty { featuredListings }

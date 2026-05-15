@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package ai.lufious.app.presentation.auth.login.ui
 
 import ai.lufious.app.core.utils.LaunchFacebookSignIn
@@ -22,6 +24,7 @@ import ai.lufious.app.core.theme.Background
 import ai.lufious.app.core.theme.PrimaryColor
 import ai.lufious.app.core.utils.rememberResponsiveDimensions
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -40,6 +43,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 
 @Composable
+@Suppress("DEPRECATION", "UNUSED_PARAMETER")
 fun LoginSelectionScreen(
     navigateToHome: () -> Unit,
     onEmailLogin: () -> Unit,
@@ -129,8 +133,9 @@ fun LoginSelectionScreen(
         )
 
         Surface(
-            shape = RoundedCornerShape(dims.R(12f).dp),
+            shape = RoundedCornerShape(dims.R(16f).dp),
             color = MaterialTheme.colors.onBackground,
+            elevation = dims.R(6f).dp,
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.BottomCenter)
@@ -153,19 +158,20 @@ fun LoginSelectionScreen(
             ) {
                 Text(
                     text = "Log Back Into Your Lufious Account",
-                    style = MaterialTheme.typography.subtitle1.copy(color = TextPrimary.copy(alpha = 0.6f))
+                    style = MaterialTheme.typography.subtitle1.copy(color = Color.White)
                 )
 
                 Spacer(modifier = Modifier.height(dims.hR(12f).dp))
 
                 Button(
-                    shape = RoundedCornerShape(dims.R(8f).dp),
+                    shape = RoundedCornerShape(dims.R(16f).dp),
                     onClick = { viewModel.onEvent(LoginEvent.GoogleSignInClicked) },
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .fillMaxWidth(0.9f)
                         .height(dims.hR(48f).dp),
+                    border = BorderStroke(1.dp, Color(0xFFD9D9D9)),
                     colors = ButtonDefaults.buttonColors(
-                        backgroundColor = TextPrimary.copy(alpha = 0.2f)
+                        backgroundColor = Color.White
                     )
                 ) {
                     Icon(
@@ -190,13 +196,14 @@ fun LoginSelectionScreen(
                 Spacer(modifier = Modifier.height(dims.hR(8f).dp))
 
                 Button(
-                    shape = RoundedCornerShape(dims.R(8f).dp),
+                    shape = RoundedCornerShape(dims.R(16f).dp),
                     onClick = { onEmailLogin() },
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .fillMaxWidth(0.9f)
                         .height(dims.hR(48f).dp),
+                    border = BorderStroke(1.dp, Color(0xFFD9D9D9)),
                     colors = ButtonDefaults.buttonColors(
-                        backgroundColor = TextPrimary.copy(alpha = 0.2f)
+                        backgroundColor = Color.White
                     ),
                 ) {
                     Icon(
@@ -245,6 +252,3 @@ fun LoginSelectionScreen(
 
     }
 }
-
-
-

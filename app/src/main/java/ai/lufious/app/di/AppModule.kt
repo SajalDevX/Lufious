@@ -99,7 +99,7 @@ object AppModule {
         @ApplicationContext context: Context
     ): LufiousDatabase =
         Room.databaseBuilder(context, LufiousDatabase::class.java, "lufious.db")
-            .fallbackToDestructiveMigration()
+            .fallbackToDestructiveMigration(dropAllTables = true)
             .build()
 
     @Provides

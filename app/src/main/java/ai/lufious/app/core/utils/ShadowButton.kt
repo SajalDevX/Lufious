@@ -36,7 +36,6 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import androidx.compose.animation.core.tween
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 
@@ -65,7 +64,7 @@ fun ShadowButton(
     val scope = rememberCoroutineScope()
     var debounceJob by remember { mutableStateOf<Job?>(null) }
 
-    val btnHeight = responsive.R(btnHeight).dp
+    val buttonHeightDp = responsive.R(btnHeight).dp
     val loadingSize = responsive.hR(24f).dp
     val spacing = responsive.wR(8f).dp
     val radius = responsive.R(cornerRadius).dp
@@ -76,7 +75,7 @@ fun ShadowButton(
     val textColorFinal = if (enabled) textColor else Color.DarkGray
 
     val animatedHeight by androidx.compose.animation.core.animateDpAsState(
-        targetValue = if (isPressed) btnHeight else btnHeight - shadowOffset,
+        targetValue = if (isPressed) buttonHeightDp else buttonHeightDp - shadowOffset,
         animationSpec = animationSpec
     )
 
@@ -87,7 +86,7 @@ fun ShadowButton(
 
     Box(
         modifier = modifier
-            .height(btnHeight)
+            .height(buttonHeightDp)
             .fillMaxWidth()
             .padding(4.dp)
             .pointerInput(enabled, isLoading, onClick) {
@@ -114,7 +113,7 @@ fun ShadowButton(
                 modifier = Modifier
                     .offset(y = shadowOffset)
                     .fillMaxWidth()
-                    .height(btnHeight)
+                    .height(buttonHeightDp)
                     .background(
                         color = shadowColorFinal,
                         shape = RoundedCornerShape(radius)
@@ -172,4 +171,3 @@ fun ShadowButton(
 
     }
 }
-
