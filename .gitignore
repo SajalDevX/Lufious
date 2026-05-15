@@ -15,5 +15,11 @@
 local.properties
 /keystore
 /.env
-/app/google-services.json
+**/google-services.json
 .kotlin/
+app/build.gradle.kts
+build.gradle.kts
+gradle/libs.versions.toml
+settings.gradle.kts
+.idea/codeStyles/
+.idea/deploymentTargetSelector.xml
