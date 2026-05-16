@@ -89,7 +89,7 @@ fun HomePage(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
-    val greeting = when (java.time.LocalTime.now().hour) {
+    val greeting = when (java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)) {
         in 5..11 -> "Good morning,"
         in 12..17 -> "Good afternoon,"
         else -> "Good evening,"

@@ -122,16 +122,32 @@ fun ShopPage(
                     tint = Color.White,
                     modifier = Modifier.size(24.dp)
                 )
-                Icon(
-                    imageVector = Icons.Default.ShoppingBag,
-                    contentDescription = "Cart",
-                    tint = Color.White,
-                    modifier = Modifier
-                        .size(24.dp)
-                        .clickable {
-                            navController.navigate(Screen.CreateListing.route)
-                        }
-                )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(34.dp)
+                            .clip(CircleShape)
+                            .background(Color.White.copy(alpha = 0.15f))
+                            .clickable { navController.navigate(Screen.CreateListing.route) },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "Create listing",
+                            tint = Color.White,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                    Icon(
+                        imageVector = Icons.Default.ShoppingBag,
+                        contentDescription = "Cart",
+                        tint = Color.White,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
             }
         }
 
