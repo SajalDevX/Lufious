@@ -1,8 +1,5 @@
 package ai.lufious.app.presentation.shop.ui
 
-import ai.lufious.app.core.theme.Background
-import ai.lufious.app.core.theme.LimeAccent
-import ai.lufious.app.core.theme.PrimaryColor
 import ai.lufious.app.core.utils.Screen
 import ai.lufious.app.core.utils.UiEffect
 import ai.lufious.app.presentation.catalog.DemoListing
@@ -25,28 +22,34 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
+import androidx.compose.foundation.lazy.staggeredgrid.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import ai.lufious.app.core.theme.TextPrimary
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
@@ -55,6 +58,16 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import kotlinx.coroutines.flow.collectLatest
+
+private val ShopBg = Color(0xFF0D2217)
+private val ShopBgCard = Color(0xFF163320)
+private val SearchBarBg = Color(0xFF1A3A27)
+private val ShopCardBg = Color.White
+private val PlusGreen = Color(0xFF1A5C35)
+private val ViewGreen = Color(0xFF22A060)
+private val TabSelectedColor = Color.White
+private val TabUnselectedColor = Color.White.copy(alpha = 0.40f)
+private val ShopTextDark = Color(0xFF0F1F14)
 
 @Composable
 fun ShopPage(
@@ -77,233 +90,227 @@ fun ShopPage(
 
     val demoListings = remember(state.selectedCategory) {
         val sel = state.selectedCategory
-        if (sel.equals("all", ignoreCase = true)) featuredListings
+        if (sel.equals(ListingCategory.ALL, ignoreCase = true)) featuredListings
         else featuredListings
             .filter { it.category.equals(sel, ignoreCase = true) }
             .ifEmpty { featuredListings }
     }
 
-    Scaffold(
-        modifier = modifier.fillMaxSize(),
-        containerColor = Background,
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { navController.navigate(Screen.CreateListing.route) },
-                containerColor = PrimaryColor
+    LazyVerticalStaggeredGrid(
+        columns = StaggeredGridCells.Fixed(2),
+        modifier = modifier
+            .fillMaxSize()
+            .background(ShopBg)
+            .testTag("shop_screen"),
+        contentPadding = PaddingValues(bottom = 24.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        verticalItemSpacing = 10.dp
+    ) {
+        // Top bar
+        item(span = StaggeredGridItemSpan.FullLine) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .statusBarsPadding()
+                    .padding(horizontal = 20.dp, vertical = 14.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Create listing",
-                    tint = TextPrimary
+                    imageVector = Icons.Default.Menu,
+                    contentDescription = "Menu",
+                    tint = Color.White,
+                    modifier = Modifier.size(24.dp)
+                )
+                Icon(
+                    imageVector = Icons.Default.ShoppingBag,
+                    contentDescription = "Cart",
+                    tint = Color.White,
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickable {
+                            navController.navigate(Screen.CreateListing.route)
+                        }
                 )
             }
         }
-    ) { paddingValues ->
-        when {
-            state.isLoading && state.listings.isEmpty() -> Box(
+
+        // Search bar
+        item(span = StaggeredGridItemSpan.FullLine) {
+            Row(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                contentAlignment = Alignment.Center
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(SearchBarBg)
+                    .padding(horizontal = 14.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                CircularProgressIndicator(color = PrimaryColor)
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = null,
+                    tint = Color.White.copy(alpha = 0.5f),
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(Modifier.width(10.dp))
+                Text(
+                    text = "Search here",
+                    color = Color.White.copy(alpha = 0.4f),
+                    fontSize = 14.sp
+                )
             }
+        }
 
-            else -> LazyColumn(
+        // Category tabs
+        item(span = StaggeredGridItemSpan.FullLine) {
+            LazyRow(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .testTag("shop_screen"),
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 6.dp),
+                horizontalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                item {
-                    Column {
+                items(ListingCategory.browseOptions) { category ->
+                    val selected = state.selectedCategory.equals(category, ignoreCase = true)
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.clickable {
+                            viewModel.onEvent(ShopEvent.CategoryChanged(category))
+                        }
+                    ) {
                         Text(
-                            text = "Marketplace",
-                            color = TextPrimary,
-                            fontSize = 28.sp,
-                            fontWeight = FontWeight.Bold
+                            text = ListingCategory.displayName(category),
+                            color = if (selected) TabSelectedColor else TabUnselectedColor,
+                            fontSize = 14.sp,
+                            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal
                         )
-                        Spacer(modifier = Modifier.height(6.dp))
-                        Text(
-                            text = "Browse community listings and save favorites.",
-                            color = TextPrimary.copy(alpha = 0.7f),
-                            fontSize = 14.sp
-                        )
-                    }
-                }
-
-                item {
-                    LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        items(ListingCategory.browseOptions) { category ->
-                            val selected = state.selectedCategory == category
+                        if (selected) {
+                            Spacer(Modifier.height(4.dp))
                             Box(
                                 modifier = Modifier
-                                    .clickable {
-                                        viewModel.onEvent(ShopEvent.CategoryChanged(category))
-                                    }
-                                    .background(
-                                        color = if (selected) {
-                                            PrimaryColor
-                                        } else {
-                                            TextPrimary.copy(alpha = 0.12f)
-                                        },
-                                        shape = RoundedCornerShape(999.dp)
-                                    )
-                                    .padding(horizontal = 14.dp, vertical = 9.dp)
-                                    .testTag("shop_category_$category")
-                            ) {
-                                Text(
-                                    text = category,
-                                    color = TextPrimary,
-                                    fontSize = 12.sp,
-                                    fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
-                                    modifier = Modifier
-                                        .align(Alignment.Center)
-                                        .padding(horizontal = 2.dp)
-                                )
-                            }
+                                    .width(20.dp)
+                                    .height(2.dp)
+                                    .clip(RoundedCornerShape(1.dp))
+                                    .background(Color.White)
+                            )
+                        } else {
+                            Spacer(Modifier.height(6.dp))
                         }
                     }
                 }
+            }
+        }
 
-                if (state.error != null && state.listings.isEmpty()) {
-                    item {
-                        EmptyState(
-                            title = "Marketplace unavailable",
-                            subtitle = state.error ?: "Something went wrong."
-                        )
+        // Spacer between tabs and grid
+        item(span = StaggeredGridItemSpan.FullLine) {
+            Spacer(Modifier.height(4.dp))
+        }
+
+        // Product cards — staggered grid
+        if (state.listings.isEmpty()) {
+            items(
+                items = demoListings,
+                key = { it.id }
+            ) { listing ->
+                ProductCard(
+                    listing = listing,
+                    onClick = {
+                        Toast.makeText(context, "Marketplace launching soon", Toast.LENGTH_SHORT)
+                            .show()
                     }
-                } else if (state.listings.isEmpty()) {
-                    item {
-                        Column {
-                            Text(
-                                text = "Featured listings",
-                                color = TextPrimary,
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Spacer(Modifier.height(4.dp))
-                            Text(
-                                text = "Demo items — marketplace launching soon.",
-                                color = TextPrimary.copy(alpha = 0.6f),
-                                fontSize = 12.sp
-                            )
-                        }
+                )
+            }
+        } else {
+            items(
+                items = state.listings,
+                key = { it.id }
+            ) { listing ->
+                ListingCard(
+                    listing = listing,
+                    isWishlisted = listing.id in state.wishlistIds,
+                    onClick = {
+                        navController.navigate(Screen.ListingDetail.createRoute(listing.id))
+                    },
+                    onToggleWishlist = {
+                        viewModel.onEvent(ShopEvent.ToggleWishlist(listing.id))
                     }
-                    items(demoListings, key = { it.id }) { demo ->
-                        DemoListingCard(demo = demo) {
-                            Toast.makeText(
-                                context,
-                                "Marketplace launching soon",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    }
-                } else {
-                    items(state.listings, key = { it.id }) { listing ->
-                        ListingCard(
-                            listing = listing,
-                            isWishlisted = listing.id in state.wishlistIds,
-                            onClick = {
-                                navController.navigate(Screen.ListingDetail.createRoute(listing.id))
-                            },
-                            onToggleWishlist = {
-                                viewModel.onEvent(ShopEvent.ToggleWishlist(listing.id))
-                            }
-                        )
-                    }
-                }
+                )
             }
         }
     }
 }
 
 @Composable
-private fun DemoListingCard(demo: DemoListing, onClick: () -> Unit) {
-    Row(
+private fun ProductCard(listing: DemoListing, onClick: () -> Unit) {
+    val aspectRatio = remember(listing.id) {
+        // Vary image height per card for staggered effect
+        if (listing.id.hashCode() % 2 == 0) 0.72f else 1.05f
+    }
+
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(14.dp))
-            .background(TextPrimary.copy(alpha = 0.06f))
+            .clip(RoundedCornerShape(16.dp))
+            .background(ShopCardBg)
             .clickable { onClick() }
-            .padding(12.dp),
-        verticalAlignment = Alignment.CenterVertically
     ) {
-        AsyncImage(
-            model = demo.photoUrl,
-            contentDescription = demo.title,
-            modifier = Modifier
-                .size(82.dp)
-                .clip(RoundedCornerShape(10.dp))
-                .background(TextPrimary.copy(alpha = 0.05f))
-        )
-        Spacer(Modifier.width(12.dp))
-        Column(modifier = Modifier.weight(1f)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = demo.title,
-                    color = TextPrimary,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1,
-                    modifier = Modifier.weight(1f)
+        Column {
+            Box(modifier = Modifier.fillMaxWidth()) {
+                AsyncImage(
+                    model = listing.photoUrl,
+                    contentDescription = listing.title,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(aspectRatio)
+                        .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
                 )
-                Spacer(Modifier.width(6.dp))
+                // "+" button
                 Box(
                     modifier = Modifier
-                        .clip(RoundedCornerShape(6.dp))
-                        .background(LimeAccent.copy(alpha = 0.18f))
-                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                        .align(Alignment.TopEnd)
+                        .padding(8.dp)
+                        .size(28.dp)
+                        .clip(CircleShape)
+                        .background(PlusGreen)
+                        .clickable { onClick() },
+                    contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = "Demo",
-                        color = LimeAccent,
-                        fontSize = 9.sp,
-                        fontWeight = FontWeight.Bold
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Add",
+                        tint = Color.White,
+                        modifier = Modifier.size(16.dp)
                     )
                 }
             }
-            Spacer(Modifier.height(4.dp))
-            Text(
-                text = demo.description,
-                color = TextPrimary.copy(alpha = 0.65f),
-                fontSize = 11.sp,
-                maxLines = 2
-            )
-            Spacer(Modifier.height(6.dp))
-            Text(
-                text = "₹${demo.priceCents / 100} · ${demo.sellerName}",
-                color = PrimaryColor,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.SemiBold
-            )
+            Column(modifier = Modifier.padding(10.dp)) {
+                Text(
+                    text = listing.title,
+                    color = ShopTextDark,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 2
+                )
+                Spacer(Modifier.height(4.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "$${listing.priceCents}",
+                        color = ShopTextDark,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = "View details",
+                        color = ViewGreen,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            }
         }
-    }
-}
-
-@Composable
-private fun EmptyState(title: String, subtitle: String) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 48.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(text = "🛍️", fontSize = 46.sp)
-        Spacer(modifier = Modifier.height(12.dp))
-        Text(
-            text = title,
-            color = TextPrimary,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = subtitle,
-            color = TextPrimary.copy(alpha = 0.7f),
-            fontSize = 13.sp
-        )
     }
 }

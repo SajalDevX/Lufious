@@ -11,6 +11,7 @@ import ai.lufious.app.presentation.scan.ui.ScanResultScreen
 import ai.lufious.app.presentation.shop.ui.CreateListingScreen
 import ai.lufious.app.presentation.shop.ui.ListingDetailScreen
 import ai.lufious.app.presentation.shop.ui.ShopPage
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -29,7 +30,13 @@ fun MainScreen(outerNavController: NavHostController = rememberNavController()) 
 
     Scaffold(
         containerColor = Background,
-        bottomBar = { BottomNavigationBar(navController = tabNavController) }
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        bottomBar = {
+            BottomNavigationBar(
+                navController = tabNavController,
+                onProfileClick = { outerNavController.navigate(Screen.Profile.route) }
+            )
+        }
     ) { paddingValues ->
         NavHost(
             navController = tabNavController,
