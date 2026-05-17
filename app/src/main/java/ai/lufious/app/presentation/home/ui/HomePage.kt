@@ -229,32 +229,6 @@ private fun HeroAndWeatherSection(
                 .statusBarsPadding()
                 .padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 44.dp)
         ) {
-            // Notification bell
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .background(Color.White.copy(alpha = 0.15f))
-                    .clickable {},
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Notifications,
-                    contentDescription = "Notifications",
-                    tint = Color.White,
-                    modifier = Modifier.size(22.dp)
-                )
-                Box(
-                    modifier = Modifier
-                        .size(8.dp)
-                        .align(Alignment.TopEnd)
-                        .offset(x = (-2).dp, y = 2.dp)
-                        .clip(CircleShape)
-                        .background(HeroDotRed)
-                )
-            }
-
             // Decorative plant emoji
             Text(
                 text = "🌿",

@@ -2,10 +2,10 @@ package ai.lufious.app.presentation.main.ui
 
 import ai.lufious.app.core.theme.Background
 import ai.lufious.app.core.utils.Screen
-import ai.lufious.app.presentation.garden.ui.AddPlantScreen
 import ai.lufious.app.presentation.garden.ui.GardenPage
 import ai.lufious.app.presentation.garden.ui.PlantDetailScreen
 import ai.lufious.app.presentation.home.ui.HomePage
+import ai.lufious.app.presentation.profile.ui.ProfileScreen
 import ai.lufious.app.presentation.scan.ui.ScanPage
 import ai.lufious.app.presentation.scan.ui.ScanResultScreen
 import ai.lufious.app.presentation.shop.ui.CreateListingScreen
@@ -34,7 +34,12 @@ fun MainScreen(outerNavController: NavHostController = rememberNavController()) 
         bottomBar = {
             BottomNavigationBar(
                 navController = tabNavController,
-                onProfileClick = { outerNavController.navigate(Screen.Profile.route) }
+                onProfileClick = {
+                    tabNavController.navigate(Screen.Profile.route) {
+                        popUpTo(Screen.HomeTab.route)
+                        launchSingleTop = true
+                    }
+                }
             )
         }
     ) { paddingValues ->
@@ -55,22 +60,16 @@ fun MainScreen(outerNavController: NavHostController = rememberNavController()) 
                 ScanPage(navController = tabNavController)
             }
             composable(Screen.GardenTab.route) {
-                GardenPage(navController = tabNavController)
+                GardenPage(
+                    navController = tabNavController,
+                    outerNavController = outerNavController
+                )
             }
             composable(Screen.ShopTab.route) {
                 ShopPage(navController = tabNavController)
             }
-            composable(
-                route = "garden/add_plant?species={species}",
-                arguments = listOf(
-                    navArgument("species") {
-                        type = NavType.StringType
-                        defaultValue = ""
-                        nullable = true
-                    }
-                )
-            ) {
-                AddPlantScreen(navController = tabNavController)
+            composable(Screen.Profile.route) {
+                ProfileScreen(navController = tabNavController)
             }
             composable(
                 route = Screen.PlantDetail.route,

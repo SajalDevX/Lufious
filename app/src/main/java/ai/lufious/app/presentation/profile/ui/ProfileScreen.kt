@@ -104,8 +104,7 @@ fun ProfileScreen(
         item {
             ProfileHeroSection(
                 displayName = state.displayName,
-                email = state.email,
-                onBackClick = { navController.popBackStack() }
+                email = state.email
             )
         }
 
@@ -265,8 +264,7 @@ fun ProfileScreen(
 @Composable
 private fun ProfileHeroSection(
     displayName: String,
-    email: String,
-    onBackClick: () -> Unit
+    email: String
 ) {
     Box(
         modifier = Modifier
@@ -277,25 +275,6 @@ private fun ProfileHeroSection(
             .statusBarsPadding()
             .padding(bottom = 48.dp)
     ) {
-        // Back button
-        Box(
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .padding(start = 16.dp, top = 14.dp)
-                .size(38.dp)
-                .clip(CircleShape)
-                .background(Color.White.copy(alpha = 0.15f))
-                .clickable { onBackClick() },
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Default.ArrowBack,
-                contentDescription = "Back",
-                tint = Color.White,
-                modifier = Modifier.size(20.dp)
-            )
-        }
-
         Column(
             modifier = Modifier
                 .fillMaxWidth()
