@@ -34,7 +34,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.filled.PhotoLibrary
-import androidx.compose.material.icons.filled.TipsAndUpdates
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Camera
@@ -103,6 +102,18 @@ fun ScanPage(
         if (granted) showCamera = true
     }
 
+    val galleryLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null) {
+            runCatching {
+                context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+            }.getOrNull()?.let { bytes ->
+                viewModel.onEvent(ScanEvent.Scan(bytes))
+            }
+        }
+    }
+
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -113,6 +124,13 @@ fun ScanPage(
                 onStartScan = {
                     if (hasCameraPermission) showCamera = true
                     else permissionLauncher.launch(Manifest.permission.CAMERA)
+                },
+                onPickFromGallery = {
+                    galleryLauncher.launch(
+                        androidx.activity.result.PickVisualMediaRequest(
+                            ActivityResultContracts.PickVisualMedia.ImageOnly
+                        )
+                    )
                 }
             )
             hasCameraPermission -> CameraContent(
@@ -144,7 +162,10 @@ fun ScanPage(
 }
 
 @Composable
-private fun ScanIntroContent(onStartScan: () -> Unit) {
+private fun ScanIntroContent(
+    onStartScan: () -> Unit,
+    onPickFromGallery: () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -210,6 +231,32 @@ private fun ScanIntroContent(onStartScan: () -> Unit) {
                     color = Color.White,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
+                )
+            }
+        }
+        Spacer(Modifier.height(10.dp))
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(54.dp)
+                .clip(RoundedCornerShape(28.dp))
+                .background(Color.White)
+                .clickable { onPickFromGallery() },
+            contentAlignment = Alignment.Center
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Default.PhotoLibrary,
+                    contentDescription = null,
+                    tint = PrimaryColor,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(Modifier.width(10.dp))
+                Text(
+                    text = "Upload from gallery",
+                    color = PrimaryColor,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.SemiBold
                 )
             }
         }
