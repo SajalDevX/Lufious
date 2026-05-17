@@ -279,7 +279,7 @@ fun SignupSelectionScreen(
         }
 
         Image(
-            painter = painterResource(id = R.drawable.waving_mascot),
+            painter = painterResource(id = R.drawable.toonping_signup),
             contentDescription = "Mascot",
             modifier = Modifier
                 .align(Alignment.TopEnd)

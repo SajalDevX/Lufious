@@ -20,7 +20,7 @@ fun AppNavHost(
             route = Screen.Onboarding.route) {
             OnBoardingPage(
                 onLogin = { navController.navigate(Screen.Login.route) },
-                onGetStarted = { navController.navigate(Screen.Signup.route) }
+                onGetStarted = { navController.navigate(Screen.GetStarted.route) }
             )
         }
 
