@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package ai.lufious.app.presentation.auth.signup.ui
 
 import ai.lufious.app.core.theme.Background
@@ -13,7 +15,6 @@ import ai.lufious.app.presentation.auth.signup.viewmodel.SignupEvent
 import ai.lufious.app.presentation.auth.signup.viewmodel.SignupViewModel
 import ai.lufious.app.presentation.utils.CommonTextField
 import android.widget.Toast
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -63,7 +64,6 @@ fun EmailSignupScreen(
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
     val dimensions = rememberResponsiveDimensions()
-    val isDarkTheme = isSystemInDarkTheme()
 
     LaunchedEffect(Unit) {
         viewModel.effects.collectLatest { effect ->
@@ -117,6 +117,7 @@ fun EmailSignupScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .padding(innerPadding)
                 .padding(
                     horizontal = dimensions.wR(8f).dp, vertical = dimensions.hR(8f).dp
                 ), contentAlignment = Alignment.BottomCenter

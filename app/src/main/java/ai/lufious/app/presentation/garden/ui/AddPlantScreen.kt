@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package ai.lufious.app.presentation.garden.ui
 
 import ai.lufious.app.core.theme.Background
@@ -117,6 +119,7 @@ fun AddPlantScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .padding(innerPadding)
                 .padding(horizontal = dimensions.wR(8f).dp, vertical = dimensions.hR(8f).dp)
                 .testTag("add_plant_screen"),
             contentAlignment = Alignment.BottomCenter

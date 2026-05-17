@@ -1,35 +1,11 @@
 package ai.lufious.app.presentation.home.ui
 
-import ai.lufious.app.core.theme.Background
-import ai.lufious.app.core.theme.CardBorder
-import ai.lufious.app.core.theme.CriticalRed
-import ai.lufious.app.core.theme.DeepForestGreen
-import ai.lufious.app.core.theme.HealthyGreen
-import ai.lufious.app.core.theme.LimeAccent
 import ai.lufious.app.core.theme.PrimaryColor
-import ai.lufious.app.core.theme.Surface
-import ai.lufious.app.core.theme.SurfaceHigh
-import ai.lufious.app.core.theme.TextMuted
-import ai.lufious.app.core.theme.TextSecondary
-import ai.lufious.app.core.theme.TintBlush
-import ai.lufious.app.core.theme.TintButter
-import ai.lufious.app.core.theme.TintPeach
-import ai.lufious.app.core.theme.TintSage
-import ai.lufious.app.core.theme.WarningOrange
+import ai.lufious.app.core.theme.TextPrimary
 import ai.lufious.app.core.utils.Screen
-import ai.lufious.app.presentation.catalog.DemoListing
-import ai.lufious.app.presentation.catalog.PlantSpecies
-import ai.lufious.app.presentation.catalog.featuredListings
-import ai.lufious.app.presentation.catalog.plantCatalog
-import ai.lufious.app.presentation.catalog.tipOfTheDay
-import ai.lufious.app.presentation.garden.data.models.PlantModel
 import ai.lufious.app.presentation.home.viewmodel.HomeViewModel
-import coil.compose.AsyncImage
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,67 +14,73 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.LocalFlorist
-import androidx.compose.material.icons.filled.NotificationsActive
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.PhotoCamera
-import androidx.compose.material.icons.filled.ShoppingBag
-import androidx.compose.material.icons.filled.WaterDrop
-import androidx.compose.material.icons.filled.WbSunny
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import ai.lufious.app.core.theme.TextPrimary
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import kotlinx.coroutines.delay
 
-private data class HomeBanner(
-    val title: String,
-    val subtitle: String,
-    val cta: String,
-    val icon: ImageVector,
-    val gradient: List<Color>,
-    val onClick: () -> Unit
+private val HeroGreenDeep = Color(0xFF124428)
+private val HeroGreen = Color(0xFF1A5C35)
+private val PageBg = Color(0xFFF2F8F3)
+private val CardWhite = Color.White
+private val GreenHealthy = Color(0xFF22C55E)
+private val OrangeNeeds = Color(0xFFEA580C)
+private val ProgressGreen = Color(0xFF4CAF50)
+private val ProgressRed = Color(0xFFEF5350)
+private val TipCardBg = Color(0xFFE8F5E8)
+private val HeroDotRed = Color(0xFFEF5350)
+
+private data class DemoPlant(
+    val name: String,
+    val emoji: String,
+    val status: String,
+    val isHealthy: Boolean,
+    val health: Float
 )
 
-private data class FeatureCard(
+private data class TaskItem(
     val title: String,
     val subtitle: String,
-    val icon: ImageVector,
-    val tint: Color,
-    val onClick: () -> Unit
+    val emoji: String,
+    val bgColor: Color
 )
 
-@OptIn(ExperimentalFoundationApi::class)
+private data class GardenStat(
+    val emoji: String,
+    val count: Int,
+    val label: String,
+    val changeText: String,
+    val changePositive: Boolean
+)
+
 @Composable
 fun HomePage(
     outerNavController: NavHostController,
@@ -107,10 +89,10 @@ fun HomePage(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
-    val greeting = when (java.time.LocalTime.now().hour) {
-        in 5..11 -> "Good morning"
-        in 12..17 -> "Good afternoon"
-        else -> "Good evening"
+    val greeting = when (java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)) {
+        in 5..11 -> "Good morning,"
+        in 12..17 -> "Good afternoon,"
+        else -> "Good evening,"
     }
 
     val goTab: (String) -> Unit = { route ->
@@ -120,791 +102,542 @@ fun HomePage(
         }
     }
 
-    val banners = remember(state) {
-        buildList {
-            if (state.plantsNeedingWater.isNotEmpty()) {
-                add(
-                    HomeBanner(
-                        title = "${state.plantsNeedingWater.size} plant${if (state.plantsNeedingWater.size == 1) "" else "s"} need water",
-                        subtitle = "Tap to log a watering and reset the schedule.",
-                        cta = "Open Garden",
-                        icon = Icons.Default.WaterDrop,
-                        gradient = listOf(TintPeach, TintButter),
-                        onClick = { goTab(Screen.GardenTab.route) }
-                    )
-                )
-            }
-            val tipText = state.aiTip ?: tipOfTheDay()
-            add(
-                HomeBanner(
-                    title = if (state.aiTip != null) "AI Care Tip" else "Tip of the day",
-                    subtitle = tipText,
-                    cta = "Open Scan",
-                    icon = Icons.Default.WbSunny,
-                    gradient = listOf(TintSage, Surface),
-                    onClick = { goTab(Screen.ScanTab.route) }
-                )
-            )
-            if (state.weatherAlertsCount > 0) {
-                add(
-                    HomeBanner(
-                        title = "${state.weatherAlertsCount} weather alert${if (state.weatherAlertsCount == 1) "" else "s"}",
-                        subtitle = "Active weather conditions for your area. Adjust care today.",
-                        cta = "View",
-                        icon = Icons.Default.NotificationsActive,
-                        gradient = listOf(TintBlush, TintPeach),
-                        onClick = { goTab(Screen.HomeTab.route) }
-                    )
-                )
-            }
-            if (isEmpty()) {
-                add(
-                    HomeBanner(
-                        title = "Welcome to Lufious",
-                        subtitle = "Add your first plant or scan one with the camera to get started.",
-                        cta = "Scan a Plant",
-                        icon = Icons.Default.LocalFlorist,
-                        gradient = listOf(TintPeach, TintButter),
-                        onClick = { goTab(Screen.ScanTab.route) }
-                    )
-                )
-            }
-        }
-    }
-
-    val features = listOf(
-        FeatureCard("My Garden", "Track your plants", Icons.Default.LocalFlorist, HealthyGreen) {
-            goTab(Screen.GardenTab.route)
-        },
-        FeatureCard("Scan Plant", "Identify with AI", Icons.Default.PhotoCamera, LimeAccent) {
-            goTab(Screen.ScanTab.route)
-        },
-        FeatureCard("Marketplace", "Buy & sell items", Icons.Default.ShoppingBag, WarningOrange) {
-            goTab(Screen.ShopTab.route)
-        },
-        FeatureCard("Profile", "Settings & account", Icons.Default.Person, PrimaryColor) {
-            outerNavController.navigate(Screen.Profile.route)
-        }
+    val demoPlants = listOf(
+        DemoPlant("Monstera", "🌿", "Healthy", true, 0.80f),
+        DemoPlant("Aloe Vera", "🌵", "Needs water", false, 0.35f),
+        DemoPlant("Rose", "🌹", "Healthy", true, 0.75f),
+        DemoPlant("Snake Plant", "🌱", "Needs light", false, 0.20f)
     )
 
-    val suggestedSpecies = remember(state.userName) {
-        plantCatalog.shuffled().take(8)
-    }
-    val featured = remember { featuredListings.shuffled().take(6) }
+    val tasks = listOf(
+        TaskItem("Water 2 plants", "Monstera, Aloe Vera", "💧", Color(0xFFE3F2FD)),
+        TaskItem("Fertilize 1 plant", "Rose", "🌿", Color(0xFFFFF8E1)),
+        TaskItem("Check sunlight", "3 plants", "☀️", Color(0xFFFFFDE7))
+    )
+
+    val gardenStats = listOf(
+        GardenStat("🌿", maxOf(state.totalPlants, 12), "Healthy", "+2 from last week", true),
+        GardenStat("💧", maxOf(state.plantsNeedingWater.size, 2), "Need care", "+1 from last week", false),
+        GardenStat("🌱", 4, "New leaves", "+3 from last week", true)
+    )
+
+    val aiTip = state.aiTip ?: "Your Monstera looks a bit dry.\nWater it today for healthy growth."
+    val needsWaterCount = state.plantsNeedingWater.size.coerceAtLeast(3)
 
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
-            .background(Background)
-            .padding(horizontal = 18.dp, vertical = 24.dp)
-            .testTag("home_screen"),
-        verticalArrangement = Arrangement.spacedBy(18.dp)
+            .background(PageBg)
+            .testTag("home_screen")
     ) {
         item {
-            HomeHeader(
+            HeroAndWeatherSection(
                 greeting = greeting,
-                userName = state.userName,
-                onProfileClick = { outerNavController.navigate(Screen.Profile.route) }
+                needsWaterCount = needsWaterCount,
+                tempC = state.currentTempC,
+                condition = state.currentCondition
             )
         }
-
         item {
-            // Reserved 2dp slot — visible bar while loading, transparent when idle.
-            // Prevents LazyColumn reflow when isLoading toggles.
-            Box(modifier = Modifier.fillMaxWidth().height(2.dp)) {
-                if (state.isLoading) {
-                    LinearProgressIndicator(
-                        modifier = Modifier.fillMaxWidth(),
-                        color = PrimaryColor,
-                        trackColor = Color.Transparent
-                    )
-                }
-            }
-        }
-
-        item {
-            WeatherCarousel(
-                currentTempC = state.currentTempC,
-                currentCondition = state.currentCondition,
-                currentIcon = state.currentIcon,
-                forecast = state.weatherForecast
+            Spacer(Modifier.height(20.dp))
+            MyPlantsSection(
+                plants = demoPlants,
+                onViewAll = { goTab(Screen.GardenTab.route) }
             )
         }
-
-        item { BannerCarousel(banners = banners) }
-
         item {
-            SectionCard {
-                SectionLabel("Today")
-                Spacer(Modifier.height(12.dp))
-                StatsRow(
-                    totalPlants = state.totalPlants,
-                    needsWater = state.plantsNeedingWater.size,
-                    weatherAlerts = state.weatherAlertsCount
-                )
-            }
+            Spacer(Modifier.height(16.dp))
+            AiCareTipSection(
+                tip = aiTip,
+                onSeeDetails = { goTab(Screen.ScanTab.route) }
+            )
         }
-
         item {
-            SectionCard {
-                SectionLabel("Quick actions")
-                Spacer(Modifier.height(12.dp))
-                FeatureGrid(cards = features)
-            }
+            Spacer(Modifier.height(20.dp))
+            TodaysTasksSection(
+                tasks = tasks,
+                onViewAll = { goTab(Screen.GardenTab.route) }
+            )
         }
-
-        if (state.plantsNeedingWater.isNotEmpty()) {
-            item {
-                SectionCard {
-                    SectionLabel("Needs water")
-                    Spacer(Modifier.height(12.dp))
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        state.plantsNeedingWater.forEach { plant ->
-                            WaterReminderCard(plant = plant) { goTab(Screen.GardenTab.route) }
-                        }
-                    }
-                }
-            }
-        } else if (state.totalPlants > 0 && !state.isLoading) {
-            item {
-                SectionCard {
-                    AllHappyCard()
-                }
-            }
-        }
-
         item {
-            SectionCard {
-                SectionLabel("Plants to try")
-                Spacer(Modifier.height(12.dp))
-                SuggestedSpeciesRow(species = suggestedSpecies)
-            }
+            Spacer(Modifier.height(20.dp))
+            GardenOverviewSection(stats = gardenStats)
         }
-
-        item {
-            SectionCard {
-                SectionLabel("Trending in Shop")
-                Spacer(Modifier.height(12.dp))
-                FeaturedListingsRow(
-                    listings = featured,
-                    onClick = { goTab(Screen.ShopTab.route) }
-                )
-            }
-        }
-
-        item { Spacer(Modifier.height(8.dp)) }
+        item { Spacer(Modifier.height(32.dp)) }
     }
 }
 
 @Composable
-private fun SuggestedSpeciesRow(species: List<PlantSpecies>) {
-    LazyRow(
-        horizontalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        items(species, key = { it.id }) { s ->
-            Column(
-                modifier = Modifier
-                    .width(120.dp)
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(SurfaceHigh)
-                    .padding(12.dp)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(48.dp)
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(PrimaryColor.copy(alpha = 0.15f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(s.emoji, fontSize = 24.sp)
-                }
-                Spacer(Modifier.height(8.dp))
-                Text(
-                    text = s.name,
-                    color = TextPrimary,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1
-                )
-                Text(
-                    text = s.difficulty.name,
-                    color = TextPrimary.copy(alpha = 0.55f),
-                    fontSize = 10.sp
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun FeaturedListingsRow(
-    listings: List<DemoListing>,
-    onClick: () -> Unit
-) {
-    LazyRow(
-        horizontalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        items(listings, key = { it.id }) { l ->
-            Column(
-                modifier = Modifier
-                    .width(150.dp)
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(SurfaceHigh)
-                    .clickable { onClick() }
-                    .padding(10.dp)
-            ) {
-                AsyncImage(
-                    model = l.photoUrl,
-                    contentDescription = l.title,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(90.dp)
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(SurfaceHigh)
-                )
-                Spacer(Modifier.height(8.dp))
-                Text(
-                    text = l.title,
-                    color = TextPrimary,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1
-                )
-                Text(
-                    text = "₹${l.priceCents / 100}",
-                    color = PrimaryColor,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun HomeHeader(
+private fun HeroAndWeatherSection(
     greeting: String,
-    userName: String,
-    onProfileClick: () -> Unit
+    needsWaterCount: Int,
+    tempC: Double?,
+    condition: String?
 ) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column {
-            Text(
-                text = "$greeting 🌿",
-                color = TextPrimary,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.ExtraBold
-            )
-            Text(
-                text = userName,
-                color = TextPrimary.copy(alpha = 0.6f),
-                fontSize = 13.sp,
-                fontWeight = FontWeight.Medium
-            )
-        }
+    Column(modifier = Modifier.fillMaxWidth()) {
         Box(
             modifier = Modifier
-                .size(42.dp)
-                .clip(CircleShape)
-                .background(TextPrimary.copy(alpha = 0.08f))
-                .clickable { onProfileClick() },
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Default.Person,
-                contentDescription = "Profile",
-                tint = TextPrimary.copy(alpha = 0.85f),
-                modifier = Modifier.size(22.dp)
-            )
-        }
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-private fun BannerCarousel(banners: List<HomeBanner>) {
-    if (banners.isEmpty()) return
-    val pagerState = rememberPagerState(pageCount = { banners.size })
-
-    LaunchedEffect(banners.size) {
-        if (banners.size <= 1) return@LaunchedEffect
-        while (true) {
-            delay(5_000L)
-            val next = (pagerState.currentPage + 1) % banners.size
-            pagerState.animateScrollToPage(next)
-        }
-    }
-
-    Column {
-        HorizontalPager(
-            state = pagerState,
-            pageSpacing = 12.dp,
-            modifier = Modifier.fillMaxWidth().height(150.dp)
-        ) { page ->
-            BannerCard(banners[page])
-        }
-        Spacer(Modifier.height(10.dp))
-        // Always reserve indicator slot so growing banner count doesn't reflow.
-        Row(
-            modifier = Modifier.fillMaxWidth().height(6.dp),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            if (banners.size > 1) {
-                repeat(banners.size) { i ->
-                    val active = pagerState.currentPage == i
-                    Box(
-                        modifier = Modifier
-                            .padding(horizontal = 3.dp)
-                            .height(6.dp)
-                            .width(if (active) 20.dp else 6.dp)
-                            .clip(RoundedCornerShape(3.dp))
-                            .background(
-                                if (active) PrimaryColor
-                                else TextPrimary.copy(alpha = 0.25f)
-                            )
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun BannerCard(banner: HomeBanner) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(150.dp)
-            .clickable { banner.onClick() },
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.Transparent)
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(brush = Brush.linearGradient(banner.gradient))
-                .padding(18.dp)
-        ) {
-            Column(modifier = Modifier.fillMaxSize()) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .size(40.dp)
-                            .clip(RoundedCornerShape(10.dp))
-                            .background(Surface),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = banner.icon,
-                            contentDescription = null,
-                            tint = DeepForestGreen,
-                            modifier = Modifier.size(22.dp)
-                        )
-                    }
-                    Spacer(Modifier.width(12.dp))
-                    Text(
-                        text = banner.title,
-                        color = TextPrimary,
-                        fontSize = 17.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        maxLines = 1
-                    )
-                }
-                Spacer(Modifier.height(8.dp))
-                Text(
-                    text = banner.subtitle,
-                    color = TextPrimary.copy(alpha = 0.78f),
-                    fontSize = 13.sp,
-                    lineHeight = 18.sp,
-                    maxLines = 3
-                )
-                Spacer(Modifier.weight(1f))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(10.dp))
-                            .background(PrimaryColor)
-                            .padding(horizontal = 14.dp, vertical = 8.dp)
-                    ) {
-                        Text(
-                            text = banner.cta,
-                            color = Surface,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun StatsRow(totalPlants: Int, needsWater: Int, weatherAlerts: Int) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        StatTile(
-            modifier = Modifier.weight(1f),
-            value = totalPlants.toString(),
-            label = "Plants",
-            color = PrimaryColor,
-            tintBg = PrimaryColor.copy(alpha = 0.15f)
-        )
-        StatTile(
-            modifier = Modifier.weight(1f),
-            value = needsWater.toString(),
-            label = "Need water",
-            color = if (needsWater == 0) HealthyGreen else WarningOrange,
-            tintBg = (if (needsWater == 0) HealthyGreen else WarningOrange).copy(alpha = 0.15f)
-        )
-        StatTile(
-            modifier = Modifier.weight(1f),
-            value = weatherAlerts.toString(),
-            label = "Alerts",
-            color = if (weatherAlerts == 0) LimeAccent else CriticalRed,
-            tintBg = (if (weatherAlerts == 0) LimeAccent else CriticalRed).copy(alpha = 0.12f)
-        )
-    }
-}
-
-@Composable
-private fun StatTile(
-    modifier: Modifier = Modifier,
-    value: String,
-    label: String,
-    color: Color,
-    tintBg: Color
-) {
-    Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(14.dp))
-            .background(tintBg)
-            .padding(14.dp)
-    ) {
-        Column {
-            Text(
-                text = value,
-                color = color,
-                fontSize = 26.sp,
-                fontWeight = FontWeight.ExtraBold
-            )
-            Text(
-                text = label,
-                color = TextPrimary.copy(alpha = 0.7f),
-                fontSize = 11.sp,
-                fontWeight = FontWeight.Medium
-            )
-        }
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-private fun WeatherCarousel(
-    currentTempC: Double?,
-    currentCondition: String?,
-    currentIcon: String?,
-    forecast: List<ai.lufious.app.core.network.dto.DailyForecastDto>
-) {
-    data class WeatherPage(
-        val label: String,
-        val tempLabel: String,
-        val condition: String,
-        val iconCode: String?
-    )
-
-    val pages = remember(currentTempC, currentCondition, currentIcon, forecast) {
-        buildList {
-            add(
-                WeatherPage(
-                    label = "Today",
-                    tempLabel = currentTempC?.let { "${it.toInt()}°" } ?: "--°",
-                    condition = currentCondition?.replaceFirstChar { it.uppercase() } ?: "No data",
-                    iconCode = currentIcon
-                )
-            )
-            forecast.drop(1).take(6).forEach { d ->
-                val dayName = java.time.Instant.ofEpochMilli(d.dt)
-                    .atZone(java.time.ZoneId.systemDefault())
-                    .dayOfWeek
-                    .getDisplayName(java.time.format.TextStyle.SHORT, java.util.Locale.getDefault())
-                val lo = d.tempMin?.toInt()
-                val hi = d.tempMax?.toInt()
-                val range = when {
-                    lo != null && hi != null -> "$hi° / $lo°"
-                    hi != null -> "$hi°"
-                    lo != null -> "$lo°"
-                    else -> "--"
-                }
-                add(
-                    WeatherPage(
-                        label = dayName,
-                        tempLabel = range,
-                        condition = d.description?.replaceFirstChar { it.uppercase() } ?: "—",
-                        iconCode = d.icon
+                .fillMaxWidth()
+                .background(
+                    Brush.verticalGradient(
+                        listOf(HeroGreenDeep, HeroGreen)
                     )
                 )
-            }
-            if (size == 1) {
-                // No forecast yet: pad with placeholder days so the carousel still hints swipe.
-                val today = java.time.LocalDate.now()
-                repeat(6) { i ->
-                    val name = today.plusDays((i + 1).toLong()).dayOfWeek
-                        .getDisplayName(java.time.format.TextStyle.SHORT, java.util.Locale.getDefault())
-                    add(WeatherPage(label = name, tempLabel = "--°", condition = "—", iconCode = null))
-                }
-            }
-        }
-    }
-
-    val pagerState = rememberPagerState(pageCount = { pages.size })
-
-    Column {
-        HorizontalPager(
-            state = pagerState,
-            pageSpacing = 10.dp,
-            modifier = Modifier.fillMaxWidth().height(140.dp)
-        ) { page ->
-            WeatherCard(
-                label = pages[page].label,
-                tempLabel = pages[page].tempLabel,
-                condition = pages[page].condition,
-                iconCode = pages[page].iconCode
-            )
-        }
-        Spacer(Modifier.height(8.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth().height(6.dp),
-            horizontalArrangement = Arrangement.Center
+                .statusBarsPadding()
+                .padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 44.dp)
         ) {
-            repeat(pages.size) { i ->
-                val active = pagerState.currentPage == i
-                Box(
-                    modifier = Modifier
-                        .padding(horizontal = 2.5.dp)
-                        .height(6.dp)
-                        .width(if (active) 18.dp else 6.dp)
-                        .clip(RoundedCornerShape(3.dp))
-                        .background(if (active) PrimaryColor else CardBorder)
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun WeatherCard(
-    label: String,
-    tempLabel: String,
-    condition: String,
-    iconCode: String?
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(140.dp)
-            .clip(RoundedCornerShape(20.dp))
-            .background(
-                Brush.linearGradient(
-                    listOf(DeepForestGreen, PrimaryColor)
-                )
-            )
-            .padding(18.dp)
-    ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            Text(
-                text = label,
-                color = LimeAccent,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(Modifier.height(6.dp))
-            Text(
-                text = tempLabel,
-                color = Surface,
-                fontSize = 38.sp,
-                fontWeight = FontWeight.ExtraBold
-            )
-            Text(
-                text = condition,
-                color = Surface.copy(alpha = 0.85f),
-                fontSize = 13.sp,
-                maxLines = 1
-            )
-        }
-        if (iconCode != null) {
-            AsyncImage(
-                model = "https://openweathermap.org/img/wn/${iconCode}@2x.png",
-                contentDescription = condition,
-                modifier = Modifier
-                    .size(96.dp)
-                    .align(Alignment.CenterEnd)
-            )
-        } else {
-            Text(
-                text = "☀️",
-                fontSize = 56.sp,
-                modifier = Modifier.align(Alignment.CenterEnd)
-            )
-        }
-    }
-}
-
-@Composable
-private fun SectionCard(content: @Composable ColumnScope.() -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
-            .background(Surface)
-            .border(1.dp, CardBorder, RoundedCornerShape(20.dp))
-            .padding(16.dp),
-        content = content
-    )
-}
-
-@Composable
-private fun SectionLabel(text: String) {
-    Text(
-        text = text,
-        color = TextSecondary,
-        fontSize = 14.sp,
-        fontWeight = FontWeight.SemiBold
-    )
-}
-
-@Composable
-private fun FeatureGrid(cards: List<FeatureCard>) {
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        cards.chunked(2).forEach { row ->
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                row.forEach { card ->
-                    FeatureTile(modifier = Modifier.weight(1f), card = card)
-                }
-                if (row.size == 1) Spacer(modifier = Modifier.weight(1f))
-            }
-        }
-    }
-}
-
-@Composable
-private fun FeatureTile(modifier: Modifier = Modifier, card: FeatureCard) {
-    Box(
-        modifier = modifier
-            .height(118.dp)
-            .clip(RoundedCornerShape(16.dp))
-            .background(SurfaceHigh)
-            .clickable { card.onClick() }
-            .padding(14.dp)
-    ) {
-        Column(modifier = Modifier.fillMaxSize()) {
+            // Notification bell
             Box(
                 modifier = Modifier
-                    .size(34.dp)
-                    .clip(RoundedCornerShape(9.dp))
-                    .background(card.tint.copy(alpha = 0.18f)),
+                    .align(Alignment.TopEnd)
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .background(Color.White.copy(alpha = 0.15f))
+                    .clickable {},
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = card.icon,
-                    contentDescription = null,
-                    tint = card.tint,
-                    modifier = Modifier.size(18.dp)
+                    imageVector = Icons.Default.Notifications,
+                    contentDescription = "Notifications",
+                    tint = Color.White,
+                    modifier = Modifier.size(22.dp)
+                )
+                Box(
+                    modifier = Modifier
+                        .size(8.dp)
+                        .align(Alignment.TopEnd)
+                        .offset(x = (-2).dp, y = 2.dp)
+                        .clip(CircleShape)
+                        .background(HeroDotRed)
                 )
             }
-            Spacer(Modifier.weight(1f))
+
+            // Decorative plant emoji
             Text(
-                text = card.title,
-                color = TextPrimary,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
-                maxLines = 1
+                text = "🌿",
+                fontSize = 96.sp,
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(top = 8.dp)
             )
-            Spacer(Modifier.height(2.dp))
-            Text(
-                text = card.subtitle,
-                color = TextPrimary.copy(alpha = 0.55f),
-                fontSize = 11.sp,
-                maxLines = 1,
-                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
-            )
+
+            // Greeting text
+            Column(modifier = Modifier.padding(end = 100.dp)) {
+                Text(
+                    text = greeting,
+                    color = Color.White.copy(alpha = 0.88f),
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Normal
+                )
+                Text(
+                    text = "Plant lover 🌿",
+                    color = Color.White,
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    text = "Your garden is thriving!\n$needsWaterCount plants need watering today.",
+                    color = Color.White.copy(alpha = 0.80f),
+                    fontSize = 14.sp,
+                    lineHeight = 20.sp
+                )
+            }
+        }
+
+        // Weather card overlapping the hero bottom
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .offset(y = (-22).dp)
+        ) {
+            WeatherCard(tempC = tempC, condition = condition)
         }
     }
 }
 
 @Composable
-private fun WaterReminderCard(plant: PlantModel, onClick: () -> Unit) {
+private fun WeatherCard(tempC: Double?, condition: String?) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = CardWhite),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("☀️", fontSize = 44.sp)
+            Spacer(Modifier.width(10.dp))
+            Column {
+                Text(
+                    text = tempC?.let { "${it.toInt()}°" } ?: "28°",
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = TextPrimary
+                )
+                Text(
+                    text = condition?.replaceFirstChar { it.uppercase() } ?: "Sunny",
+                    fontSize = 12.sp,
+                    color = TextPrimary.copy(alpha = 0.6f)
+                )
+                Text(
+                    text = "New York",
+                    fontSize = 11.sp,
+                    color = TextPrimary.copy(alpha = 0.45f)
+                )
+            }
+            Spacer(Modifier.width(14.dp))
+            Box(
+                modifier = Modifier
+                    .width(1.dp)
+                    .height(52.dp)
+                    .background(Color(0xFFE0E0E0))
+            )
+            Spacer(Modifier.width(14.dp))
+            Row(
+                modifier = Modifier.weight(1f),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                WeatherStatItem(icon = "💧", label = "Humidity", value = "60%")
+                WeatherStatItem(icon = "🌤️", label = "Sunlight", value = "6 hrs")
+                WeatherStatItem(icon = "💨", label = "Wind", value = "12 km/h")
+            }
+        }
+    }
+}
+
+@Composable
+private fun WeatherStatItem(icon: String, label: String, value: String) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(icon, fontSize = 18.sp)
+        Text(
+            text = label,
+            fontSize = 10.sp,
+            color = TextPrimary.copy(alpha = 0.5f)
+        )
+        Text(
+            text = value,
+            fontSize = 13.sp,
+            fontWeight = FontWeight.Bold,
+            color = TextPrimary
+        )
+    }
+}
+
+@Composable
+private fun MyPlantsSection(plants: List<DemoPlant>, onViewAll: () -> Unit) {
+    Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "My Plants",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = TextPrimary
+            )
+            Text(
+                text = "View all",
+                fontSize = 13.sp,
+                color = PrimaryColor,
+                modifier = Modifier.clickable { onViewAll() }
+            )
+        }
+        Spacer(Modifier.height(14.dp))
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            items(plants) { plant ->
+                PlantCardItem(plant = plant)
+            }
+        }
+    }
+}
+
+@Composable
+private fun PlantCardItem(plant: DemoPlant) {
+    val statusColor = if (plant.isHealthy) GreenHealthy else OrangeNeeds
+    val progressColor = if (plant.isHealthy) ProgressGreen else ProgressRed
+
+    Card(
+        modifier = Modifier.width(148.dp),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = CardWhite),
+        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
+    ) {
+        Column(modifier = Modifier.padding(12.dp)) {
+            Box(modifier = Modifier.fillMaxWidth()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(100.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color(0xFFF0F4F0)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(plant.emoji, fontSize = 52.sp)
+                }
+                Box(
+                    modifier = Modifier
+                        .size(10.dp)
+                        .align(Alignment.TopEnd)
+                        .offset(x = (-4).dp, y = 4.dp)
+                        .clip(CircleShape)
+                        .background(statusColor)
+                )
+            }
+            Spacer(Modifier.height(8.dp))
+            Text(
+                text = plant.name,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                color = TextPrimary
+            )
+            Text(
+                text = plant.status,
+                fontSize = 12.sp,
+                color = statusColor
+            )
+            Spacer(Modifier.height(6.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                LinearProgressIndicator(
+                    progress = { plant.health },
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(5.dp)
+                        .clip(RoundedCornerShape(3.dp)),
+                    color = progressColor,
+                    trackColor = progressColor.copy(alpha = 0.2f)
+                )
+                Spacer(Modifier.width(6.dp))
+                Text(
+                    text = "${(plant.health * 100).toInt()}%",
+                    fontSize = 11.sp,
+                    color = TextPrimary.copy(alpha = 0.55f)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun AiCareTipSection(tip: String, onSeeDetails: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .padding(horizontal = 16.dp)
+            .clip(RoundedCornerShape(20.dp))
+            .background(TipCardBg)
+            .padding(16.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(44.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(CardWhite),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("🤖", fontSize = 22.sp)
+                    }
+                    Spacer(Modifier.width(10.dp))
+                    Text(
+                        text = "AI Care Tip",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = TextPrimary
+                    )
+                }
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    text = tip,
+                    fontSize = 13.sp,
+                    color = TextPrimary.copy(alpha = 0.72f),
+                    lineHeight = 19.sp
+                )
+                Spacer(Modifier.height(12.dp))
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(HeroGreen)
+                        .clickable { onSeeDetails() }
+                        .padding(horizontal = 18.dp, vertical = 9.dp)
+                ) {
+                    Text(
+                        text = "See Details",
+                        color = Color.White,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            }
+            Spacer(Modifier.width(8.dp))
+            Text("🪴", fontSize = 72.sp)
+        }
+    }
+}
+
+@Composable
+private fun TodaysTasksSection(tasks: List<TaskItem>, onViewAll: () -> Unit) {
+    Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Today's Tasks",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = TextPrimary
+            )
+            Text(
+                text = "View all",
+                fontSize = 13.sp,
+                color = PrimaryColor,
+                modifier = Modifier.clickable { onViewAll() }
+            )
+        }
+        Spacer(Modifier.height(12.dp))
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = CardWhite),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        ) {
+            Column {
+                tasks.forEachIndexed { index, task ->
+                    TaskRow(task = task)
+                    if (index < tasks.size - 1) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(1.dp)
+                                .padding(horizontal = 16.dp)
+                                .background(Color(0xFFF0F0F0))
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun TaskRow(task: TaskItem) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(WarningOrange.copy(alpha = 0.10f))
-            .clickable { onClick() }
-            .padding(12.dp),
+            .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
             modifier = Modifier
-                .size(38.dp)
+                .size(44.dp)
                 .clip(CircleShape)
-                .background(WarningOrange.copy(alpha = 0.22f)),
+                .background(task.bgColor),
             contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = plant.nickname.firstOrNull()?.uppercaseChar()?.toString() ?: "🌱",
-                fontSize = 16.sp,
-                color = TextPrimary,
-                fontWeight = FontWeight.Bold
-            )
+            Text(task.emoji, fontSize = 20.sp)
         }
-        Spacer(modifier = Modifier.width(12.dp))
+        Spacer(Modifier.width(12.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = plant.nickname,
-                color = TextPrimary,
+                text = task.title,
                 fontSize = 14.sp,
-                fontWeight = FontWeight.SemiBold
+                fontWeight = FontWeight.SemiBold,
+                color = TextPrimary
             )
             Text(
-                text = "Due for watering",
-                color = WarningOrange,
-                fontSize = 12.sp
+                text = task.subtitle,
+                fontSize = 12.sp,
+                color = TextPrimary.copy(alpha = 0.5f)
             )
         }
         Text(
             text = "›",
-            color = TextPrimary.copy(alpha = 0.4f),
+            color = TextPrimary.copy(alpha = 0.3f),
             fontSize = 22.sp
         )
     }
 }
 
 @Composable
-private fun AllHappyCard() {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(HealthyGreen.copy(alpha = 0.10f))
-            .padding(14.dp),
-        verticalAlignment = Alignment.CenterVertically
+private fun GardenOverviewSection(stats: List<GardenStat>) {
+    Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Garden Overview",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = TextPrimary
+            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.clickable {}
+            ) {
+                Text(
+                    text = "This week",
+                    fontSize = 13.sp,
+                    color = PrimaryColor
+                )
+                Icon(
+                    imageVector = Icons.Default.KeyboardArrowDown,
+                    contentDescription = null,
+                    tint = PrimaryColor,
+                    modifier = Modifier.size(16.dp)
+                )
+            }
+        }
+        Spacer(Modifier.height(12.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            stats.forEach { stat ->
+                GardenStatCard(stat = stat, modifier = Modifier.weight(1f))
+            }
+        }
+    }
+}
+
+@Composable
+private fun GardenStatCard(stat: GardenStat, modifier: Modifier = Modifier) {
+    val changeColor = if (stat.changePositive) GreenHealthy else OrangeNeeds
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = CardWhite),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Text(text = "✅", fontSize = 18.sp)
-        Spacer(Modifier.width(10.dp))
-        Text(
-            text = "All plants are happy today",
-            color = HealthyGreen,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.SemiBold
-        )
+        Column(modifier = Modifier.padding(12.dp)) {
+            Text(stat.emoji, fontSize = 28.sp)
+            Text(
+                text = stat.count.toString(),
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = TextPrimary
+            )
+            Text(
+                text = stat.label,
+                fontSize = 11.sp,
+                color = TextPrimary.copy(alpha = 0.55f)
+            )
+            Text(
+                text = stat.changeText,
+                fontSize = 10.sp,
+                color = changeColor
+            )
+        }
     }
 }

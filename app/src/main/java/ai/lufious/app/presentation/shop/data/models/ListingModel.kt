@@ -15,22 +15,22 @@ data class ListingModel(
 
 object ListingCategory {
     const val ALL = "all"
-    const val PRODUCE = "produce"
-    const val SEEDS = "seeds"
-    const val SOIL = "soil"
-    const val TOOLS = "tools"
-    const val PESTICIDES = "pesticides"
+    const val CONIFERS = "conifers"
+    const val HOUSEPLANT = "houseplant"
+    const val PERENNIAL = "perennial"
+    const val SHRUBS = "shrubs"
+    const val FLOWERING = "flowering"
 
-    val browseOptions = listOf(ALL, PRODUCE, SEEDS, SOIL, TOOLS, PESTICIDES)
+    val browseOptions = listOf(ALL, CONIFERS, HOUSEPLANT, PERENNIAL, SHRUBS, FLOWERING)
     val listingOptions = browseOptions.filterNot { it == ALL }
 
     fun displayName(slug: String): String = when (slug) {
         ALL -> "All"
-        PRODUCE -> "Produce"
-        SEEDS -> "Seeds"
-        SOIL -> "Soil & Nutrients"
-        TOOLS -> "Tools"
-        PESTICIDES -> "Pesticides"
+        CONIFERS -> "Conifers"
+        HOUSEPLANT -> "Houseplant"
+        PERENNIAL -> "Perennial"
+        SHRUBS -> "Shrubs"
+        FLOWERING -> "Flowering"
         else -> slug.replaceFirstChar { it.uppercase() }
     }
 }

@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package ai.lufious.app.presentation.shop.ui
 
 import ai.lufious.app.core.theme.Background
