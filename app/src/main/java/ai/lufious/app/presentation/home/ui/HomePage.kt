@@ -35,6 +35,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -102,27 +103,51 @@ fun HomePage(
         }
     }
 
-    val demoPlants = listOf(
-        DemoPlant("Monstera", "🌿", "Healthy", true, 0.80f),
-        DemoPlant("Aloe Vera", "🌵", "Needs water", false, 0.35f),
-        DemoPlant("Rose", "🌹", "Healthy", true, 0.75f),
-        DemoPlant("Snake Plant", "🌱", "Needs light", false, 0.20f)
-    )
+    // Build real lists from backend state — sections hide themselves when empty.
+    val realPlants: List<DemoPlant> = remember(state.recentPlants, state.plantsNeedingWater) {
+        val merged = (state.recentPlants + state.plantsNeedingWater).distinctBy { it.id }
+        merged.take(4).map { p ->
+            val needsWater = state.plantsNeedingWater.any { it.id == p.id }
+            val healthy = !needsWater && p.healthStatus.equals("healthy", ignoreCase = true)
+            DemoPlant(
+                name = p.nickname.ifBlank { p.species.ifBlank { "Plant" } },
+                emoji = "🌿",
+                status = when {
+                    needsWater -> "Needs water"
+                    healthy -> "Healthy"
+                    else -> p.healthStatus.replaceFirstChar { it.uppercase() }
+                },
+                isHealthy = healthy,
+                health = if (healthy) 0.8f else 0.35f
+            )
+        }
+    }
 
-    val tasks = listOf(
-        TaskItem("Water 2 plants", "Monstera, Aloe Vera", "💧", Color(0xFFE3F2FD)),
-        TaskItem("Fertilize 1 plant", "Rose", "🌿", Color(0xFFFFF8E1)),
-        TaskItem("Check sunlight", "3 plants", "☀️", Color(0xFFFFFDE7))
-    )
+    val tasks: List<TaskItem> = remember(state.plantsNeedingWater) {
+        if (state.plantsNeedingWater.isEmpty()) emptyList()
+        else listOf(
+            TaskItem(
+                title = "Water ${state.plantsNeedingWater.size} plant${if (state.plantsNeedingWater.size == 1) "" else "s"}",
+                subtitle = state.plantsNeedingWater.joinToString(", ") { it.nickname.ifBlank { it.species } }
+                    .take(60),
+                emoji = "💧",
+                bgColor = Color(0xFFE3F2FD)
+            )
+        )
+    }
 
-    val gardenStats = listOf(
-        GardenStat("🌿", maxOf(state.totalPlants, 12), "Healthy", "+2 from last week", true),
-        GardenStat("💧", maxOf(state.plantsNeedingWater.size, 2), "Need care", "+1 from last week", false),
-        GardenStat("🌱", 4, "New leaves", "+3 from last week", true)
-    )
+    val healthyCount = state.totalPlants - state.plantsNeedingWater.size
+    val gardenStats: List<GardenStat> = remember(state.totalPlants, state.plantsNeedingWater) {
+        if (state.totalPlants == 0) emptyList()
+        else listOf(
+            GardenStat("🌿", healthyCount.coerceAtLeast(0), "Healthy", "", true),
+            GardenStat("💧", state.plantsNeedingWater.size, "Need care", "", false),
+            GardenStat("🌱", state.totalPlants, "Total plants", "", true)
+        )
+    }
 
-    val aiTip = state.aiTip ?: "Your Monstera looks a bit dry.\nWater it today for healthy growth."
-    val needsWaterCount = state.plantsNeedingWater.size.coerceAtLeast(3)
+    val aiTip = state.aiTip
+    val needsWaterCount = state.plantsNeedingWater.size
 
     LazyColumn(
         modifier = modifier
@@ -135,33 +160,46 @@ fun HomePage(
                 greeting = greeting,
                 needsWaterCount = needsWaterCount,
                 tempC = state.currentTempC,
-                condition = state.currentCondition
+                condition = state.currentCondition,
+                icon = state.currentIcon,
+                humidity = state.currentHumidity,
+                windKph = state.currentWindKph,
+                uvi = state.currentUvi,
+                forecast = state.weatherForecast
             )
         }
-        item {
-            Spacer(Modifier.height(20.dp))
-            MyPlantsSection(
-                plants = demoPlants,
-                onViewAll = { goTab(Screen.GardenTab.route) }
-            )
+        if (realPlants.isNotEmpty()) {
+            item {
+                Spacer(Modifier.height(20.dp))
+                MyPlantsSection(
+                    plants = realPlants,
+                    onViewAll = { goTab(Screen.GardenTab.route) }
+                )
+            }
         }
-        item {
-            Spacer(Modifier.height(16.dp))
-            AiCareTipSection(
-                tip = aiTip,
-                onSeeDetails = { goTab(Screen.ScanTab.route) }
-            )
+        if (aiTip != null) {
+            item {
+                Spacer(Modifier.height(16.dp))
+                AiCareTipSection(
+                    tip = aiTip,
+                    onSeeDetails = { goTab(Screen.ScanTab.route) }
+                )
+            }
         }
-        item {
-            Spacer(Modifier.height(20.dp))
-            TodaysTasksSection(
-                tasks = tasks,
-                onViewAll = { goTab(Screen.GardenTab.route) }
-            )
+        if (tasks.isNotEmpty()) {
+            item {
+                Spacer(Modifier.height(20.dp))
+                TodaysTasksSection(
+                    tasks = tasks,
+                    onViewAll = { goTab(Screen.GardenTab.route) }
+                )
+            }
         }
-        item {
-            Spacer(Modifier.height(20.dp))
-            GardenOverviewSection(stats = gardenStats)
+        if (gardenStats.isNotEmpty()) {
+            item {
+                Spacer(Modifier.height(20.dp))
+                GardenOverviewSection(stats = gardenStats)
+            }
         }
         item { Spacer(Modifier.height(32.dp)) }
     }
@@ -172,7 +210,12 @@ private fun HeroAndWeatherSection(
     greeting: String,
     needsWaterCount: Int,
     tempC: Double?,
-    condition: String?
+    condition: String?,
+    icon: String?,
+    humidity: Int?,
+    windKph: Int?,
+    uvi: Double?,
+    forecast: List<ai.lufious.app.core.network.dto.DailyForecastDto>
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Box(
@@ -245,20 +288,138 @@ private fun HeroAndWeatherSection(
             }
         }
 
-        // Weather card overlapping the hero bottom
+        // Weather carousel overlapping the hero bottom (today + 6 forecast days, swipeable)
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp)
                 .offset(y = (-22).dp)
         ) {
-            WeatherCard(tempC = tempC, condition = condition)
+            WeatherCarousel(
+                tempC = tempC,
+                condition = condition,
+                icon = icon,
+                humidity = humidity,
+                windKph = windKph,
+                uvi = uvi,
+                forecast = forecast
+            )
         }
     }
 }
 
+private data class WeatherPage(
+    val label: String,
+    val tempLabel: String,
+    val condition: String,
+    val iconCode: String?,
+    val stats: List<Triple<String, String, String>>
+)
+
+@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
-private fun WeatherCard(tempC: Double?, condition: String?) {
+private fun WeatherCarousel(
+    tempC: Double?,
+    condition: String?,
+    icon: String?,
+    humidity: Int?,
+    windKph: Int?,
+    uvi: Double?,
+    forecast: List<ai.lufious.app.core.network.dto.DailyForecastDto>
+) {
+    val pages = remember(tempC, condition, icon, humidity, windKph, uvi, forecast) {
+        buildList {
+            add(
+                WeatherPage(
+                    label = "Today",
+                    tempLabel = tempC?.let { "${it.toInt()}°" } ?: "--°",
+                    condition = condition?.replaceFirstChar { it.uppercase() } ?: "—",
+                    iconCode = icon,
+                    stats = buildList {
+                        humidity?.let { add(Triple("💧", "Humidity", "$it%")) }
+                        windKph?.let { add(Triple("💨", "Wind", "$it km/h")) }
+                        uvi?.let { add(Triple("☀️", "UV", "${it.toInt()}")) }
+                    }
+                )
+            )
+            forecast.drop(1).take(6).forEach { d ->
+                val day = java.time.Instant.ofEpochMilli(d.dt)
+                    .atZone(java.time.ZoneId.systemDefault())
+                    .dayOfWeek
+                    .getDisplayName(java.time.format.TextStyle.SHORT, java.util.Locale.getDefault())
+                val hi = d.tempMax?.toInt()
+                val lo = d.tempMin?.toInt()
+                val temp = when {
+                    hi != null && lo != null -> "$hi° / $lo°"
+                    hi != null -> "$hi°"
+                    else -> "--°"
+                }
+                val stats = buildList<Triple<String, String, String>> {
+                    if (hi != null) add(Triple("🔺", "High", "$hi°"))
+                    if (lo != null) add(Triple("🔻", "Low", "$lo°"))
+                }
+                add(
+                    WeatherPage(
+                        label = day,
+                        tempLabel = temp,
+                        condition = d.description?.replaceFirstChar { it.uppercase() } ?: "—",
+                        iconCode = d.icon,
+                        stats = stats
+                    )
+                )
+            }
+        }
+    }
+
+    val pagerState = androidx.compose.foundation.pager.rememberPagerState(pageCount = { pages.size })
+
+    Column {
+        androidx.compose.foundation.pager.HorizontalPager(
+            state = pagerState,
+            contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 16.dp),
+            pageSpacing = 10.dp
+        ) { idx ->
+            WeatherPageCard(pages[idx])
+        }
+        Spacer(Modifier.height(8.dp))
+        if (pages.size > 1) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(6.dp),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                repeat(pages.size) { i ->
+                    val active = pagerState.currentPage == i
+                    Box(
+                        modifier = Modifier
+                            .padding(horizontal = 2.5.dp)
+                            .height(6.dp)
+                            .width(if (active) 18.dp else 6.dp)
+                            .clip(RoundedCornerShape(3.dp))
+                            .background(if (active) PrimaryColor else Color(0xFFCFD8DC))
+                    )
+                }
+            }
+        }
+    }
+}
+
+private fun emojiFromIconCode(code: String?): String = when {
+    code == null -> "🌤️"
+    code.startsWith("01") -> "☀️"
+    code.startsWith("02") -> "🌤️"
+    code.startsWith("03") -> "⛅"
+    code.startsWith("04") -> "☁️"
+    code.startsWith("09") -> "🌧️"
+    code.startsWith("10") -> "🌦️"
+    code.startsWith("11") -> "⛈️"
+    code.startsWith("13") -> "❄️"
+    code.startsWith("50") -> "🌫️"
+    else -> "🌤️"
+}
+
+@Composable
+private fun WeatherPageCard(p: WeatherPage) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
@@ -271,41 +432,43 @@ private fun WeatherCard(tempC: Double?, condition: String?) {
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("☀️", fontSize = 44.sp)
+            Text(emojiFromIconCode(p.iconCode), fontSize = 44.sp)
             Spacer(Modifier.width(10.dp))
             Column {
                 Text(
-                    text = tempC?.let { "${it.toInt()}°" } ?: "28°",
-                    fontSize = 32.sp,
+                    text = p.tempLabel,
+                    fontSize = 30.sp,
                     fontWeight = FontWeight.Bold,
                     color = TextPrimary
                 )
                 Text(
-                    text = condition?.replaceFirstChar { it.uppercase() } ?: "Sunny",
+                    text = p.condition,
                     fontSize = 12.sp,
                     color = TextPrimary.copy(alpha = 0.6f)
                 )
                 Text(
-                    text = "New York",
+                    text = p.label,
                     fontSize = 11.sp,
                     color = TextPrimary.copy(alpha = 0.45f)
                 )
             }
-            Spacer(Modifier.width(14.dp))
-            Box(
-                modifier = Modifier
-                    .width(1.dp)
-                    .height(52.dp)
-                    .background(Color(0xFFE0E0E0))
-            )
-            Spacer(Modifier.width(14.dp))
-            Row(
-                modifier = Modifier.weight(1f),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                WeatherStatItem(icon = "💧", label = "Humidity", value = "60%")
-                WeatherStatItem(icon = "🌤️", label = "Sunlight", value = "6 hrs")
-                WeatherStatItem(icon = "💨", label = "Wind", value = "12 km/h")
+            if (p.stats.isNotEmpty()) {
+                Spacer(Modifier.width(14.dp))
+                Box(
+                    modifier = Modifier
+                        .width(1.dp)
+                        .height(52.dp)
+                        .background(Color(0xFFE0E0E0))
+                )
+                Spacer(Modifier.width(14.dp))
+                Row(
+                    modifier = Modifier.weight(1f),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    p.stats.forEach { (i, l, v) ->
+                        WeatherStatItem(icon = i, label = l, value = v)
+                    }
+                }
             }
         }
     }

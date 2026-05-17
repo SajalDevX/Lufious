@@ -56,6 +56,9 @@ data class WeatherDto(
     val temp: Double? = null,
     val description: String? = null,
     val icon: String? = null,
+    val humidity: Int? = null,
+    val windKph: Int? = null,
+    val uvi: Double? = null,
     val daily: List<DailyForecastDto> = emptyList(),
     val alerts: List<WeatherAlertDto> = emptyList(),
     val fetchedAt: Long = 0L
