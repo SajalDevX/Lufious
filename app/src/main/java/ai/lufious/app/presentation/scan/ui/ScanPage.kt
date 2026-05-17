@@ -18,15 +18,23 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.filled.PhotoLibrary
+import androidx.compose.material.icons.filled.TipsAndUpdates
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Camera
@@ -43,6 +51,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import ai.lufious.app.core.theme.TextPrimary
 import androidx.compose.ui.platform.LocalContext
@@ -85,19 +94,30 @@ fun ScanPage(
                 PackageManager.PERMISSION_GRANTED
         )
     }
+    var showCamera by remember { mutableStateOf(false) }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
-    ) { granted -> hasCameraPermission = granted }
+    ) { granted ->
+        hasCameraPermission = granted
+        if (granted) showCamera = true
+    }
 
     Box(
         modifier = modifier
             .fillMaxSize()
             .testTag("scan_screen")
     ) {
-        if (hasCameraPermission) {
-            CameraContent(
+        when {
+            !showCamera -> ScanIntroContent(
+                onStartScan = {
+                    if (hasCameraPermission) showCamera = true
+                    else permissionLauncher.launch(Manifest.permission.CAMERA)
+                }
+            )
+            hasCameraPermission -> CameraContent(
                 isScanning = state.isScanning,
+                onClose = { showCamera = false },
                 onScan = { imageCapture ->
                     imageCapture.takePicture(
                         ContextCompat.getMainExecutor(context),
@@ -116,9 +136,110 @@ fun ScanPage(
                     )
                 }
             )
-        } else {
-            PermissionDeniedContent(
+            else -> PermissionDeniedContent(
                 onRequestPermission = { permissionLauncher.launch(Manifest.permission.CAMERA) }
+            )
+        }
+    }
+}
+
+@Composable
+private fun ScanIntroContent(onStartScan: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Background)
+            .statusBarsPadding()
+            .padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Spacer(Modifier.height(24.dp))
+        Box(
+            modifier = Modifier
+                .size(160.dp)
+                .clip(CircleShape)
+                .background(PrimaryColor.copy(alpha = 0.12f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Text("🌿", fontSize = 96.sp)
+        }
+        Spacer(Modifier.height(24.dp))
+        Text(
+            text = "Identify Any Plant",
+            color = TextPrimary,
+            fontSize = 26.sp,
+            fontWeight = FontWeight.ExtraBold,
+            textAlign = TextAlign.Center
+        )
+        Spacer(Modifier.height(8.dp))
+        Text(
+            text = "Snap a photo to get the species, health check, and care tips in seconds.",
+            color = TextPrimary.copy(alpha = 0.6f),
+            fontSize = 14.sp,
+            textAlign = TextAlign.Center
+        )
+        Spacer(Modifier.height(28.dp))
+
+        TipRow(emoji = "📸", title = "Frame the leaf", body = "Fill the frame with one leaf or full plant.")
+        Spacer(Modifier.height(10.dp))
+        TipRow(emoji = "☀️", title = "Good lighting", body = "Natural daylight gives the most accurate result.")
+        Spacer(Modifier.height(10.dp))
+        TipRow(emoji = "🤏", title = "Hold steady", body = "Keep the camera still until the shot completes.")
+
+        Spacer(Modifier.weight(1f))
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp)
+                .clip(RoundedCornerShape(28.dp))
+                .background(PrimaryColor)
+                .clickable { onStartScan() },
+            contentAlignment = Alignment.Center
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Default.Camera,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(Modifier.width(10.dp))
+                Text(
+                    text = "Start Scan",
+                    color = Color.White,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+        Spacer(Modifier.height(16.dp))
+    }
+}
+
+@Composable
+private fun TipRow(emoji: String, title: String, body: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(14.dp))
+            .background(Color.White)
+            .padding(14.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(text = emoji, fontSize = 26.sp)
+        Spacer(Modifier.width(12.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                color = TextPrimary,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = body,
+                color = TextPrimary.copy(alpha = 0.55f),
+                fontSize = 12.sp
             )
         }
     }
@@ -127,6 +248,7 @@ fun ScanPage(
 @Composable
 private fun CameraContent(
     isScanning: Boolean,
+    onClose: () -> Unit,
     onScan: (ImageCapture) -> Unit
 ) {
     val context = LocalContext.current
@@ -152,6 +274,20 @@ private fun CameraContent(
 
     Box(modifier = Modifier.fillMaxSize()) {
         AndroidView(factory = { previewView }, modifier = Modifier.fillMaxSize())
+
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .statusBarsPadding()
+                .padding(12.dp)
+                .size(40.dp)
+                .clip(CircleShape)
+                .background(Color.Black.copy(alpha = 0.4f))
+                .clickable { onClose() },
+            contentAlignment = Alignment.Center
+        ) {
+            Text(text = "✕", color = Color.White, fontSize = 18.sp)
+        }
 
         if (isScanning) {
             Box(
