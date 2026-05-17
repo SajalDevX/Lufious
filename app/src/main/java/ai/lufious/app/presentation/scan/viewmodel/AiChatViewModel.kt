@@ -5,6 +5,7 @@ import ai.lufious.app.core.utils.DispatcherProvider
 import ai.lufious.app.core.utils.Result
 import ai.lufious.app.presentation.scan.data.models.AiChatMessageModel
 import ai.lufious.app.presentation.scan.data.usecases.GetScanByIdUseCase
+import ai.lufious.app.presentation.scan.data.usecases.LoadChatHistoryUseCase
 import ai.lufious.app.presentation.scan.data.usecases.SendMessageUseCase
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
@@ -16,6 +17,7 @@ import javax.inject.Inject
 class AiChatViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val getScanById: GetScanByIdUseCase,
+    private val loadHistory: LoadChatHistoryUseCase,
     private val sendMessage: SendMessageUseCase,
     dispatchers: DispatcherProvider
 ) : BaseViewModel<AiChatEvent, AiChatState>(AiChatState(), dispatchers) {
@@ -28,23 +30,26 @@ class AiChatViewModel @Inject constructor(
 
     private fun loadScanContext() {
         ioLaunch {
-            when (val result = getScanById(scanId)) {
+            // Pull scan meta (species/health) AND the seed/assistant history
+            // straight from backend. Backend embeds messages[] on ScanDoc and the
+            // very first assistant message is generated server-side at scan time.
+            when (val scanRes = getScanById(scanId)) {
                 is Result.Success -> {
-                    val scan = result.data ?: return@ioLaunch
+                    val scan = scanRes.data ?: return@ioLaunch
                     setState {
                         copy(
                             speciesName = scan.speciesName,
                             healthStatus = scan.healthStatus,
-                            diagnosis = scan.diagnosis,
-                            messages = listOf(
-                                AiChatMessageModel(
-                                    role = "assistant",
-                                    content = "Hi! I'm your AI plant assistant. I've analyzed your ${scan.speciesName} and I'm ready to answer any questions about its care, health, or diagnosis. What would you like to know?",
-                                    timestamp = System.currentTimeMillis()
-                                )
-                            )
+                            diagnosis = scan.diagnosis
                         )
                     }
+                }
+                is Result.Error -> Unit
+            }
+            when (val historyRes = loadHistory(scanId)) {
+                is Result.Success -> {
+                    val msgs = historyRes.data.orEmpty()
+                    if (msgs.isNotEmpty()) setState { copy(messages = msgs) }
                 }
                 is Result.Error -> Unit
             }
@@ -63,22 +68,17 @@ class AiChatViewModel @Inject constructor(
             AiChatEvent.Send -> {
                 val text = state.value.inputText.trim()
                 if (text.isBlank() || state.value.isReplying) return
-                val userMsg = AiChatMessageModel(
+                val optimistic = AiChatMessageModel(
                     role = "user",
                     content = text,
                     timestamp = System.currentTimeMillis()
                 )
-                setState { copy(messages = messages + userMsg, inputText = "", isReplying = true) }
+                setState { copy(messages = messages + optimistic, inputText = "", isReplying = true) }
                 ioLaunch {
-                    when (val result = sendMessage(
-                        speciesName = state.value.speciesName,
-                        healthStatus = state.value.healthStatus,
-                        diagnosis = state.value.diagnosis,
-                        userMessage = text
-                    )) {
+                    when (val result = sendMessage(scanId = scanId, userMessage = text)) {
                         is Result.Success -> {
-                            val reply = result.data ?: return@ioLaunch
-                            setState { copy(messages = messages + reply, isReplying = false) }
+                            val (_, assistant) = result.data ?: return@ioLaunch
+                            setState { copy(messages = messages + assistant, isReplying = false) }
                         }
                         is Result.Error ->
                             setState { copy(isReplying = false) }

@@ -39,7 +39,7 @@ class ScanViewModel @Inject constructor(
                                 return@ioLaunch
                             }
                             setState { copy(isScanning = false) }
-                            emitEffect(UiEffect.Navigate(Screen.ScanResult.createRoute(scan.id)))
+                            emitEffect(UiEffect.Navigate(Screen.AiChat.createRoute(scan.id)))
                         }
                         is Result.Error -> {
                             setState { copy(isScanning = false, error = result.message) }

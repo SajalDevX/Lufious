@@ -7,10 +7,13 @@ import javax.inject.Inject
 
 class SendMessageUseCase @Inject constructor(private val repository: AiChatRepository) {
     suspend operator fun invoke(
-        speciesName: String,
-        healthStatus: String,
-        diagnosis: String,
+        scanId: String,
         userMessage: String
-    ): Result<AiChatMessageModel> =
-        repository.sendMessage(speciesName, healthStatus, diagnosis, userMessage)
+    ): Result<Pair<AiChatMessageModel, AiChatMessageModel>> =
+        repository.sendMessage(scanId, userMessage)
+}
+
+class LoadChatHistoryUseCase @Inject constructor(private val repository: AiChatRepository) {
+    suspend operator fun invoke(scanId: String): Result<List<AiChatMessageModel>> =
+        repository.loadHistory(scanId)
 }

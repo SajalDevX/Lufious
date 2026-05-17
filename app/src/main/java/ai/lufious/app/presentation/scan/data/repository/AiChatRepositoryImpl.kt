@@ -10,13 +10,15 @@ class AiChatRepositoryImpl @Inject constructor(
     private val ds: AiChatDataSource
 ) : AiChatRepository {
 
+    override suspend fun loadHistory(scanId: String): Result<List<AiChatMessageModel>> = wrap {
+        ds.loadHistory(scanId)
+    }
+
     override suspend fun sendMessage(
-        speciesName: String,
-        healthStatus: String,
-        diagnosis: String,
+        scanId: String,
         userMessage: String
-    ): Result<AiChatMessageModel> = wrap {
-        ds.sendMessage(speciesName, healthStatus, diagnosis, userMessage)
+    ): Result<Pair<AiChatMessageModel, AiChatMessageModel>> = wrap {
+        ds.sendMessage(scanId, userMessage)
     }
 
     private suspend fun <T> wrap(block: suspend () -> T): Result<T> =

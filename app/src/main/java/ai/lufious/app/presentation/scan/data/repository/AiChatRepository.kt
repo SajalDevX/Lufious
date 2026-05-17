@@ -4,10 +4,9 @@ import ai.lufious.app.core.utils.Result
 import ai.lufious.app.presentation.scan.data.models.AiChatMessageModel
 
 interface AiChatRepository {
+    suspend fun loadHistory(scanId: String): Result<List<AiChatMessageModel>>
     suspend fun sendMessage(
-        speciesName: String,
-        healthStatus: String,
-        diagnosis: String,
+        scanId: String,
         userMessage: String
-    ): Result<AiChatMessageModel>
+    ): Result<Pair<AiChatMessageModel, AiChatMessageModel>>
 }
