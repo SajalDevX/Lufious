@@ -35,6 +35,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -102,27 +103,51 @@ fun HomePage(
         }
     }
 
-    val demoPlants = listOf(
-        DemoPlant("Monstera", "🌿", "Healthy", true, 0.80f),
-        DemoPlant("Aloe Vera", "🌵", "Needs water", false, 0.35f),
-        DemoPlant("Rose", "🌹", "Healthy", true, 0.75f),
-        DemoPlant("Snake Plant", "🌱", "Needs light", false, 0.20f)
-    )
+    // Build real lists from backend state — sections hide themselves when empty.
+    val realPlants: List<DemoPlant> = remember(state.recentPlants, state.plantsNeedingWater) {
+        val merged = (state.recentPlants + state.plantsNeedingWater).distinctBy { it.id }
+        merged.take(4).map { p ->
+            val needsWater = state.plantsNeedingWater.any { it.id == p.id }
+            val healthy = !needsWater && p.healthStatus.equals("healthy", ignoreCase = true)
+            DemoPlant(
+                name = p.nickname.ifBlank { p.species.ifBlank { "Plant" } },
+                emoji = "🌿",
+                status = when {
+                    needsWater -> "Needs water"
+                    healthy -> "Healthy"
+                    else -> p.healthStatus.replaceFirstChar { it.uppercase() }
+                },
+                isHealthy = healthy,
+                health = if (healthy) 0.8f else 0.35f
+            )
+        }
+    }
 
-    val tasks = listOf(
-        TaskItem("Water 2 plants", "Monstera, Aloe Vera", "💧", Color(0xFFE3F2FD)),
-        TaskItem("Fertilize 1 plant", "Rose", "🌿", Color(0xFFFFF8E1)),
-        TaskItem("Check sunlight", "3 plants", "☀️", Color(0xFFFFFDE7))
-    )
+    val tasks: List<TaskItem> = remember(state.plantsNeedingWater) {
+        if (state.plantsNeedingWater.isEmpty()) emptyList()
+        else listOf(
+            TaskItem(
+                title = "Water ${state.plantsNeedingWater.size} plant${if (state.plantsNeedingWater.size == 1) "" else "s"}",
+                subtitle = state.plantsNeedingWater.joinToString(", ") { it.nickname.ifBlank { it.species } }
+                    .take(60),
+                emoji = "💧",
+                bgColor = Color(0xFFE3F2FD)
+            )
+        )
+    }
 
-    val gardenStats = listOf(
-        GardenStat("🌿", maxOf(state.totalPlants, 12), "Healthy", "+2 from last week", true),
-        GardenStat("💧", maxOf(state.plantsNeedingWater.size, 2), "Need care", "+1 from last week", false),
-        GardenStat("🌱", 4, "New leaves", "+3 from last week", true)
-    )
+    val healthyCount = state.totalPlants - state.plantsNeedingWater.size
+    val gardenStats: List<GardenStat> = remember(state.totalPlants, state.plantsNeedingWater) {
+        if (state.totalPlants == 0) emptyList()
+        else listOf(
+            GardenStat("🌿", healthyCount.coerceAtLeast(0), "Healthy", "", true),
+            GardenStat("💧", state.plantsNeedingWater.size, "Need care", "", false),
+            GardenStat("🌱", state.totalPlants, "Total plants", "", true)
+        )
+    }
 
-    val aiTip = state.aiTip ?: "Your Monstera looks a bit dry.\nWater it today for healthy growth."
-    val needsWaterCount = state.plantsNeedingWater.size.coerceAtLeast(3)
+    val aiTip = state.aiTip
+    val needsWaterCount = state.plantsNeedingWater.size
 
     LazyColumn(
         modifier = modifier
@@ -138,30 +163,38 @@ fun HomePage(
                 condition = state.currentCondition
             )
         }
-        item {
-            Spacer(Modifier.height(20.dp))
-            MyPlantsSection(
-                plants = demoPlants,
-                onViewAll = { goTab(Screen.GardenTab.route) }
-            )
+        if (realPlants.isNotEmpty()) {
+            item {
+                Spacer(Modifier.height(20.dp))
+                MyPlantsSection(
+                    plants = realPlants,
+                    onViewAll = { goTab(Screen.GardenTab.route) }
+                )
+            }
         }
-        item {
-            Spacer(Modifier.height(16.dp))
-            AiCareTipSection(
-                tip = aiTip,
-                onSeeDetails = { goTab(Screen.ScanTab.route) }
-            )
+        if (aiTip != null) {
+            item {
+                Spacer(Modifier.height(16.dp))
+                AiCareTipSection(
+                    tip = aiTip,
+                    onSeeDetails = { goTab(Screen.ScanTab.route) }
+                )
+            }
         }
-        item {
-            Spacer(Modifier.height(20.dp))
-            TodaysTasksSection(
-                tasks = tasks,
-                onViewAll = { goTab(Screen.GardenTab.route) }
-            )
+        if (tasks.isNotEmpty()) {
+            item {
+                Spacer(Modifier.height(20.dp))
+                TodaysTasksSection(
+                    tasks = tasks,
+                    onViewAll = { goTab(Screen.GardenTab.route) }
+                )
+            }
         }
-        item {
-            Spacer(Modifier.height(20.dp))
-            GardenOverviewSection(stats = gardenStats)
+        if (gardenStats.isNotEmpty()) {
+            item {
+                Spacer(Modifier.height(20.dp))
+                GardenOverviewSection(stats = gardenStats)
+            }
         }
         item { Spacer(Modifier.height(32.dp)) }
     }
