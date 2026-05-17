@@ -13,6 +13,9 @@ data class HomeState(
     val currentTempC: Double? = null,
     val currentCondition: String? = null,
     val currentIcon: String? = null,
+    val currentHumidity: Int? = null,
+    val currentWindKph: Int? = null,
+    val currentUvi: Double? = null,
     val weatherForecast: List<DailyForecastDto> = emptyList(),
     val isLoading: Boolean = false,
     val errorMessage: String? = null

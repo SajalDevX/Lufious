@@ -160,7 +160,12 @@ fun HomePage(
                 greeting = greeting,
                 needsWaterCount = needsWaterCount,
                 tempC = state.currentTempC,
-                condition = state.currentCondition
+                condition = state.currentCondition,
+                icon = state.currentIcon,
+                humidity = state.currentHumidity,
+                windKph = state.currentWindKph,
+                uvi = state.currentUvi,
+                forecast = state.weatherForecast
             )
         }
         if (realPlants.isNotEmpty()) {
@@ -205,7 +210,12 @@ private fun HeroAndWeatherSection(
     greeting: String,
     needsWaterCount: Int,
     tempC: Double?,
-    condition: String?
+    condition: String?,
+    icon: String?,
+    humidity: Int?,
+    windKph: Int?,
+    uvi: Double?,
+    forecast: List<ai.lufious.app.core.network.dto.DailyForecastDto>
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Box(
@@ -278,20 +288,138 @@ private fun HeroAndWeatherSection(
             }
         }
 
-        // Weather card overlapping the hero bottom
+        // Weather carousel overlapping the hero bottom (today + 6 forecast days, swipeable)
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp)
                 .offset(y = (-22).dp)
         ) {
-            WeatherCard(tempC = tempC, condition = condition)
+            WeatherCarousel(
+                tempC = tempC,
+                condition = condition,
+                icon = icon,
+                humidity = humidity,
+                windKph = windKph,
+                uvi = uvi,
+                forecast = forecast
+            )
         }
     }
 }
 
+private data class WeatherPage(
+    val label: String,
+    val tempLabel: String,
+    val condition: String,
+    val iconCode: String?,
+    val stats: List<Triple<String, String, String>>
+)
+
+@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
-private fun WeatherCard(tempC: Double?, condition: String?) {
+private fun WeatherCarousel(
+    tempC: Double?,
+    condition: String?,
+    icon: String?,
+    humidity: Int?,
+    windKph: Int?,
+    uvi: Double?,
+    forecast: List<ai.lufious.app.core.network.dto.DailyForecastDto>
+) {
+    val pages = remember(tempC, condition, icon, humidity, windKph, uvi, forecast) {
+        buildList {
+            add(
+                WeatherPage(
+                    label = "Today",
+                    tempLabel = tempC?.let { "${it.toInt()}°" } ?: "--°",
+                    condition = condition?.replaceFirstChar { it.uppercase() } ?: "—",
+                    iconCode = icon,
+                    stats = buildList {
+                        humidity?.let { add(Triple("💧", "Humidity", "$it%")) }
+                        windKph?.let { add(Triple("💨", "Wind", "$it km/h")) }
+                        uvi?.let { add(Triple("☀️", "UV", "${it.toInt()}")) }
+                    }
+                )
+            )
+            forecast.drop(1).take(6).forEach { d ->
+                val day = java.time.Instant.ofEpochMilli(d.dt)
+                    .atZone(java.time.ZoneId.systemDefault())
+                    .dayOfWeek
+                    .getDisplayName(java.time.format.TextStyle.SHORT, java.util.Locale.getDefault())
+                val hi = d.tempMax?.toInt()
+                val lo = d.tempMin?.toInt()
+                val temp = when {
+                    hi != null && lo != null -> "$hi° / $lo°"
+                    hi != null -> "$hi°"
+                    else -> "--°"
+                }
+                val stats = buildList<Triple<String, String, String>> {
+                    if (hi != null) add(Triple("🔺", "High", "$hi°"))
+                    if (lo != null) add(Triple("🔻", "Low", "$lo°"))
+                }
+                add(
+                    WeatherPage(
+                        label = day,
+                        tempLabel = temp,
+                        condition = d.description?.replaceFirstChar { it.uppercase() } ?: "—",
+                        iconCode = d.icon,
+                        stats = stats
+                    )
+                )
+            }
+        }
+    }
+
+    val pagerState = androidx.compose.foundation.pager.rememberPagerState(pageCount = { pages.size })
+
+    Column {
+        androidx.compose.foundation.pager.HorizontalPager(
+            state = pagerState,
+            contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 16.dp),
+            pageSpacing = 10.dp
+        ) { idx ->
+            WeatherPageCard(pages[idx])
+        }
+        Spacer(Modifier.height(8.dp))
+        if (pages.size > 1) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(6.dp),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                repeat(pages.size) { i ->
+                    val active = pagerState.currentPage == i
+                    Box(
+                        modifier = Modifier
+                            .padding(horizontal = 2.5.dp)
+                            .height(6.dp)
+                            .width(if (active) 18.dp else 6.dp)
+                            .clip(RoundedCornerShape(3.dp))
+                            .background(if (active) PrimaryColor else Color(0xFFCFD8DC))
+                    )
+                }
+            }
+        }
+    }
+}
+
+private fun emojiFromIconCode(code: String?): String = when {
+    code == null -> "🌤️"
+    code.startsWith("01") -> "☀️"
+    code.startsWith("02") -> "🌤️"
+    code.startsWith("03") -> "⛅"
+    code.startsWith("04") -> "☁️"
+    code.startsWith("09") -> "🌧️"
+    code.startsWith("10") -> "🌦️"
+    code.startsWith("11") -> "⛈️"
+    code.startsWith("13") -> "❄️"
+    code.startsWith("50") -> "🌫️"
+    else -> "🌤️"
+}
+
+@Composable
+private fun WeatherPageCard(p: WeatherPage) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
@@ -304,41 +432,43 @@ private fun WeatherCard(tempC: Double?, condition: String?) {
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("☀️", fontSize = 44.sp)
+            Text(emojiFromIconCode(p.iconCode), fontSize = 44.sp)
             Spacer(Modifier.width(10.dp))
             Column {
                 Text(
-                    text = tempC?.let { "${it.toInt()}°" } ?: "28°",
-                    fontSize = 32.sp,
+                    text = p.tempLabel,
+                    fontSize = 30.sp,
                     fontWeight = FontWeight.Bold,
                     color = TextPrimary
                 )
                 Text(
-                    text = condition?.replaceFirstChar { it.uppercase() } ?: "Sunny",
+                    text = p.condition,
                     fontSize = 12.sp,
                     color = TextPrimary.copy(alpha = 0.6f)
                 )
                 Text(
-                    text = "New York",
+                    text = p.label,
                     fontSize = 11.sp,
                     color = TextPrimary.copy(alpha = 0.45f)
                 )
             }
-            Spacer(Modifier.width(14.dp))
-            Box(
-                modifier = Modifier
-                    .width(1.dp)
-                    .height(52.dp)
-                    .background(Color(0xFFE0E0E0))
-            )
-            Spacer(Modifier.width(14.dp))
-            Row(
-                modifier = Modifier.weight(1f),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                WeatherStatItem(icon = "💧", label = "Humidity", value = "60%")
-                WeatherStatItem(icon = "🌤️", label = "Sunlight", value = "6 hrs")
-                WeatherStatItem(icon = "💨", label = "Wind", value = "12 km/h")
+            if (p.stats.isNotEmpty()) {
+                Spacer(Modifier.width(14.dp))
+                Box(
+                    modifier = Modifier
+                        .width(1.dp)
+                        .height(52.dp)
+                        .background(Color(0xFFE0E0E0))
+                )
+                Spacer(Modifier.width(14.dp))
+                Row(
+                    modifier = Modifier.weight(1f),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    p.stats.forEach { (i, l, v) ->
+                        WeatherStatItem(icon = i, label = l, value = v)
+                    }
+                }
             }
         }
     }

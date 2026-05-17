@@ -52,6 +52,9 @@ class HomeViewModel @Inject constructor(
                                     currentTempC = dash.weather?.temp,
                                     currentCondition = dash.weather?.description,
                                     currentIcon = dash.weather?.icon,
+                                    currentHumidity = dash.weather?.humidity,
+                                    currentWindKph = dash.weather?.windKph,
+                                    currentUvi = dash.weather?.uvi,
                                     weatherForecast = dash.weather?.daily.orEmpty(),
                                     isLoading = false,
                                     errorMessage = null
