@@ -5,7 +5,6 @@ import ai.lufious.app.core.utils.Screen
 import ai.lufious.app.navgraph.utils.animatedComposable
 import ai.lufious.app.presentation.garden.ui.AddPlantScreen
 import ai.lufious.app.presentation.main.ui.MainScreen
-import ai.lufious.app.presentation.profile.ui.ProfileScreen
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -22,9 +21,6 @@ fun NavGraphBuilder.mainNavGraph(
     ) {
         animatedComposable(Screen.Home.route) {
             MainScreen(outerNavController = navController)
-        }
-        animatedComposable(Screen.Profile.route) {
-            ProfileScreen(navController = navController)
         }
         composable(
             route = "garden/add_plant?species={species}",
