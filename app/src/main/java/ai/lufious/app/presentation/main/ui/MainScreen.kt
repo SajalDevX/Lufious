@@ -69,7 +69,10 @@ fun MainScreen(outerNavController: NavHostController = rememberNavController()) 
                 ShopPage(navController = tabNavController)
             }
             composable(Screen.Profile.route) {
-                ProfileScreen(navController = tabNavController)
+                ProfileScreen(
+                    navController = tabNavController,
+                    outerNavController = outerNavController
+                )
             }
             composable(
                 route = Screen.PlantDetail.route,

@@ -78,6 +78,7 @@ private val RedIcon = Color(0xFFD32F2F)
 @Composable
 fun ProfileScreen(
     navController: NavController,
+    outerNavController: NavController = navController,
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
@@ -86,7 +87,7 @@ fun ProfileScreen(
         viewModel.effects.collectLatest { effect ->
             when (effect) {
                 is UiEffect.Navigate -> {
-                    navController.navigate(effect.route) {
+                    outerNavController.navigate(effect.route) {
                         popUpTo(0) { inclusive = true }
                     }
                 }
