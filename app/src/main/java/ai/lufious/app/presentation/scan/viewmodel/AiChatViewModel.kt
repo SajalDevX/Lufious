@@ -10,6 +10,7 @@ import ai.lufious.app.presentation.scan.data.usecases.SendMessageUseCase
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -30,9 +31,9 @@ class AiChatViewModel @Inject constructor(
 
     private fun loadScanContext() {
         ioLaunch {
-            // Pull scan meta (species/health) AND the seed/assistant history
-            // straight from backend. Backend embeds messages[] on ScanDoc and the
-            // very first assistant message is generated server-side at scan time.
+            // Scan meta arrives instantly from POST /api/scans response, but the
+            // AI seed message runs asynchronously server-side. Poll loadHistory
+            // until messages[] has at least one entry (or until we hit the cap).
             when (val scanRes = getScanById(scanId)) {
                 is Result.Success -> {
                     val scan = scanRes.data ?: return@ioLaunch
@@ -46,12 +47,20 @@ class AiChatViewModel @Inject constructor(
                 }
                 is Result.Error -> Unit
             }
-            when (val historyRes = loadHistory(scanId)) {
-                is Result.Success -> {
-                    val msgs = historyRes.data.orEmpty()
-                    if (msgs.isNotEmpty()) setState { copy(messages = msgs) }
+
+            var attempts = 0
+            val maxAttempts = 30 // ~45s upper bound
+            while (attempts < maxAttempts) {
+                val res = loadHistory(scanId)
+                if (res is Result.Success) {
+                    val msgs = res.data.orEmpty()
+                    if (msgs.isNotEmpty()) {
+                        setState { copy(messages = msgs) }
+                        return@ioLaunch
+                    }
                 }
-                is Result.Error -> Unit
+                attempts++
+                delay(1500L)
             }
         }
     }
