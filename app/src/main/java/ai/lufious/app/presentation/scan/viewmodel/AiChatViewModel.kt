@@ -31,36 +31,43 @@ class AiChatViewModel @Inject constructor(
 
     private fun loadScanContext() {
         ioLaunch {
-            // Scan meta arrives instantly from POST /api/scans response, but the
-            // AI seed message runs asynchronously server-side. Poll loadHistory
-            // until messages[] has at least one entry (or until we hit the cap).
-            when (val scanRes = getScanById(scanId)) {
-                is Result.Success -> {
-                    val scan = scanRes.data ?: return@ioLaunch
-                    setState {
-                        copy(
-                            speciesName = scan.speciesName,
-                            healthStatus = scan.healthStatus,
-                            diagnosis = scan.diagnosis
-                        )
-                    }
-                }
-                is Result.Error -> Unit
-            }
-
+            // Backend POST /api/scans returns with empty species + empty messages
+            // while PlantNet + AI seed run asynchronously. Poll the scan doc
+            // until both meta (species) and at least one message are populated.
             var attempts = 0
             val maxAttempts = 30 // ~45s upper bound
-            while (attempts < maxAttempts) {
-                val res = loadHistory(scanId)
+            var metaApplied = false
+            var messagesApplied = false
+            while (attempts < maxAttempts && (!metaApplied || !messagesApplied)) {
+                val res = getScanById(scanId)
                 if (res is Result.Success) {
-                    val msgs = res.data.orEmpty()
-                    if (msgs.isNotEmpty()) {
-                        setState { copy(messages = msgs) }
-                        return@ioLaunch
+                    val scan = res.data
+                    if (scan != null) {
+                        if (!metaApplied && scan.speciesName.isNotBlank()) {
+                            setState {
+                                copy(
+                                    speciesName = scan.speciesName,
+                                    healthStatus = scan.healthStatus,
+                                    diagnosis = scan.diagnosis
+                                )
+                            }
+                            metaApplied = true
+                        }
                     }
                 }
+                if (!messagesApplied) {
+                    val hRes = loadHistory(scanId)
+                    if (hRes is Result.Success) {
+                        val msgs = hRes.data.orEmpty()
+                        if (msgs.isNotEmpty()) {
+                            setState { copy(messages = msgs) }
+                            messagesApplied = true
+                        }
+                    }
+                }
+                if (metaApplied && messagesApplied) return@ioLaunch
                 attempts++
-                delay(1500L)
+                delay(1200L)
             }
         }
     }
