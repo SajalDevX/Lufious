@@ -661,13 +661,6 @@ private fun EmptyGardenIntro(greeting: String, onAddPlant: () -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = greeting,
-            color = TextPrimary.copy(alpha = 0.55f),
-            fontSize = 13.sp,
-            modifier = Modifier.fillMaxWidth(),
-            fontWeight = FontWeight.Medium
-        )
-        Text(
             text = "Your garden",
             color = TextPrimary,
             fontSize = 24.sp,
