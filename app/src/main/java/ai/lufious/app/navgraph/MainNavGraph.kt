@@ -3,10 +3,14 @@ package ai.lufious.app.navgraph
 import ai.lufious.app.core.utils.MAIN_GRAPH
 import ai.lufious.app.core.utils.Screen
 import ai.lufious.app.navgraph.utils.animatedComposable
+import ai.lufious.app.presentation.garden.ui.AddPlantScreen
 import ai.lufious.app.presentation.main.ui.MainScreen
 import ai.lufious.app.presentation.profile.ui.ProfileScreen
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
+import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import androidx.navigation.navigation
 
 fun NavGraphBuilder.mainNavGraph(
@@ -21,6 +25,18 @@ fun NavGraphBuilder.mainNavGraph(
         }
         animatedComposable(Screen.Profile.route) {
             ProfileScreen(navController = navController)
+        }
+        composable(
+            route = "garden/add_plant?species={species}",
+            arguments = listOf(
+                navArgument("species") {
+                    type = NavType.StringType
+                    defaultValue = ""
+                    nullable = true
+                }
+            )
+        ) {
+            AddPlantScreen(navController = navController)
         }
     }
 }

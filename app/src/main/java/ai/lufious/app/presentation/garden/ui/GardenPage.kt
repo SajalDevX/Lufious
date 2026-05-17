@@ -134,6 +134,7 @@ private val categoryEmojis = mapOf(
 @Composable
 fun GardenPage(
     navController: NavController,
+    outerNavController: NavController = navController,
     modifier: Modifier = Modifier,
     viewModel: GardenViewModel = hiltViewModel()
 ) {
@@ -169,7 +170,7 @@ fun GardenPage(
         if (showDemo) {
             EmptyGardenIntro(
                 greeting = greeting,
-                onAddPlant = { navController.navigate(Screen.AddPlant.route) }
+                onAddPlant = { outerNavController.navigate(Screen.AddPlant.route) }
             )
             return@Box
         }
@@ -265,7 +266,7 @@ fun GardenPage(
                 .padding(end = 20.dp, bottom = 20.dp)
                 .clip(RoundedCornerShape(28.dp))
                 .background(AddPlantGreen)
-                .clickable { navController.navigate(Screen.AddPlant.route) }
+                .clickable { outerNavController.navigate(Screen.AddPlant.route) }
                 .padding(horizontal = 20.dp, vertical = 14.dp)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
