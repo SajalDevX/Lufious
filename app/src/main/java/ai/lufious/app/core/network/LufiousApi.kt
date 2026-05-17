@@ -15,6 +15,8 @@ import ai.lufious.app.core.network.dto.ListingPatchRequest
 import ai.lufious.app.core.network.dto.ScanCreateRequest
 import ai.lufious.app.core.network.dto.ScanDto
 import ai.lufious.app.core.network.dto.ScanListResponse
+import ai.lufious.app.core.network.dto.ScanMessagePairDto
+import ai.lufious.app.core.network.dto.ScanMessageRequest
 import ai.lufious.app.core.network.dto.SignedUploadRequest
 import ai.lufious.app.core.network.dto.SignedUploadResponse
 import ai.lufious.app.core.network.dto.UserDto
@@ -81,6 +83,12 @@ interface LufiousApi {
 
     @GET("api/scans/{id}")
     suspend fun getScan(@Path("id") id: String): ScanDto
+
+    @POST("api/scans/{id}/messages")
+    suspend fun postScanMessage(
+        @Path("id") id: String,
+        @Body body: ScanMessageRequest
+    ): ScanMessagePairDto
 
     @GET("api/listings")
     suspend fun listListings(

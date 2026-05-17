@@ -1,5 +1,6 @@
 package ai.lufious.app.core.network
 
+import android.util.Log
 import javax.inject.Inject
 import javax.inject.Singleton
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -24,11 +25,14 @@ class SignedUploader @Inject constructor(
         val body = bytes.toRequestBody(media)
         val req = Request.Builder()
             .url(uploadUrl)
-            .header("Content-Type", contentType)
             .put(body)
             .build()
         httpClient.newCall(req).execute().use { res ->
-            if (!res.isSuccessful) error("upload failed: ${res.code} ${res.message}")
+            if (!res.isSuccessful) {
+                val errBody = runCatching { res.body?.string()?.take(1500) }.getOrNull()
+                Log.e("SignedUploader", "S3 PUT failed ${res.code} ${res.message} body=$errBody")
+                error("upload failed: ${res.code} ${res.message}")
+            }
         }
     }
 }

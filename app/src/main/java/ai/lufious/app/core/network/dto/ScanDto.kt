@@ -5,6 +5,22 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
+data class ScanMessageDto(
+    val role: String,
+    val content: String,
+    val createdAt: Long
+)
+
+@Serializable
+data class ScanMessageRequest(val content: String)
+
+@Serializable
+data class ScanMessagePairDto(
+    val user: ScanMessageDto,
+    val assistant: ScanMessageDto
+)
+
+@Serializable
 data class ScanDto(
     @SerialName("_id") val id: String,
     val userId: String,
@@ -15,6 +31,8 @@ data class ScanDto(
     val diagnosis: String = "",
     val carePlan: String = "",
     val photoUrl: String? = null,
+    val messages: List<ScanMessageDto> = emptyList(),
+    val aiSummary: String? = null,
     val timestamp: Long
 )
 

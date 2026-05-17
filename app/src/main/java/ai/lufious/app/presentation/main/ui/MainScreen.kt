@@ -61,7 +61,10 @@ fun MainScreen(outerNavController: NavHostController = rememberNavController()) 
                 )
             }
             composable(Screen.ScanTab.route) {
-                ScanPage(navController = tabNavController)
+                ScanPage(
+                    navController = tabNavController,
+                    outerNavController = outerNavController
+                )
             }
             composable(Screen.GardenTab.route) {
                 GardenPage(

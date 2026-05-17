@@ -70,6 +70,7 @@ import kotlinx.coroutines.flow.collectLatest
 @Composable
 fun ScanPage(
     navController: NavController,
+    outerNavController: NavController = navController,
     modifier: Modifier = Modifier,
     viewModel: ScanViewModel = hiltViewModel()
 ) {
@@ -79,7 +80,8 @@ fun ScanPage(
     LaunchedEffect(Unit) {
         viewModel.effects.collectLatest { effect ->
             when (effect) {
-                is UiEffect.Navigate -> navController.navigate(effect.route)
+                // AiChat / scan-result live in the outer graph (above bottom bar)
+                is UiEffect.Navigate -> outerNavController.navigate(effect.route)
                 is UiEffect.ShowError ->
                     Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
                 else -> {}
