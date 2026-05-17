@@ -14,6 +14,17 @@ class AuthInterceptor @Inject constructor(
 
     override fun intercept(chain: Interceptor.Chain): Response {
         val original = chain.request()
+        // Skip third-party hosts (e.g. S3 presigned PUT). They use query-string
+        // signatures and reject any extra Authorization header.
+        val host = original.url.host
+        val isBackend = host.endsWith("lufious.ai") ||
+            host == "65.1.178.39" ||
+            host == "35.154.133.88" ||
+            host == "43.205.12.74" ||
+            host == "localhost" ||
+            host == "10.0.2.2"
+        if (!isBackend) return chain.proceed(original)
+
         if (original.header("Authorization") != null) return chain.proceed(original)
 
         val firstToken = currentIdToken(forceRefresh = false)
