@@ -151,15 +151,7 @@ fun GardenPage(
         else -> "Good Evening"
     }
 
-    val showDemo = state.plants.isEmpty() && !state.isLoading
-
-    val filteredDemo = remember(selectedCategory) {
-        if (selectedCategory == "All Plants") demoPlants
-        else demoPlants.filter { it.category.equals(selectedCategory, ignoreCase = true) }
-    }
-
-    val featuredPlant = filteredDemo.firstOrNull { it.isFeatured } ?: filteredDemo.firstOrNull()
-    val gridPlants    = filteredDemo.filter { !it.isFeatured }
+    val showEmpty = state.plants.isEmpty() && !state.isLoading
 
     Box(
         modifier = modifier
@@ -167,7 +159,7 @@ fun GardenPage(
             .background(GardenBg)
             .testTag("garden_screen")
     ) {
-        if (showDemo) {
+        if (showEmpty) {
             EmptyGardenIntro(
                 greeting = greeting,
                 onAddPlant = { outerNavController.navigate(Screen.AddPlant.route) }
@@ -187,7 +179,7 @@ fun GardenPage(
             item(span = { GridItemSpan(2) }) {
                 GardenHeader(
                     greeting = greeting,
-                    plantCount = if (showDemo) 26 else state.plants.size
+                    plantCount = state.plants.size
                 )
             }
             // Search
@@ -213,12 +205,6 @@ fun GardenPage(
                     }
                 }
             } else {
-                // Featured card
-                featuredPlant?.let { plant ->
-                    item(span = { GridItemSpan(2) }) {
-                        FeaturedPlantCard(plant = plant)
-                    }
-                }
                 // Section label
                 item(span = { GridItemSpan(2) }) {
                     Row(
@@ -233,34 +219,28 @@ fun GardenPage(
                             color = TextPrimary
                         )
                         Text(
-                            text = "${gridPlants.size} plants",
+                            text = "${state.plants.size} plants",
                             fontSize = 12.sp,
                             color = TextPrimary.copy(alpha = 0.45f)
                         )
                     }
                 }
 
-                if (showDemo) {
-                    items(gridPlants) { plant ->
-                        DemoPlantGridCard(plant = plant)
-                    }
-                } else {
-                    items(state.plants, key = { it.id }) { plant ->
-                        PlantCard(
-                            plant = plant,
-                            onClick = {
-                                navController.navigate(
-                                    Screen.PlantDetail.createRoute(plant.id)
-                                )
-                            }
-                        )
-                    }
+                items(state.plants, key = { it.id }) { plant ->
+                    PlantCard(
+                        plant = plant,
+                        onClick = {
+                            navController.navigate(
+                                Screen.PlantDetail.createRoute(plant.id)
+                            )
+                        }
+                    )
                 }
             }
         }
 
         // FAB – "+ Add Plant" (hidden in empty state; intro has its own CTA)
-        if (!showDemo) Box(
+        if (!showEmpty) Box(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(end = 20.dp, bottom = 20.dp)
