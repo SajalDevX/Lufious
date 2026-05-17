@@ -5,6 +5,7 @@ import ai.lufious.app.core.utils.Screen
 import ai.lufious.app.presentation.garden.ui.GardenPage
 import ai.lufious.app.presentation.garden.ui.PlantDetailScreen
 import ai.lufious.app.presentation.home.ui.HomePage
+import ai.lufious.app.presentation.location.LocationSyncEffect
 import ai.lufious.app.presentation.profile.ui.ProfileScreen
 import ai.lufious.app.presentation.scan.ui.ScanPage
 import ai.lufious.app.presentation.scan.ui.ScanResultScreen
@@ -27,6 +28,9 @@ import androidx.navigation.navArgument
 @Composable
 fun MainScreen(outerNavController: NavHostController = rememberNavController()) {
     val tabNavController = rememberNavController()
+
+    // Push lat/lon once per app launch so the dashboard weather endpoint can resolve.
+    LocationSyncEffect()
 
     Scaffold(
         containerColor = Background,
