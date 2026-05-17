@@ -660,13 +660,6 @@ private fun EmptyGardenIntro(greeting: String, onAddPlant: () -> Unit) {
             .padding(horizontal = 20.dp, vertical = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = "Your garden",
-            color = TextPrimary,
-            fontSize = 24.sp,
-            fontWeight = FontWeight.ExtraBold,
-            modifier = Modifier.fillMaxWidth()
-        )
         Spacer(Modifier.height(28.dp))
         Box(
             modifier = Modifier
