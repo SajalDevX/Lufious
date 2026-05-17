@@ -166,6 +166,13 @@ fun GardenPage(
             .background(GardenBg)
             .testTag("garden_screen")
     ) {
+        if (showDemo) {
+            EmptyGardenIntro(
+                greeting = greeting,
+                onAddPlant = { navController.navigate(Screen.AddPlant.route) }
+            )
+            return@Box
+        }
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             modifier = Modifier.fillMaxSize(),
@@ -251,8 +258,8 @@ fun GardenPage(
             }
         }
 
-        // FAB – "+ Add Plant"
-        Box(
+        // FAB – "+ Add Plant" (hidden in empty state; intro has its own CTA)
+        if (!showDemo) Box(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(end = 20.dp, bottom = 20.dp)
@@ -639,6 +646,118 @@ private fun DemoPlantGridCard(plant: GardenDemoPlant) {
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun EmptyGardenIntro(greeting: String, onAddPlant: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(GardenBg)
+            .padding(horizontal = 20.dp, vertical = 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = greeting,
+            color = TextPrimary.copy(alpha = 0.55f),
+            fontSize = 13.sp,
+            modifier = Modifier.fillMaxWidth(),
+            fontWeight = FontWeight.Medium
+        )
+        Text(
+            text = "Your garden",
+            color = TextPrimary,
+            fontSize = 24.sp,
+            fontWeight = FontWeight.ExtraBold,
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(Modifier.height(28.dp))
+        Box(
+            modifier = Modifier
+                .size(160.dp)
+                .clip(CircleShape)
+                .background(ChipSelectedBg.copy(alpha = 0.12f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(text = "🪴", fontSize = 88.sp)
+        }
+        Spacer(Modifier.height(20.dp))
+        Text(
+            text = "Plant your first one",
+            color = TextPrimary,
+            fontSize = 22.sp,
+            fontWeight = FontWeight.ExtraBold
+        )
+        Spacer(Modifier.height(6.dp))
+        Text(
+            text = "Track watering, health, and growth — all in one calm place.",
+            color = TextPrimary.copy(alpha = 0.6f),
+            fontSize = 13.sp,
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+        )
+        Spacer(Modifier.height(24.dp))
+        IntroStep(emoji = "📸", title = "Scan or add", body = "Use the camera or pick a species manually.")
+        Spacer(Modifier.height(10.dp))
+        IntroStep(emoji = "💧", title = "Set a schedule", body = "We'll remind you when it's watering day.")
+        Spacer(Modifier.height(10.dp))
+        IntroStep(emoji = "🌱", title = "Watch it grow", body = "Log progress photos and care notes.")
+        Spacer(Modifier.weight(1f))
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(54.dp)
+                .clip(RoundedCornerShape(28.dp))
+                .background(AddPlantGreen)
+                .clickable { onAddPlant() },
+            contentAlignment = Alignment.Center
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    text = "Add Your First Plant",
+                    color = Color.White,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+        Spacer(Modifier.height(8.dp))
+    }
+}
+
+@Composable
+private fun IntroStep(emoji: String, title: String, body: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(14.dp))
+            .background(CardWhite)
+            .padding(14.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(text = emoji, fontSize = 26.sp)
+        Spacer(Modifier.width(12.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                color = TextPrimary,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = body,
+                color = TextPrimary.copy(alpha = 0.55f),
+                fontSize = 12.sp
+            )
         }
     }
 }
