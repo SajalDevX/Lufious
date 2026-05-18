@@ -8,7 +8,12 @@ import androidx.navigation.NavController
 @Composable
 fun EmailSignupPage(navController: NavController) {
     EmailSignupScreen(
-        onLogin = { navController.navigate(Screen.Login.route) },
+        onLogin = {
+            navController.navigate(Screen.Login.route) {
+                popUpTo(Screen.Login.route) { inclusive = false }
+                launchSingleTop = true
+            }
+        },
         onNavigate = {
             navController.navigate(Screen.PostOnboarding.route) {
                 popUpTo(AUTH_GRAPH) { inclusive = true }
