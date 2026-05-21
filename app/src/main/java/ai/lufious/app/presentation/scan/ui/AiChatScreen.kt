@@ -431,10 +431,13 @@ private fun AssistantTextBubble(text: AnnotatedString, photoUrl: String) {
     )
     Column(
         modifier = Modifier
-            .shadow(elevation = 2.dp, shape = shape, ambientColor = Color(0x22000000))
+            .shadow(elevation = 10.dp, shape = shape, ambientColor = Color(0xFF7DF7A8), spotColor = Color(0xFF7DF7A8))
+            .shadow(elevation = 4.dp, shape = shape, ambientColor = Color(0xFFB7F2C8), spotColor = Color(0xFFB7F2C8))
+            .border(BorderStroke(1.dp, Color(0xFF7DF7A8).copy(alpha = 0.25f)), shape)
+            .padding(1.dp)
+            .border(BorderStroke(1.dp, Color(0xFFB7F2C8).copy(alpha = 0.55f)), shape)
             .clip(shape)
             .background(AssistantBubble)
-            .border(BorderStroke(1.dp, Border), shape)
             .padding(14.dp)
     ) {
         Text(
@@ -469,10 +472,13 @@ private fun AssistantIconCard(card: AssistantBlock.IconCard) {
     val shape = RoundedCornerShape(16.dp)
     Row(
         modifier = Modifier
-            .shadow(elevation = 1.dp, shape = shape, ambientColor = Color(0x18000000))
+            .shadow(elevation = 8.dp, shape = shape, ambientColor = Color(0xFF7DF7A8), spotColor = Color(0xFF7DF7A8))
+            .shadow(elevation = 3.dp, shape = shape, ambientColor = Color(0xFFB7F2C8), spotColor = Color(0xFFB7F2C8))
+            .border(BorderStroke(1.dp, Color(0xFF7DF7A8).copy(alpha = 0.25f)), shape)
+            .padding(1.dp)
+            .border(BorderStroke(1.dp, Color(0xFFB7F2C8).copy(alpha = 0.55f)), shape)
             .clip(shape)
             .background(Color.White)
-            .border(BorderStroke(1.dp, Border), shape)
             .padding(horizontal = 12.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -583,10 +589,13 @@ private fun TypingBubble() {
 
         Row(
             modifier = Modifier
-                .shadow(elevation = 2.dp, shape = shape, ambientColor = Color(0x22000000))
+                .shadow(elevation = 10.dp, shape = shape, ambientColor = Color(0xFF7DF7A8), spotColor = Color(0xFF7DF7A8))
+                .shadow(elevation = 4.dp, shape = shape, ambientColor = Color(0xFFB7F2C8), spotColor = Color(0xFFB7F2C8))
+                .border(BorderStroke(1.dp, Color(0xFF7DF7A8).copy(alpha = 0.25f)), shape)
+                .padding(1.dp)
+                .border(BorderStroke(1.dp, Color(0xFFB7F2C8).copy(alpha = 0.55f)), shape)
                 .clip(shape)
                 .background(AssistantBubble)
-                .border(BorderStroke(1.dp, Border), shape)
                 .padding(horizontal = 14.dp, vertical = 12.dp),
             horizontalArrangement = Arrangement.spacedBy(5.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -758,36 +767,38 @@ private fun ChatComposer(
     onValueChange: (String) -> Unit,
     onSend: () -> Unit
 ) {
+    val composerGlow by rememberInfiniteTransition(label = "composerGlow").animateFloat(
+        initialValue = 0.55f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1400),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "glowAlpha"
+    )
+    val shape = RoundedCornerShape(28.dp)
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .background(SheetBg)
             .navigationBarsPadding()
             .imePadding()
-            .padding(horizontal = 12.dp, vertical = 10.dp)
+            .padding(horizontal = 12.dp, vertical = 12.dp)
     ) {
         Row(
         modifier = Modifier
             .fillMaxWidth()
-            .shadow(
-                elevation = 32.dp,
-                shape = RoundedCornerShape(28.dp),
-                ambientColor = Color(0xFF39FF7A),
-                spotColor = Color(0xFF39FF7A)
-            )
-            .shadow(
-                elevation = 22.dp,
-                shape = RoundedCornerShape(28.dp),
-                ambientColor = Color(0xFF35D26B),
-                spotColor = Color(0xFF35D26B)
-            )
-            .shadow(
-                elevation = 12.dp,
-                shape = RoundedCornerShape(28.dp),
-                ambientColor = Color(0xFF2BB063),
-                spotColor = Color(0xFF2BB063)
-            )
-            .clip(RoundedCornerShape(28.dp))
+            .shadow(elevation = 36.dp, shape = shape, ambientColor = Color(0xFF39FF7A), spotColor = Color(0xFF39FF7A))
+            .shadow(elevation = 24.dp, shape = shape, ambientColor = Color(0xFF35D26B), spotColor = Color(0xFF35D26B))
+            .shadow(elevation = 14.dp, shape = shape, ambientColor = Color(0xFF2BB063), spotColor = Color(0xFF2BB063))
+            .border(BorderStroke(1.dp, Color(0xFF39FF7A).copy(alpha = 0.18f * composerGlow)), shape)
+            .padding(1.dp)
+            .border(BorderStroke(1.dp, Color(0xFF35D26B).copy(alpha = 0.30f * composerGlow)), shape)
+            .padding(1.dp)
+            .border(BorderStroke(1.dp, Color(0xFF35D26B).copy(alpha = 0.55f * composerGlow)), shape)
+            .padding(1.dp)
+            .border(BorderStroke(2.dp, Color(0xFF1F8A4C)), shape)
+            .clip(shape)
             .background(
                 Brush.linearGradient(
                     colors = listOf(
@@ -796,7 +807,6 @@ private fun ChatComposer(
                     )
                 )
             )
-            .border(BorderStroke(2.5.dp, Color(0xFF1F8A4C)), RoundedCornerShape(28.dp))
             .padding(horizontal = 6.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
