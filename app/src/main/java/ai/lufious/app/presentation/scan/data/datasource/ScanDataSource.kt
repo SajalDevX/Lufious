@@ -28,10 +28,13 @@ class ScanDataSource @Inject constructor(
 
     suspend fun saveScan(
         scan: ScanResultModel,
-        @Suppress("UNUSED_PARAMETER") imageBytes: ByteArray? = null
+        @Suppress("UNUSED_PARAMETER") imageBytes: ByteArray? = null,
+        agents: List<String>? = null
     ): ScanResultModel {
         require(scan.photoUrl.isNotEmpty()) { "photoUrl required" }
-        return api.createScan(ScanCreateRequest(photoUrl = scan.photoUrl)).toModel()
+        return api.createScan(
+            ScanCreateRequest(photoUrl = scan.photoUrl, agents = agents)
+        ).toModel()
     }
 
     suspend fun getScanHistory(): List<ScanResultModel> =

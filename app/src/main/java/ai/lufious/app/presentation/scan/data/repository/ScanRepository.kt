@@ -5,7 +5,11 @@ import ai.lufious.app.presentation.scan.data.models.ScanResultModel
 
 interface ScanRepository {
     suspend fun scanPlant(imageBytes: ByteArray): Result<ScanResultModel>
-    suspend fun saveScan(scan: ScanResultModel, imageBytes: ByteArray? = null): Result<ScanResultModel>
+    suspend fun saveScan(
+        scan: ScanResultModel,
+        imageBytes: ByteArray? = null,
+        agents: List<String>? = null
+    ): Result<ScanResultModel>
     suspend fun getScanHistory(): Result<List<ScanResultModel>>
     suspend fun getScanById(scanId: String): Result<ScanResultModel>
 }

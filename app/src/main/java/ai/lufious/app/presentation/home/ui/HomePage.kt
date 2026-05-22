@@ -97,9 +97,14 @@ fun HomePage(
     }
 
     val goTab: (String) -> Unit = { route ->
-        tabNavController?.navigate(route) {
-            popUpTo(Screen.HomeTab.route)
-            launchSingleTop = true
+        tabNavController?.let { nav ->
+            nav.navigate(route) {
+                popUpTo(nav.graph.startDestinationId) {
+                    saveState = true
+                }
+                launchSingleTop = true
+                restoreState = true
+            }
         }
     }
 

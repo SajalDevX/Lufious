@@ -29,16 +29,21 @@ class ScanViewModel @Inject constructor(
 
     override suspend fun handleEvent(event: ScanEvent) {
         when (event) {
+            is ScanEvent.SelectAgent -> {
+                setState { copy(selectedAgent = event.agent) }
+            }
+
             is ScanEvent.Scan -> {
                 setState { copy(isScanning = true, error = null) }
+                val agents = event.agent?.let { listOf(it.wireValue) }
                 ioLaunch {
-                    when (val result = scanPlant(event.imageBytes)) {
+                    when (val result = scanPlant(event.imageBytes, agents)) {
                         is Result.Success -> {
                             val scan = result.data ?: run {
                                 setState { copy(isScanning = false, error = "Scan returned no data") }
                                 return@ioLaunch
                             }
-                            setState { copy(isScanning = false) }
+                            setState { copy(isScanning = false, selectedAgent = null) }
                             emitEffect(UiEffect.Navigate(Screen.AiChat.createRoute(scan.id)))
                         }
                         is Result.Error -> {

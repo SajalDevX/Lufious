@@ -17,7 +17,7 @@ class AiChatRepositoryImpl @Inject constructor(
     override suspend fun sendMessage(
         scanId: String,
         userMessage: String
-    ): Result<Pair<AiChatMessageModel, AiChatMessageModel>> = wrap {
+    ): Result<Pair<AiChatMessageModel, List<AiChatMessageModel>>> = wrap {
         ds.sendMessage(scanId, userMessage)
     }
 

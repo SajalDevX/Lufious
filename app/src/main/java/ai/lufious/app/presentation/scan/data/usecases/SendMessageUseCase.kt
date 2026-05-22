@@ -9,7 +9,7 @@ class SendMessageUseCase @Inject constructor(private val repository: AiChatRepos
     suspend operator fun invoke(
         scanId: String,
         userMessage: String
-    ): Result<Pair<AiChatMessageModel, AiChatMessageModel>> =
+    ): Result<Pair<AiChatMessageModel, List<AiChatMessageModel>>> =
         repository.sendMessage(scanId, userMessage)
 }
 

@@ -6,6 +6,7 @@ import ai.lufious.app.core.theme.Background
 import ai.lufious.app.core.theme.PrimaryColor
 import ai.lufious.app.core.theme.TextPrimary
 import ai.lufious.app.core.utils.UiEffect
+import ai.lufious.app.presentation.scan.data.models.AgentKey
 import ai.lufious.app.presentation.scan.viewmodel.ScanEvent
 import ai.lufious.app.presentation.scan.viewmodel.ScanViewModel
 import android.Manifest
@@ -44,9 +45,23 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.Text as Text3
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.LaunchedEffect as LE
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -79,6 +94,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
 import kotlinx.coroutines.flow.collectLatest
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScanPage(
     navController: NavController,
@@ -88,11 +104,12 @@ fun ScanPage(
 ) {
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     LaunchedEffect(Unit) {
         viewModel.effects.collectLatest { effect ->
             when (effect) {
-                // AiChat / scan-result live in the outer graph (above bottom bar)
                 is UiEffect.Navigate -> outerNavController.navigate(effect.route)
                 is UiEffect.ShowError ->
                     Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
@@ -108,6 +125,7 @@ fun ScanPage(
         )
     }
     var showCamera by remember { mutableStateOf(false) }
+    var showPickerSheet by remember { mutableStateOf(false) }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -123,9 +141,23 @@ fun ScanPage(
             runCatching {
                 context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
             }.getOrNull()?.let { bytes ->
-                viewModel.onEvent(ScanEvent.Scan(bytes))
+                viewModel.onEvent(ScanEvent.Scan(bytes, state.selectedAgent))
             }
         }
+    }
+
+    val openCamera = {
+        showPickerSheet = false
+        if (hasCameraPermission) showCamera = true
+        else permissionLauncher.launch(Manifest.permission.CAMERA)
+    }
+    val openGallery = {
+        showPickerSheet = false
+        galleryLauncher.launch(
+            androidx.activity.result.PickVisualMediaRequest(
+                ActivityResultContracts.PickVisualMedia.ImageOnly
+            )
+        )
     }
 
     Box(
@@ -134,23 +166,17 @@ fun ScanPage(
             .testTag("scan_screen")
     ) {
         when {
-            !showCamera -> ScanIntroContent(
-                onStartScan = {
-                    if (hasCameraPermission) showCamera = true
-                    else permissionLauncher.launch(Manifest.permission.CAMERA)
-                },
-                onPickFromGallery = {
-                    galleryLauncher.launch(
-                        androidx.activity.result.PickVisualMediaRequest(
-                            ActivityResultContracts.PickVisualMedia.ImageOnly
-                        )
-                    )
+            !showCamera -> AgentGridContent(
+                onAgentSelected = { agent ->
+                    viewModel.onEvent(ScanEvent.SelectAgent(agent))
+                    showPickerSheet = true
                 }
             )
             hasCameraPermission -> CameraContent(
                 isScanning = state.isScanning,
                 onClose = { showCamera = false },
                 onScan = { imageCapture ->
+                    val agent = state.selectedAgent
                     imageCapture.takePicture(
                         ContextCompat.getMainExecutor(context),
                         object : ImageCapture.OnImageCapturedCallback() {
@@ -159,7 +185,7 @@ fun ScanPage(
                                 val bytes = ByteArray(buffer.remaining())
                                 buffer.get(bytes)
                                 image.close()
-                                viewModel.onEvent(ScanEvent.Scan(bytes))
+                                viewModel.onEvent(ScanEvent.Scan(bytes, agent))
                             }
                             override fun onError(exc: ImageCaptureException) {
                                 viewModel.onEvent(ScanEvent.ScanFailed(exc.message ?: "Capture failed"))
@@ -172,347 +198,241 @@ fun ScanPage(
                 onRequestPermission = { permissionLauncher.launch(Manifest.permission.CAMERA) }
             )
         }
+
+        if (showPickerSheet && state.selectedAgent != null) {
+            ModalBottomSheet(
+                onDismissRequest = {
+                    showPickerSheet = false
+                    viewModel.onEvent(ScanEvent.SelectAgent(null))
+                },
+                sheetState = sheetState,
+                containerColor = Color.White
+            ) {
+                ImageSourceSheet(
+                    agent = state.selectedAgent!!,
+                    onTakePhoto = {
+                        scope.launch { sheetState.hide() }
+                        openCamera()
+                    },
+                    onPickGallery = {
+                        scope.launch { sheetState.hide() }
+                        openGallery()
+                    }
+                )
+            }
+        }
     }
 }
 
-private val ScanScreenBg = Color(0xFFF8FBF4)
-private val ScanGreen = Color(0xFF138A45)
-private val ScanGreenSoft = Color(0xFF44A557)
-private val TipGreen = Color(0xFFF4FAEF)
-private val TipYellow = Color(0xFFFFFAE9)
-private val TipPurple = Color(0xFFF5F0FB)
-private val HeroHeadlineShadow = Shadow(
-    color = Color.Black.copy(alpha = 0.14f),
-    offset = Offset(0f, 2f),
-    blurRadius = 4f
-)
 
-private data class ScanTip(
-    val imageRes: Int,
-    val title: String,
-    val body: String,
-    val bgColor: Color,
-    val borderColor: Color,
-    val arrowColor: Color
-)
+private val ScreenBg = Color(0xFFF8FBF4)
+private val AccentGreen = Color(0xFF138A45)
+private val SubtleBorder = Color(0xFFE3ECDC)
 
 @Composable
-private fun ScanIntroContent(
-    onStartScan: () -> Unit,
-    onPickFromGallery: () -> Unit
-) {
-    val tips = listOf(
-        ScanTip(
-            imageRes = R.drawable.toon_camera_caterpillar,
-            title = "Frame the Leaf",
-            body = "Fill the frame with one leaf\nor full plant.",
-            bgColor = TipGreen,
-            borderColor = Color(0xFFD7E8CB),
-            arrowColor = Color(0xFF83B22A)
-        ),
-        ScanTip(
-            imageRes = R.drawable.toon_angry_caterpillar,
-            title = "Good Lighting",
-            body = "Natural daylight gives\nthe most accurate result.",
-            bgColor = TipYellow,
-            borderColor = Color(0xFFF0DEA9),
-            arrowColor = Color(0xFFFF8B05)
-        ),
-        ScanTip(
-            imageRes = R.drawable.toon_sleepy_leaf,
-            title = "Hold Steady",
-            body = "Keep the camera still\nuntil the scan completes.",
-            bgColor = TipPurple,
-            borderColor = Color(0xFFDDCFF1),
-            arrowColor = Color(0xFF8E61DB)
-        )
-    )
-
-    Box(
+private fun AgentGridContent(onAgentSelected: (AgentKey) -> Unit) {
+    Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(ScanScreenBg)
+            .background(ScreenBg)
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 20.dp)
+            .padding(top = 32.dp, bottom = 28.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 18.dp)
-                .padding(bottom = 20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Spacer(Modifier.height(38.dp))
+        Text(
+            text = "Choose an Expert",
+            color = TextPrimary,
+            fontSize = 30.sp,
+            fontWeight = FontWeight.Black,
+            fontFamily = ClashDisplay
+        )
+        Spacer(Modifier.height(6.dp))
+        Text(
+            text = "Pick the specialist that fits your concern. They will analyse the photo you provide.",
+            color = TextPrimary.copy(alpha = 0.7f),
+            fontSize = 14.sp,
+            lineHeight = 20.sp
+        )
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.Top
-            ) {
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(top = 8.dp)
-                ) {
-                    HeroHeadlineWord(text = "Identify", color = TextPrimary)
-                    HeroHeadlineWord(text = "Any", color = ScanGreenSoft)
-                    HeroHeadlineWord(text = "Plant", color = TextPrimary)
-                    Spacer(Modifier.height(10.dp))
-                    Text(
-                        text = "Snap a photo to get the\nspecies, health check,\nand care tips in seconds.",
-                        color = TextPrimary.copy(alpha = 0.92f),
-                        fontSize = 14.sp,
-                        lineHeight = 22.sp
-                    )
-                }
+        Spacer(Modifier.height(22.dp))
 
-                Image(
-                    painter = painterResource(id = R.drawable.toon_happy_lets_grow),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(250.dp)
-                        .padding(start = 4.dp)
-                )
-            }
-
-            Spacer(Modifier.height(20.dp))
-
-            tips.forEachIndexed { index, tip ->
-                TipRow(
-                    imageRes = tip.imageRes,
-                    title = tip.title,
-                    body = tip.body,
-                    bgColor = tip.bgColor,
-                    borderColor = tip.borderColor,
-                    arrowColor = tip.arrowColor
-                )
-                if (index < tips.lastIndex) {
-                    Spacer(Modifier.height(16.dp))
-                }
-            }
-
-            Spacer(Modifier.height(20.dp))
-
-            StartScanButton(onClick = onStartScan)
-
-            Spacer(Modifier.height(12.dp))
-
-            UploadScanButton(onClick = onPickFromGallery)
-
-            Spacer(Modifier.height(24.dp))
-        }
-    }
-}
-
-@Composable
-private fun HeroHeadlineWord(text: String, color: Color) {
-    Text(
-        text = text,
-        color = color,
-        fontSize = 35.sp,
-        fontWeight = FontWeight.Black,
-        fontFamily = ClashDisplay,
-        letterSpacing = (-0.6).sp,
-        style = TextStyle(shadow = HeroHeadlineShadow)
-    )
-}
-
-@Composable
-private fun StartScanButton(onClick: () -> Unit) {
-    val shape = RoundedCornerShape(33.dp)
-    Box(
-        modifier = Modifier
-            .fillMaxWidth(0.94f)
-            .height(66.dp)
-            .shadow(
-                elevation = 14.dp,
-                shape = shape,
-                ambientColor = Color(0x662FA75B),
-                spotColor = Color(0x552FA75B)
-            )
-            .clip(shape)
-            .background(
-                brush = Brush.linearGradient(
-                    colors = listOf(Color(0xFF35B464), Color(0xFF1D954D), Color(0xFF0F8240)),
-                    start = Offset.Zero,
-                    end = Offset(900f, 220f)
-                )
-            )
-            .border(BorderStroke(1.dp, Color.White.copy(alpha = 0.22f)), shape)
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center
-    ) {
-        Row(
+        val agents = remember { AgentKey.values().toList() }
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 18.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+                .heightIn(min = 460.dp),
+            userScrollEnabled = false,
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(CircleShape)
-                        .background(Color.White.copy(alpha = 0.18f))
-                        .border(BorderStroke(1.dp, Color.White.copy(alpha = 0.35f)), CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.CameraAlt,
-                        contentDescription = null,
-                        tint = Color.White,
-                        modifier = Modifier.size(21.dp)
-                    )
-                }
-                Spacer(Modifier.width(12.dp))
-                Text(
-                    text = "Start Scan",
-                    color = Color.White,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 0.2.sp
-                )
+            items(agents, key = { it.wireValue }) { agent ->
+                AgentCard(agent = agent, onClick = { onAgentSelected(agent) })
             }
-
-            Text(
-                text = "✦",
-                color = Color(0xFFFFF59D),
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
-            )
         }
     }
 }
 
 @Composable
-private fun UploadScanButton(onClick: () -> Unit) {
-    val shape = RoundedCornerShape(32.dp)
-    Box(
+private fun AgentCard(agent: AgentKey, onClick: () -> Unit) {
+    val shape = RoundedCornerShape(22.dp)
+    Column(
         modifier = Modifier
-            .fillMaxWidth(0.94f)
-            .height(64.dp)
-            .shadow(
-                elevation = 8.dp,
-                shape = shape,
-                ambientColor = Color(0x22178A45),
-                spotColor = Color(0x22178A45)
-            )
+            .fillMaxWidth()
+            .height(220.dp)
+            .shadow(elevation = 6.dp, shape = shape, ambientColor = agent.accent.copy(alpha = 0.18f))
             .clip(shape)
-            .background(
-                brush = Brush.horizontalGradient(
-                    colors = listOf(Color.White, Color(0xFFF3FBF5))
-                )
-            )
-            .border(BorderStroke(2.dp, ScanGreen.copy(alpha = 0.9f)), shape)
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center
+            .background(agent.cardBg)
+            .border(BorderStroke(1.dp, agent.accent.copy(alpha = 0.25f)), shape)
+            .clickable(onClick = onClick)
+            .padding(16.dp),
+        verticalArrangement = Arrangement.SpaceBetween
     ) {
-        Row(
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 18.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+                .size(54.dp)
+                .clip(CircleShape)
+                .background(Color.White),
+            contentAlignment = Alignment.Center
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier
-                        .size(38.dp)
-                        .clip(CircleShape)
-                        .background(ScanGreen.copy(alpha = 0.12f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.PhotoLibrary,
-                        contentDescription = null,
-                        tint = ScanGreen,
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
-                Spacer(Modifier.width(12.dp))
-                Text(
-                    text = "Upload from Gallery",
-                    color = ScanGreen,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    letterSpacing = 0.1.sp
-                )
-            }
-
+            Text(text = agent.emoji, fontSize = 28.sp)
+        }
+        Column {
             Text(
-                text = "↗",
-                color = ScanGreen,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
+                text = agent.title,
+                color = TextPrimary,
+                fontSize = 17.sp,
+                fontWeight = FontWeight.ExtraBold,
+                lineHeight = 21.sp
             )
+            Spacer(Modifier.height(6.dp))
+            Text(
+                text = agent.tagline,
+                color = TextPrimary.copy(alpha = 0.7f),
+                fontSize = 12.sp,
+                lineHeight = 16.sp
+            )
+            Spacer(Modifier.height(10.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "Analyse",
+                    color = agent.accent,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(Modifier.width(6.dp))
+                Text(text = "›", color = agent.accent, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            }
         }
     }
 }
 
 @Composable
-private fun TipRow(
-    imageRes: Int,
-    title: String,
-    body: String,
-    bgColor: Color,
-    borderColor: Color,
-    arrowColor: Color
+private fun ImageSourceSheet(
+    agent: AgentKey,
+    onTakePhoto: () -> Unit,
+    onPickGallery: () -> Unit
 ) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp)
+            .padding(top = 4.dp, bottom = 28.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                modifier = Modifier
+                    .size(44.dp)
+                    .clip(CircleShape)
+                    .background(agent.cardBg),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text = agent.emoji, fontSize = 22.sp)
+            }
+            Spacer(Modifier.width(12.dp))
+            Column {
+                Text(
+                    text = agent.title,
+                    color = TextPrimary,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.ExtraBold
+                )
+                Text(
+                    text = "Provide a photo to analyse",
+                    color = TextPrimary.copy(alpha = 0.65f),
+                    fontSize = 13.sp
+                )
+            }
+        }
+
+        Spacer(Modifier.height(20.dp))
+
+        SourceOptionRow(
+            icon = Icons.Default.CameraAlt,
+            title = "Take a Photo",
+            subtitle = "Open camera and capture now",
+            accent = agent.accent,
+            onClick = onTakePhoto
+        )
+        Spacer(Modifier.height(12.dp))
+        SourceOptionRow(
+            icon = Icons.Default.PhotoLibrary,
+            title = "Choose from Gallery",
+            subtitle = "Pick an existing image",
+            accent = agent.accent,
+            onClick = onPickGallery
+        )
+    }
+}
+
+@Composable
+private fun SourceOptionRow(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    title: String,
+    subtitle: String,
+    accent: Color,
+    onClick: () -> Unit
+) {
+    val shape = RoundedCornerShape(18.dp)
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(30.dp))
-            .background(bgColor)
-            .border(BorderStroke(1.dp, borderColor), RoundedCornerShape(30.dp))
-            .padding(horizontal = 12.dp, vertical = 12.dp),
+            .clip(shape)
+            .background(Color.White)
+            .border(BorderStroke(1.dp, SubtleBorder), shape)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 14.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
             modifier = Modifier
-                .size(104.dp)
-                .clip(RoundedCornerShape(22.dp))
-                .background(Color.White.copy(alpha = 0.35f)),
+                .size(44.dp)
+                .clip(CircleShape)
+                .background(accent.copy(alpha = 0.12f)),
             contentAlignment = Alignment.Center
         ) {
-            Image(
-                painter = painterResource(id = imageRes),
+            Icon(
+                imageVector = icon,
                 contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .size(100.dp)
-                    .clip(RoundedCornerShape(20.dp))
+                tint = accent,
+                modifier = Modifier.size(22.dp)
             )
         }
-
         Spacer(Modifier.width(14.dp))
-
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .padding(end = 8.dp)
-        ) {
+        Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = title,
                 color = TextPrimary,
-                fontSize = 22.sp,
-                fontWeight = FontWeight.ExtraBold
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
             )
-            Spacer(Modifier.height(6.dp))
             Text(
-                text = body,
-                color = TextPrimary.copy(alpha = 0.9f),
-                fontSize = 14.sp,
-                lineHeight = 20.sp
+                text = subtitle,
+                color = TextPrimary.copy(alpha = 0.65f),
+                fontSize = 13.sp
             )
         }
-
-        Box(
-            modifier = Modifier
-                .size(52.dp)
-                .clip(CircleShape)
-                .background(arrowColor),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(text = "›", color = Color.White, fontSize = 40.sp, fontWeight = FontWeight.SemiBold)
-        }
+        Text(text = "›", color = accent, fontSize = 22.sp, fontWeight = FontWeight.Bold)
     }
 }
 

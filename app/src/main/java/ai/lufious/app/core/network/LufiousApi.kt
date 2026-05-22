@@ -12,6 +12,7 @@ import ai.lufious.app.core.network.dto.ListingCreateRequest
 import ai.lufious.app.core.network.dto.ListingDto
 import ai.lufious.app.core.network.dto.ListingPageDto
 import ai.lufious.app.core.network.dto.ListingPatchRequest
+import ai.lufious.app.core.network.dto.ScanAgentListResponse
 import ai.lufious.app.core.network.dto.ScanCreateRequest
 import ai.lufious.app.core.network.dto.ScanDto
 import ai.lufious.app.core.network.dto.ScanListResponse
@@ -74,6 +75,9 @@ interface LufiousApi {
 
     @POST("api/uploads/sign")
     suspend fun signUpload(@Body body: SignedUploadRequest): SignedUploadResponse
+
+    @GET("api/scans/agents")
+    suspend fun listScanAgents(): ScanAgentListResponse
 
     @GET("api/scans")
     suspend fun listScans(): ScanListResponse
