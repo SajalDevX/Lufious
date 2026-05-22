@@ -47,8 +47,10 @@ class AiChatViewModel @Inject constructor(
                             setState {
                                 copy(
                                     speciesName = scan.speciesName,
+                                    commonName = scan.commonName,
                                     healthStatus = scan.healthStatus,
-                                    diagnosis = scan.diagnosis
+                                    diagnosis = scan.diagnosis,
+                                    plantPhotoUrl = scan.photoUrl
                                 )
                             }
                             metaApplied = true
@@ -80,6 +82,12 @@ class AiChatViewModel @Inject constructor(
         when (event) {
             is AiChatEvent.InputChanged ->
                 setState { copy(inputText = event.text) }
+
+            is AiChatEvent.QuickReplyTapped -> {
+                if (state.value.isReplying) return
+                setState { copy(inputText = event.reply.prompt) }
+                handleEvent(AiChatEvent.Send)
+            }
 
             AiChatEvent.Send -> {
                 val text = state.value.inputText.trim()
