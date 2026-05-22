@@ -6,12 +6,15 @@ import ai.lufious.app.presentation.scan.data.repository.ScanRepository
 import javax.inject.Inject
 
 class ScanPlantUseCase @Inject constructor(private val repository: ScanRepository) {
-    suspend operator fun invoke(imageBytes: ByteArray): Result<ScanResultModel> {
+    suspend operator fun invoke(
+        imageBytes: ByteArray,
+        agents: List<String>? = null
+    ): Result<ScanResultModel> {
         val scanResult = when (val result = repository.scanPlant(imageBytes)) {
             is Result.Success -> result.data ?: return Result.Error("No scan result returned")
             is Result.Error -> return result
         }
-        return repository.saveScan(scanResult, imageBytes)
+        return repository.saveScan(scanResult, imageBytes, agents)
     }
 }
 

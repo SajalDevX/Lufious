@@ -101,8 +101,8 @@ class AiChatViewModel @Inject constructor(
                 ioLaunch {
                     when (val result = sendMessage(scanId = scanId, userMessage = text)) {
                         is Result.Success -> {
-                            val (_, assistant) = result.data ?: return@ioLaunch
-                            setState { copy(messages = messages + assistant, isReplying = false) }
+                            val (_, replies) = result.data ?: return@ioLaunch
+                            setState { copy(messages = messages + replies, isReplying = false) }
                         }
                         is Result.Error ->
                             setState { copy(isReplying = false) }

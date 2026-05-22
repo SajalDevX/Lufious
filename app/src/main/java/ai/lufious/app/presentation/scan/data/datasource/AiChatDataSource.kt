@@ -15,9 +15,14 @@ class AiChatDataSource @Inject constructor(
         return scan.messages.map { it.toModel() }
     }
 
-    suspend fun sendMessage(scanId: String, content: String): Pair<AiChatMessageModel, AiChatMessageModel> {
+    suspend fun sendMessage(scanId: String, content: String): Pair<AiChatMessageModel, List<AiChatMessageModel>> {
         val pair = api.postScanMessage(scanId, ScanMessageRequest(content = content))
-        return pair.user.toModel() to pair.assistant.toModel()
+        val replies = when {
+            pair.replies.isNotEmpty() -> pair.replies.map { it.toModel() }
+            pair.assistant != null -> listOf(pair.assistant.toModel())
+            else -> emptyList()
+        }
+        return pair.user.toModel() to replies
     }
 
     private fun ScanMessageDto.toModel(): AiChatMessageModel =

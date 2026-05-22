@@ -8,5 +8,5 @@ interface AiChatRepository {
     suspend fun sendMessage(
         scanId: String,
         userMessage: String
-    ): Result<Pair<AiChatMessageModel, AiChatMessageModel>>
+    ): Result<Pair<AiChatMessageModel, List<AiChatMessageModel>>>
 }

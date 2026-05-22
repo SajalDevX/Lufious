@@ -8,6 +8,8 @@ import kotlinx.serialization.Serializable
 data class ScanMessageDto(
     val role: String,
     val content: String,
+    val agentKey: String? = null,
+    val mentions: List<String> = emptyList(),
     val createdAt: Long
 )
 
@@ -17,8 +19,21 @@ data class ScanMessageRequest(val content: String)
 @Serializable
 data class ScanMessagePairDto(
     val user: ScanMessageDto,
-    val assistant: ScanMessageDto
+    val replies: List<ScanMessageDto> = emptyList(),
+    // Legacy field kept for older clients; new flow uses `replies`.
+    val assistant: ScanMessageDto? = null
 )
+
+@Serializable
+data class ScanAgentDto(
+    val key: String,
+    val name: String,
+    val emoji: String,
+    val aliases: List<String> = emptyList()
+)
+
+@Serializable
+data class ScanAgentListResponse(val items: List<ScanAgentDto>)
 
 @Serializable
 data class ScanDto(
@@ -33,6 +48,7 @@ data class ScanDto(
     val photoUrl: String? = null,
     val messages: List<ScanMessageDto> = emptyList(),
     val aiSummary: String? = null,
+    val agentsReady: List<String> = emptyList(),
     val timestamp: Long
 )
 
@@ -40,7 +56,10 @@ data class ScanDto(
 data class ScanListResponse(val items: List<ScanDto>)
 
 @Serializable
-data class ScanCreateRequest(val photoUrl: String)
+data class ScanCreateRequest(
+    val photoUrl: String,
+    val agents: List<String>? = null
+)
 
 @Serializable
 data class SignedUploadRequest(
