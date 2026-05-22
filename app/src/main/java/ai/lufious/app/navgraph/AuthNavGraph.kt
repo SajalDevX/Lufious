@@ -8,6 +8,7 @@ import ai.lufious.app.presentation.auth.login.ui.EmailLoginPage
 import ai.lufious.app.presentation.auth.login.ui.EmailLoginScreen
 import ai.lufious.app.presentation.auth.login.ui.LoginPage
 import ai.lufious.app.presentation.auth.signup.ui.EmailSignupPage
+import ai.lufious.app.presentation.auth.signup.ui.GetStartedPage
 import ai.lufious.app.presentation.auth.signup.ui.SignupPage
 import ai.lufious.app.presentation.onboarding.ui.OnBoardingPage
 import androidx.navigation.NavGraphBuilder
@@ -35,6 +36,14 @@ fun NavGraphBuilder.authNavGraph(
 
         animatedComposable(Screen.EmailLogin.route) {
             EmailLoginPage(navController = navController)
+        }
+
+        animatedComposable(Screen.GetStarted.route) {
+            GetStartedPage(
+                navController = navController,
+                launchGoogleIntent = launchGoogleIntent,
+                launchFacebookIntent = launchFacebookIntent
+            )
         }
 
         animatedComposable(Screen.Signup.route) {

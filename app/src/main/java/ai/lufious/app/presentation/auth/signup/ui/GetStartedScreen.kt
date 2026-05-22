@@ -1,24 +1,28 @@
 @file:Suppress("DEPRECATION")
 @file:OptIn(ExperimentalMaterial3Api::class)
 
-package ai.lufious.app.presentation.auth.login.ui
+package ai.lufious.app.presentation.auth.signup.ui
 
 import ai.lufious.app.R
 import ai.lufious.app.core.theme.ClashDisplay
 import ai.lufious.app.core.theme.LeafGreen
 import ai.lufious.app.core.theme.TextPrimary
-import ai.lufious.app.core.theme.TextSecondary
+import ai.lufious.app.core.utils.AUTH_GRAPH
+import ai.lufious.app.core.utils.LaunchFacebookSignIn
+import ai.lufious.app.core.utils.LaunchGoogleSignIn
+import ai.lufious.app.core.utils.Screen
 import ai.lufious.app.core.utils.UiEffect
-import ai.lufious.app.core.utils.ValidationResult
 import ai.lufious.app.core.utils.rememberResponsiveDimensions
-import ai.lufious.app.presentation.auth.login.viewmodel.LoginEvent
-import ai.lufious.app.presentation.auth.login.viewmodel.LoginViewModel
-import ai.lufious.app.presentation.utils.CommonTextField
+import ai.lufious.app.presentation.auth.signup.viewmodel.SignupEvent
+import ai.lufious.app.presentation.auth.signup.viewmodel.SignupViewModel
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,20 +39,16 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -56,12 +56,16 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
 import kotlinx.coroutines.flow.collectLatest
 
 private val PageBgTop = Color(0xFFF4FBF5)
@@ -75,36 +79,84 @@ private val SheetCardBorder = Color(0x33FFFFFF)
 private val HandleColor = Color(0x59FFFFFF)
 private val DividerColor = Color(0x33FFFFFF)
 private val SubtitleOnDark = Color(0xBFFFFFFF)
-private val FieldBg = Color(0x1AFFFFFF)
-private val FieldBorder = Color(0x59FFFFFF)
-private val FieldHint = Color(0xB3FFFFFF)
-private val DangerText = Color(0xFFFFB4B4)
+private val WhiteButtonBorder = Color(0x1F0A1A0F)
 private val LinkMuted = Color(0x99FFFFFF)
 
 @Composable
-fun EmailLoginScreen(
-    viewModel: LoginViewModel = hiltViewModel(),
-    onNavigate: (String) -> Unit,
-    onSignUp: () -> Unit,
-    onBack: () -> Unit,
+fun GetStartedPage(
+    navController: NavController,
+    launchGoogleIntent: () -> Unit,
+    launchFacebookIntent: () -> Unit
 ) {
-    val state by viewModel.state.collectAsState()
+    GetStartedScreen(
+        onEmailSignUp = { navController.navigate(Screen.EmailSignup.route) },
+        onNavigateToLogin = {
+            navController.navigate(Screen.Login.route) {
+                popUpTo(Screen.Login.route) { inclusive = false }
+                launchSingleTop = true
+            }
+        },
+        onBack = { navController.popBackStack() },
+        navigateToHome = {
+            navController.navigate(Screen.PostOnboarding.route) {
+                popUpTo(AUTH_GRAPH) { inclusive = true }
+            }
+        },
+        launchGoogleSignIn = launchGoogleIntent,
+        launchFacebookSignIn = launchFacebookIntent
+    )
+}
+
+@Composable
+fun GetStartedScreen(
+    onEmailSignUp: () -> Unit,
+    onNavigateToLogin: () -> Unit,
+    onBack: () -> Unit,
+    navigateToHome: () -> Unit,
+    @Suppress("UNUSED_PARAMETER") launchGoogleSignIn: () -> Unit,
+    launchFacebookSignIn: () -> Unit,
+    viewModel: SignupViewModel = hiltViewModel()
+) {
     val context = LocalContext.current
     val dims = rememberResponsiveDimensions()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
+    val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+        .requestEmail()
+        .requestIdToken(stringResource(R.string.default_web_client_id))
+        .build()
+    val googleClient = GoogleSignIn.getClient(context, gso)
+
+    val googleLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val token = runCatching {
+            GoogleSignIn.getSignedInAccountFromIntent(result.data)
+                .getResult(ApiException::class.java)
+                ?.idToken
+        }.getOrNull()
+        viewModel.onEvent(SignupEvent.GoogleSignUpResult(token ?: ""))
+    }
+
     LaunchedEffect(Unit) {
         viewModel.effects.collectLatest { effect ->
             when (effect) {
-                is UiEffect.ShowError -> {
-                    Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
-                }
-
                 is UiEffect.Navigate -> {
-                    onNavigate(effect.route)
+                    Toast.makeText(context, "Welcome to Lufious!", Toast.LENGTH_SHORT).show()
+                    if (effect.route == "home") navigateToHome()
                 }
 
-                else -> Unit
+                is UiEffect.ShowError -> {
+                    Toast.makeText(context, effect.message, Toast.LENGTH_LONG).show()
+                }
+
+                is LaunchGoogleSignIn -> {
+                    googleClient.signOut().addOnCompleteListener {
+                        googleLauncher.launch(googleClient.signInIntent)
+                    }
+                }
+
+                is LaunchFacebookSignIn -> launchFacebookSignIn()
             }
         }
     }
@@ -142,7 +194,7 @@ fun EmailLoginScreen(
                 )
         )
 
-        androidx.compose.foundation.Image(
+        Image(
             painter = painterResource(R.drawable.app_logo),
             contentDescription = "Lufious logo",
             modifier = Modifier
@@ -159,17 +211,17 @@ fun EmailLoginScreen(
                 .padding(start = dims.wR(20f).dp, top = dims.hR(48f).dp)
         ) {
             Text(
-                text = "Continue with",
+                text = "Join the",
                 style = TextStyle(
                     fontFamily = ClashDisplay,
                     fontWeight = FontWeight.Bold,
-                    fontSize = dims.R(36f).sp,
+                    fontSize = dims.R(38f).sp,
                     color = Color(0xFF4E5B52),
-                    lineHeight = dims.R(42f).sp
+                    lineHeight = dims.R(44f).sp
                 )
             )
             Text(
-                text = "Email",
+                text = "Lufious Community",
                 style = TextStyle(
                     fontFamily = ClashDisplay,
                     fontWeight = FontWeight.Bold,
@@ -180,13 +232,13 @@ fun EmailLoginScreen(
             )
         }
 
-        androidx.compose.foundation.Image(
-            painter = painterResource(R.drawable.toonping_login),
+        Image(
+            painter = painterResource(R.drawable.toonping_signup),
             contentDescription = "Mascot",
             modifier = Modifier
                 .align(Alignment.Center)
-                .padding(bottom = dims.hR(92f).dp)
-                .size(dims.heightFraction(0.35f).dp)
+                .padding(bottom = dims.hR(110f).dp)
+                .size(dims.heightFraction(0.38f).dp)
         )
     }
 
@@ -208,35 +260,30 @@ fun EmailLoginScreen(
             )
         }
     ) {
-        EmailLoginSheet(
+        SheetContent(
             dims = dims,
-            state = state,
-            onSubmit = { viewModel.onEvent(LoginEvent.Submit) },
-            onEmailChange = { viewModel.onEvent(LoginEvent.EmailChanged(it)) },
-            onPasswordChange = { viewModel.onEvent(LoginEvent.PasswordChanged(it)) },
-            onSignUp = onSignUp
+            onGoogleSignUp = { viewModel.onEvent(SignupEvent.GoogleSignUpClicked) },
+            onEmailSignUp = onEmailSignUp,
+            onNavigateToLogin = onNavigateToLogin
         )
     }
 }
 
 @Composable
-private fun EmailLoginSheet(
+private fun SheetContent(
     dims: ai.lufious.app.core.utils.ResponsiveDimensions,
-    state: ai.lufious.app.presentation.auth.login.viewmodel.LoginState,
-    onSubmit: () -> Unit,
-    onEmailChange: (String) -> Unit,
-    onPasswordChange: (String) -> Unit,
-    onSignUp: () -> Unit
+    onGoogleSignUp: () -> Unit,
+    onEmailSignUp: () -> Unit,
+    onNavigateToLogin: () -> Unit
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .fillMaxHeight(0.74f)
-            .verticalScroll(rememberScrollState())
             .navigationBarsPadding()
             .padding(
                 start = dims.wR(16f).dp,
-                end = dims.wR(16f).dp
+                end = dims.wR(16f).dp,
+                bottom = dims.hR(12f).dp
             )
             .clip(RoundedCornerShape(dims.R(28f).dp))
             .background(
@@ -245,7 +292,7 @@ private fun EmailLoginSheet(
                 )
             )
             .border(1.dp, SheetCardBorder, RoundedCornerShape(dims.R(28f).dp))
-            .padding(horizontal = dims.wR(20f).dp, vertical = dims.hR(18f).dp),
+            .padding(horizontal = dims.wR(22f).dp, vertical = dims.hR(18f).dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(
@@ -255,7 +302,7 @@ private fun EmailLoginSheet(
                 .padding(horizontal = dims.wR(12f).dp, vertical = dims.hR(4f).dp)
         ) {
             Text(
-                text = "Continue with Email",
+                text = "Create Your Account",
                 style = TextStyle(
                     fontFamily = ClashDisplay,
                     fontWeight = FontWeight.SemiBold,
@@ -268,220 +315,122 @@ private fun EmailLoginSheet(
         Spacer(modifier = Modifier.height(dims.hR(10f).dp))
 
         Text(
-            text = "Welcome Back",
-            style = TextStyle(
-                fontFamily = ClashDisplay,
-                fontWeight = FontWeight.Bold,
-                fontSize = dims.R(22f).sp,
-                color = Color.White
-            )
-        )
-
-        Spacer(modifier = Modifier.height(dims.hR(6f).dp))
-
-        Text(
-            text = "Use your email and password to log in.",
+            text = "Start your plant care journey today",
             style = TextStyle(
                 fontFamily = ClashDisplay,
                 fontWeight = FontWeight.Normal,
-                fontSize = dims.R(13f).sp,
+                fontSize = dims.R(14f).sp,
                 color = SubtitleOnDark
             )
         )
 
-        Spacer(modifier = Modifier.height(dims.hR(14f).dp))
-        HorizontalDivider(color = DividerColor)
-        Spacer(modifier = Modifier.height(dims.hR(14f).dp))
+        Spacer(modifier = Modifier.height(dims.hR(22f).dp))
 
-        Text(
-            text = "Email Address",
-            style = TextStyle(
-                fontFamily = ClashDisplay,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = dims.R(13f).sp,
-                color = Color.White
-            ),
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(dims.hR(6f).dp))
-
-        CommonTextField(
-            value = state.email,
-            onValueChange = onEmailChange,
-            responsive = dims,
-            placeholder = "you@example.com",
-            imeAction = ImeAction.Next,
-            onImeAction = { },
-            isError = state.emailValidation is ValidationResult.Invalid,
-            backgroundColor = FieldBg,
-            borderColor = FieldBorder,
-            placeholderColor = FieldHint,
-            textColor = Color.White,
-            cursorColor = Color.White,
-            textStyle = TextStyle(
-                fontFamily = ClashDisplay,
-                fontWeight = FontWeight.Medium,
-                fontSize = dims.R(14f).sp
-            )
-        )
-
-        Spacer(modifier = Modifier.height(dims.hR(6f).dp))
-
-        Text(
-            text = "We'll use this to sign in to your account.",
-            style = TextStyle(
-                fontFamily = ClashDisplay,
-                fontWeight = FontWeight.Normal,
-                fontSize = dims.R(11f).sp,
-                color = SubtitleOnDark
-            ),
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(dims.hR(2f).dp))
-
-        val emailError = (state.emailValidation as? ValidationResult.Invalid)?.reason
-        if (emailError != null) {
-            Text(
-                text = emailError,
-                color = DangerText,
-                style = TextStyle(
-                    fontFamily = ClashDisplay,
-                    fontWeight = FontWeight.Normal,
-                    fontSize = dims.R(11f).sp
-                ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = dims.hR(4f).dp)
-            )
-        }
-
-        Spacer(modifier = Modifier.height(dims.hR(10f).dp))
-
-        Text(
-            text = "Password",
-            style = TextStyle(
-                fontFamily = ClashDisplay,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = dims.R(13f).sp,
-                color = Color.White
-            ),
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(dims.hR(6f).dp))
-
-        CommonTextField(
-            value = state.password,
-            onValueChange = onPasswordChange,
-            responsive = dims,
-            placeholder = "Enter your password",
-            isPassword = true,
-            imeAction = ImeAction.Done,
-            onImeAction = onSubmit,
-            isError = state.passwordValidation is ValidationResult.Invalid,
-            backgroundColor = FieldBg,
-            borderColor = FieldBorder,
-            placeholderColor = FieldHint,
-            textColor = Color.White,
-            cursorColor = Color.White,
-            textStyle = TextStyle(
-                fontFamily = ClashDisplay,
-                fontWeight = FontWeight.Medium,
-                fontSize = dims.R(14f).sp
-            )
-        )
-
-        Spacer(modifier = Modifier.height(dims.hR(6f).dp))
-
-        Text(
-            text = "Use the same password you used when creating your account.",
-            style = TextStyle(
-                fontFamily = ClashDisplay,
-                fontWeight = FontWeight.Normal,
-                fontSize = dims.R(11f).sp,
-                color = SubtitleOnDark
-            ),
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        val passwordError = (state.passwordValidation as? ValidationResult.Invalid)?.reason
-        if (passwordError != null) {
-            Text(
-                text = passwordError,
-                color = DangerText,
-                style = TextStyle(
-                    fontFamily = ClashDisplay,
-                    fontWeight = FontWeight.Normal,
-                    fontSize = dims.R(11f).sp
-                ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = dims.hR(4f).dp)
-            )
-        }
-
-        Spacer(modifier = Modifier.height(dims.hR(14f).dp))
-
-        Button(
-            onClick = onSubmit,
-            enabled = state.isSubmitEnabled && !state.isLoading,
+        OutlinedButton(
+            onClick = onGoogleSignUp,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(dims.hR(52f).dp),
+                .height(dims.hR(54f).dp),
             shape = RoundedCornerShape(dims.R(16f).dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = LeafGreen,
-                disabledContainerColor = LeafGreen.copy(alpha = 0.45f)
+            border = BorderStroke(1.dp, WhiteButtonBorder),
+            colors = ButtonDefaults.outlinedButtonColors(
+                containerColor = Color.White,
+                contentColor = TextPrimary
             )
         ) {
-            if (state.isLoading) {
-                CircularProgressIndicator(
-                    color = Color.White,
-                    strokeWidth = 2.dp,
-                    modifier = Modifier.size(dims.R(18f).dp)
+            Image(
+                painter = painterResource(R.drawable.ic_google),
+                contentDescription = null,
+                modifier = Modifier.size(dims.R(20f).dp)
+            )
+            Spacer(modifier = Modifier.width(dims.wR(10f).dp))
+            Text(
+                text = "Continue with Google",
+                style = TextStyle(
+                    fontFamily = ClashDisplay,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = dims.R(15f).sp,
+                    color = TextPrimary
                 )
-            } else {
-                Text(
-                    text = "Log In",
-                    style = TextStyle(
-                        fontFamily = ClashDisplay,
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = dims.R(15f).sp
-                    )
-                )
-            }
+            )
         }
 
         Spacer(modifier = Modifier.height(dims.hR(12f).dp))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            HorizontalDivider(modifier = Modifier.weight(1f), color = DividerColor)
             Text(
-                text = "Don't have an account? ",
+                text = "  or continue with  ",
                 style = TextStyle(
                     fontFamily = ClashDisplay,
                     fontWeight = FontWeight.Normal,
                     fontSize = dims.R(12f).sp,
+                    color = SubtitleOnDark
+                )
+            )
+            HorizontalDivider(modifier = Modifier.weight(1f), color = DividerColor)
+        }
+
+        Spacer(modifier = Modifier.height(dims.hR(12f).dp))
+
+        Button(
+            onClick = onEmailSignUp,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(dims.hR(54f).dp),
+            shape = RoundedCornerShape(dims.R(16f).dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = LeafGreen,
+                contentColor = Color.White
+            ),
+            elevation = ButtonDefaults.buttonElevation(
+                defaultElevation = 4.dp,
+                pressedElevation = 1.dp
+            )
+        ) {
+            Image(
+                painter = painterResource(R.drawable.ic_email),
+                contentDescription = null,
+                modifier = Modifier.size(dims.R(20f).dp)
+            )
+            Spacer(modifier = Modifier.width(dims.wR(10f).dp))
+            Text(
+                text = "Continue with Email",
+                style = TextStyle(
+                    fontFamily = ClashDisplay,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = dims.R(15f).sp
+                )
+            )
+        }
+
+        Spacer(modifier = Modifier.height(dims.hR(18f).dp))
+
+        Row(horizontalArrangement = Arrangement.Center) {
+            Text(
+                text = "Already have an account?  ",
+                style = TextStyle(
+                    fontFamily = ClashDisplay,
+                    fontWeight = FontWeight.Normal,
+                    fontSize = dims.R(13f).sp,
                     color = LinkMuted
                 )
             )
             Text(
-                text = "Create one",
+                text = "Log in",
                 style = TextStyle(
                     fontFamily = ClashDisplay,
                     fontWeight = FontWeight.SemiBold,
-                    fontSize = dims.R(12f).sp,
+                    fontSize = dims.R(13f).sp,
                     color = LeafGreen
                 ),
-                modifier = Modifier.clickable { onSignUp() }
+                modifier = Modifier.clickable { onNavigateToLogin() }
             )
         }
 
-        Spacer(modifier = Modifier.height(dims.hR(2f).dp))
+        Spacer(modifier = Modifier.height(dims.hR(4f).dp))
     }
 }
